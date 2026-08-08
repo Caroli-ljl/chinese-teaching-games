@@ -4,7 +4,7 @@
 > 本仓库是站点的**源码**，可通过 GitHub Pages 托管为可在线访问的站点。
 > 线上地址（GitHub Pages）：`https://Caroli-ljl.github.io/chinese-teaching-games/`
 >
-> ⚠️ 本仓库依作者意愿**仅含作品集内容**：`works.html` + `games/`（7 款可试玩互动原型）+ 配套前端代码与云函数源码；作者的首页与在线简历不在本仓库范围内。
+> ⚠️ 本仓库为**作品集专用子集**：仅收录 `works.html` + `games/`（7 款可试玩互动原型）+ 配套前端代码与云函数源码。
 
 ---
 
