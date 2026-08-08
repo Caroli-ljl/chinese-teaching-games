@@ -3,6 +3,8 @@
 > 一个**静态前端 + CloudBase 云端**混合架构的中文教学产品作品集：7 款可试玩互动教学游戏、AI 学情闭环、HSKK 易错发音档案等。
 > 本仓库是站点的**源码**，可通过 GitHub Pages 托管为可在线访问的站点。
 > 线上地址（GitHub Pages）：`https://Caroli-ljl.github.io/chinese-teaching-games/`
+>
+> ⚠️ 本仓库依作者意愿**仅含作品集内容**：`works.html` + `games/`（7 款可试玩互动原型）+ 配套前端代码与云函数源码。首页 `index.html` 与简历 `resume.html` 未纳入本仓库。
 
 ---
 
