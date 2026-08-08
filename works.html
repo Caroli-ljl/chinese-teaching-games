@@ -720,7 +720,7 @@
     <input type="text" id="impName" placeholder="例如：我的课堂小游戏" />
     <label>③ 游戏类型标识（GAME_TYPE，英文/数字）</label>
     <input type="text" id="impGt" placeholder="留空则自动从文件中读取，否则用文件名生成" />
-    <div class="note">提示：导入的游戏若使用了共享内核（设置 <code>window.GAME_TYPE</code> 并引用 <code>games/lib/common.js</code>），就能像其他游戏一样自动同步云端成绩与学情。导入内容保存在你的 CloudBase 环境内。</div>
+    <div class="note">提示：导入的游戏若使用了共享内核（设置 <code>window.GAME_TYPE</code> 并引用 <code>lib/common.js</code>），就能像其他游戏一样自动同步云端成绩与学情。导入内容保存在你的 CloudBase 环境内。</div>
     <div class="row">
       <button class="el-btn" id="impCancel">取消</button>
       <button class="el-btn el-btn--primary" id="impConfirm">导入并上线</button>
@@ -728,11 +728,11 @@
   </div>
 </div>
 
-<!-- 库脚本（只引用，不改 games/lib） -->
-<script src="games/lib/cloudbase.full.js"></script>
+<!-- 库脚本（只引用，不改 lib） -->
+<script src="lib/cloudbase.full.js"></script>
 <script src="content.js?v=4"></script>
-<script src="games/lib/wordcloud.js"></script>
-<script src="games/lib/import.js"></script>
+<script src="lib/wordcloud.js"></script>
+<script src="lib/import.js"></script>
 
 <!-- ===== 通用：抽屉菜单 + Tabs 切换 ===== -->
 <script>
@@ -814,31 +814,31 @@
 { icon:"🖼️", color:"#409EFF", name:"看图选拼音", tagline:"拼音认读 · 零基础游戏化入口",
       desc:"【产品定位】面向国际中文零基础学习者的拼音认读训练产品。针对初学者「音-形对应难」的痛点，用 emoji 跨语言视觉锚点降低认知门槛，将「图像→汉字→拼音」三联映射包装为有节奏、有反馈的游戏。落地三档难度梯度、连击/限时计分与即时发音+释义反馈闭环，并支持双人对战与云端战绩，体现「需求拆解→玩法设计→数据沉淀」的完整产品链路。",
       thinking:"产品思考：把「图像→汉字→拼音」的三联映射训练变成有节奏、有反馈的游戏；emoji 作为跨语言通用视觉锚点降低认知门槛，即时发音+释义反馈解决课堂跟读与纠错痛点，连击/限时机制维持心流，是面向零基础最友好的入口。",
-      tags:["拼音","声调","游戏化","AI 发音","双人对战","云端数据"], status:"ready", file:"games/kan-tu-xuan-pinyin.html" },
+      tags:["拼音","声调","游戏化","AI 发音","双人对战","云端数据"], status:"ready", file:"kan-tu-xuan-pinyin.html" },
 { icon:"🔤", color:"#28a6c8", name:"识字消消乐 · 分单元版", tagline:"分单元词库 · 贴合教材进度",
       desc:"【产品定位】在消消乐内核上升级出的「分单元」识字产品。真实课堂识字教学按单元推进，本项目把词库结构从单一词表升级为「数字/人称/亲属/学校/饮食/颜色/动作/自然」等 8 个课文单元，让教师对应教材进度布置练习——是教育产品「贴合教学实际」的关键一步；自定义词库可粘贴任意生字表，联机与云端能力全部复用。",
       thinking:"产品思考：真实课堂的识字教学是「按单元推进」的，把词库结构从「单一词表」升级为「分单元词库」，让老师能对应教材进度布置练习，是教育产品贴合教学实际的关键一步。",
-      tags:["汉字教学","拼音","分单元","游戏化","联机对战","云端数据"], status:"ready", file:"games/hanzi-unit-match.html" },
+      tags:["汉字教学","拼音","分单元","游戏化","联机对战","云端数据"], status:"ready", file:"hanzi-unit-match.html" },
 { icon:"🌱", color:"#16a34a", name:"青字家族大转盘", tagline:"形声字字族 · 规律发现式教学",
       desc:"【产品定位】形声字「字族」识字产品。汉字 80%+ 为形声字，「字族」是高效识字法；用转盘把抽象的「声旁表音、形旁表义」变成可玩的规律发现，直观展示青字族（清/晴/请/情/蜻/睛/静/精/靖/菁）。把「拼音-识字桥梁」做成轻量教具，体现「用产品机制承载教学法」的能力。",
       thinking:"产品思考：汉字 80%+ 是形声字，「字族」是高效识字法；转盘把抽象的「声旁表音」变成可玩的规律发现，是拼音-识字桥梁的绝佳教具。",
-      tags:["形声字","字族","转盘","游戏化","AI 发音","云端数据"], status:"ready", file:"games/qing-family-wheel.html" },
+      tags:["形声字","字族","转盘","游戏化","AI 发音","云端数据"], status:"ready", file:"qing-family-wheel.html" },
 { icon:"🎡", color:"#7c3aed", name:"拼音大转盘", tagline:"拼音三档 · 随机暴露抗遗忘",
       desc:"【产品定位】汉语入门第一关（拼音）的训练产品。「转盘+听音选择」用随机性制造重复暴露，比死记硬背表更抗遗忘，天然适配课堂随机点将式教学；声母/韵母/整体认读三档可切，体现「用交互机制服务记忆曲线」的产品思考。",
       thinking:"产品思考：拼音是汉语入门第一关，「转盘+听音选择」用随机性制造重复暴露，比死记硬背表更抗遗忘，且天然适合课堂随机点将式教学。",
-      tags:["拼音","声韵","转盘","游戏化","AI 发音","云端数据"], status:"ready", file:"games/pinyin-wheel.html" },
+      tags:["拼音","声韵","转盘","游戏化","AI 发音","云端数据"], status:"ready", file:"pinyin-wheel.html" },
 { icon:"🗂️", color:"#0E7490", name:"智能汉字词卡", tagline:"AI 词卡 · 多模态生成 + 共享汉字表",
       desc:"【产品定位】面向留学生的 AI 生词卡产品。把「查词典」升级为「AI 主动产出多模态词卡」——输入汉字即调用 Coze 工作流生成含图片、发音、例句、翻译的词卡，解决留学生的形-音-义联想痛点；学生自生成组成全班共享汉字表、可勾选「学习/复习」标记，数据沉淀云端供教师统一进度与学情分析，是「AI 替代重复备课」的直接落地，完整跑通「需求定义→工作流编排→多端协同」的产品闭环。",
       thinking:"产品思考：把「查词典」升级为「AI 主动产出多模态词卡」，图片+发音解决留学生的形音义联想痛点；共享汉字表让教师统一进度、沉淀学情，是「AI 替代重复备课」的直接落地。",
-      tags:["AI 词卡","Coze","多模态","发音","云端数据","留学生"], status:"ready", file:"games/hanzi-wordcard.html" },
+      tags:["AI 词卡","Coze","多模态","发音","云端数据","留学生"], status:"ready", file:"hanzi-wordcard.html" },
 { icon:"💾", color:"#7C3AED", name:"Coze 飞书句子错误档案", tagline:"AI 批改 + 飞书沉淀 · 错题可追溯",
       desc:"【产品定位】中文写作即时批改与错误档案产品。针对二语写作「不会想象情景」「错误化石化」「教师批改滞后」三大痛点，先用 Coze 生成情景图辅助看图说话造句，再由 Coze 工作流即时批改，发现错误自动回流飞书多维表格形成可复盘档案。AI 补位教师的及时性缺口、飞书存档让错题可追溯，把课堂纠错从「滞后」变成「即时+可复盘」，体现「把教学闭环做成系统产品」的端到端能力。",
       thinking:"产品思考：把「看图说话」与「即时批改+飞书沉淀」串成闭环——AI 补位教师的及时性缺口，飞书存档让错题可追溯，是把课堂纠错从「滞后」变成「即时+可复盘」的 AI 产品落地。",
-      tags:["Coze","飞书","句子批改","看图说话","即时反馈","教师复盘"], status:"ready", file:"games/coze-sentence-archive.html", note:"⚠️ 演示版：AI 批改依赖 Coze 额度，偶发不可用属正常；错题真实数据见下方 HSKK 档案与飞书看板" },
+      tags:["Coze","飞书","句子批改","看图说话","即时反馈","教师复盘"], status:"ready", file:"coze-sentence-archive.html", note:"⚠️ 演示版：AI 批改依赖 Coze 额度，偶发不可用属正常；错题真实数据见下方 HSKK 档案与飞书看板" },
 { icon:"🧩", color:"#409EFF", name:"汉字拼图", tagline:"部件拼字 · 形义拆解游戏化",
       desc:"【产品定位】汉字构形训练产品。把「拆字-拼字」这一理解汉字结构的训练，变成可拖拽拼装的轻量游戏：拖动偏旁部件到装配槽拼出目标字，配拼音、释义与即时发音反馈；难度可选、支持自定义词库与教师出题，连击计分 + S/A/B/C 评级 + 错题回顾，并接入云端实时擂台存分。用「动手拼」强化形旁表义、声旁表音的构字逻辑，是笔顺/识字类产品的结构认知前置环节。",
       thinking:"产品思考：汉字结构理解是识字与书写的基础；把「拆字-拼字」变成可拖拽的拼图游戏，用动手操作强化形声字构字逻辑，比静态讲解更利于建立「部件-整字」联结，是结构认知的轻量入口。",
-      tags:["汉字教学","构字","拼图","游戏化","AI 发音","云端数据"], status:"ready", file:"games/hanzi-pintu.html" }
+      tags:["汉字教学","构字","拼图","游戏化","AI 发音","云端数据"], status:"ready", file:"hanzi-pintu.html" }
   ];
 
   const grid=document.getElementById('gameGrid');
@@ -920,10 +920,10 @@
   let tcb=null, db=null, rawAttempts=[], importedGames=[], selected=new Set(), ready=false;
 
   const BUILTIN=[
-{game_type:'unit_match',name:'识字消消乐',file:'games/hanzi-unit-match.html',color:'#28a6c8'},
-{game_type:'qing_family',name:'青字家族大转盘',file:'games/qing-family-wheel.html',color:'#16a34a'},
-{game_type:'pinyin_wheel',name:'拼音大转盘',file:'games/pinyin-wheel.html',color:'#7c3aed'},
-{game_type:'hanzi_pintu',name:'汉字拼图',file:'games/hanzi-pintu.html',color:'#409EFF'}
+{game_type:'unit_match',name:'识字消消乐',file:'hanzi-unit-match.html',color:'#28a6c8'},
+{game_type:'qing_family',name:'青字家族大转盘',file:'qing-family-wheel.html',color:'#16a34a'},
+{game_type:'pinyin_wheel',name:'拼音大转盘',file:'pinyin-wheel.html',color:'#7c3aed'},
+{game_type:'hanzi_pintu',name:'汉字拼图',file:'hanzi-pintu.html',color:'#409EFF'}
   ];
   const IMP_COLORS=['#0891b2','#ca8a04','#9333ea','#db2777','#65a30d','#ea580c','#2563eb','#be123c'];
   const COLOR_MAP={}; BUILTIN.forEach(g=>COLOR_MAP[g.game_type]=g.color);

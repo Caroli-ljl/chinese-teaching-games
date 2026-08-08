@@ -194,7 +194,7 @@
   .confetti{position:fixed;inset:0;pointer-events:none;z-index:160}
   @media(max-width:480px){.qimg{font-size:56px}.option-btn{font-size:20px}}
 </style>
-<script src="../config.js"></script>
+<script src="config.js"></script>
 </head>
 <body>
 <div class="app">
@@ -626,7 +626,7 @@ function confirmEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(wi
 /* ---------- 返回 ---------- */
 function goBack(){
   clearTimer();isPaused=false;isGameOver=true;$('pauseOverlay').classList.remove('show');
-  var back=location.origin+'/works.html';
+  var back='works.html';
   try{if(window.top&&window.top!==window)window.top.location.href=back;else window.location.href=back;}catch(e){window.location.href=back;}
 }
 
