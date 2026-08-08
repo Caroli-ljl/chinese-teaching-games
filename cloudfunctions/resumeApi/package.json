@@ -1,9 +1,0 @@
-{
-  "name": "resumeApi",
-  "version": "1.0.0",
-  "description": "简历：内容/照片/附件的云端读写（HR 可看）",
-  "main": "index.js",
-  "dependencies": {
-    "@cloudbase/node-sdk": "latest"
-  }
-}

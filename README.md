@@ -12,25 +12,25 @@
 
 | 部分 | 说明 | 在 GitHub Pages 上 |
 | --- | --- | --- |
-| 静态页面 | `index.html` / `works.html` / `resume.html` | ✅ 直接可用 |
+| 静态页面 | `works.html`（作品集单页） | ✅ 直接可用 |
 | 纯客户端小游戏 | `games/pinyin-wheel`、`games/qing-family-wheel`、`games/kan-tu-xuan-pinyin`、`games/hanzi-pintu`、`games/hanzi-unit-match` | ✅ 直接可用（无需后端） |
-| 云端增强功能 | 智能汉字词卡、简历编辑、HSKK 档案、学情看板、联机对战 | ⚠️ 依赖原 CloudBase 环境（见下） |
+| 云端增强功能 | 智能汉字词卡、HSKK 档案、学情看板、联机对战 | ⚠️ 依赖原 CloudBase 环境（见下） |
 
 云端增强功能通过前端匿名直连 **CloudBase**（环境变量 `ENV_ID` + 匿名 `ACCESS_KEY`）调用云函数：
-`contentApi` / `resumeApi` / `hskkApi` / `hanziApi` / `sentenceArchiveApi`。
+`contentApi` / `hskkApi` / `hanziApi` / `sentenceArchiveApi`。
 只要原 CloudBase 环境保持在线，这些功能在 Pages 站点上同样可用。
 
 ---
 
 ## 二、每个组件说明
 
-### 2.1 三个主页面
+### 2.1 作品集页面
 
 | 文件 | 作用 | 说明 |
 | --- | --- | --- |
-| `index.html` | **首页 / 招聘向 Landing** | AI 产品经理（教育领域深耕）个人定位，三段核心能力 + CTA + 数据概览；含 OG/JSON-LD SEO 元数据。 |
 | `works.html` | **作品集单页** | 三大 Tab：① 课堂互动产品体系（含「教学交互原型库」7 款游戏面板）；② AI 学情闭环（教师端学情看板 + HSKK 易错发音档案）；③ 产品思考。全站内容编辑系统入口亦在此。 |
-| `resume.html` | **在线简历** | 由 `resumeApi` 云端存储驱动，支持编辑口令保护；含照片、附件下载；JSON-LD 招聘结构化数据。 |
+
+> 注：作者另有独立的**首页 `index.html`** 与**简历 `resume.html`**，按作者意愿**未纳入本仓库**，本仓库只收录作品集内容。
 
 ### 2.2 七款互动教学游戏（`games/`，HTML + `lib/`）
 
@@ -51,7 +51,6 @@
 | 云函数 | 作用 | 依赖的环境变量（部署时设置，不进仓库） |
 | --- | --- | --- |
 | `contentApi` | 全站内容编辑系统的读写（按 `ckey` 覆盖静态文案） | `CONTENT_PASSCODE`（编辑口令） |
-| `resumeApi` | 简历内容云端存储与编辑 | `RESUME_EDIT_KEY`（简历编辑键） |
 | `hskkApi` | HSKK 易错发音档案：分页拉飞书表格、脱敏、按维度分类 | `FEISHU_APP_ID` / `FEISHU_APP_SECRET` / `FEISHU_APP_TOKEN` / `FEISHU_TABLE_ID` |
 | `hanziApi` | 智能汉字词卡：Coze 生成词卡 + 生词表增删查改 | CloudBase 环境内置 |
 | `sentenceArchiveApi` | Coze 飞书句子错误档案：生词→情景图、句子→批改+飞书存档 | 依赖 Coze / 飞书额度 |
@@ -83,7 +82,7 @@
 
 ```bash
 cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
-# 直接用浏览器打开 index.html 即可（无需构建）
+# 直接用浏览器打开 works.html 即可（无需构建）
 ```
 
 > `config.local.js` 不会被提交；CI 部署走的是仓库 Secrets 注入，与本地文件互不影响。
