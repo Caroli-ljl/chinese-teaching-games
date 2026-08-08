@@ -194,7 +194,7 @@
   .confetti{position:fixed;inset:0;pointer-events:none;z-index:160}
   @media(max-width:480px){.qimg{font-size:56px}.option-btn{font-size:20px}}
 </style>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 </head>
 <body>
 <div class="app">
@@ -202,7 +202,7 @@
   <section class="screen active" id="startScreen">
     <div class="topbar">
       <div class="section-title" style="margin:0">🎮 看图选拼音</div>
-      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回作品集</button>
+      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回列表</button>
     </div>
     <div class="hero-card">
       <div class="logo">图</div>
@@ -309,7 +309,7 @@
   <section class="screen" id="resultScreen">
     <div class="topbar">
       <div class="section-title" style="margin:0">🎉 结果</div>
-      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回作品集</button>
+      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回列表</button>
     </div>
     <div class="result-card">
       <div class="result-emoji" id="resultEmoji">🏆</div>
@@ -331,7 +331,7 @@
     <div class="result-btns">
       <button class="el-btn el-btn--primary el-btn--round" onclick="restartGame()">再来一次</button>
       <button class="el-btn el-btn--plain" onclick="exportWrongAnswers()">📋 导出错题</button>
-      <button class="el-btn el-btn--plain" onclick="showScreen('startScreen')">返回首页</button>
+      <button class="el-btn el-btn--plain" onclick="showScreen('startScreen')">返回列表</button>
     </div>
   </section>
 
@@ -349,7 +349,7 @@
     <div class="modal">
       <h3>⏸ 已暂停</h3>
       <button class="el-btn el-btn--primary el-btn--round" style="width:100%;padding:12px;margin-bottom:10px" onclick="resumeGame()">继续游戏</button>
-      <button class="el-btn el-btn--plain el-btn--round" style="width:100%;padding:12px" onclick="goBack()">回到首页</button>
+      <button class="el-btn el-btn--plain el-btn--round" style="width:100%;padding:12px" onclick="goBack()">返回列表</button>
     </div>
   </div>
 
@@ -626,7 +626,7 @@ function confirmEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(wi
 /* ---------- 返回 ---------- */
 function goBack(){
   clearTimer();isPaused=false;isGameOver=true;$('pauseOverlay').classList.remove('show');
-  var back='works.html';
+  var back='index.html';
   try{if(window.top&&window.top!==window)window.top.location.href=back;else window.location.href=back;}catch(e){window.location.href=back;}
 }
 

@@ -1,35 +1,33 @@
-# 中文教学游戏 · 李佳路 Caroli 作品集
+# 中文教学游戏
 
-> 一份**可试玩的中文互动教学产品作品集**：7 款独立 HTML 小游戏 + 作品集外壳页 `works.html`，外加支撑其运行的 CloudBase 云函数源码。
+> 一份**可试玩的中文互动教学产品原型合集**：7 款独立 HTML 小游戏 + 支撑其运行的 CloudBase 云函数源码。
 > 全站纯静态前端，可直接用浏览器打开；部分游戏的「AI 生成 / 排行榜 / 联机对战」依赖原 CloudBase 云环境在线。
->
-> ⚠️ 本仓库为**作品集专用子集**：仅收录 `works.html` + 7 款游戏 + 配套前端代码与云函数源码。作者的独立首页与在线简历不在本仓库范围内。
 
 ---
 
-## 一、仓库结构（根目录平铺）
+## 一、仓库结构
 
 ```
 chinese-teaching-games/
-├── works.html                    作品集外壳页：7 款游戏的入口与说明卡片
-├── kan-tu-xuan-pinyin.html      游戏1 · 看图选拼音
-├── hanzi-unit-match.html        游戏2 · 识字消消乐 · 分单元版
-├── qing-family-wheel.html       游戏3 · 青字家族大转盘
-├── pinyin-wheel.html            游戏4 · 拼音大转盘
-├── hanzi-wordcard.html          游戏5 · 智能汉字词卡（AI）
-├── coze-sentence-archive.html   游戏6 · Coze 飞书句子错误档案（AI）
-├── hanzi-pintu.html             游戏7 · 汉字拼图
-├── lib/                         七款游戏共用的前端库（cloudbase SDK / 公共逻辑）
-├── config.js                    占位符配置（部署时由 Secrets 注入真实值）
-├── config.example.js            本地预览模板（复制为 config.local.js 填值）
-├── content.js                   全站内容编辑系统前端
-├── assets/                      图片与第三方脚本（avatar.jpg / wordcloud2.js / pinyin-pro.min.js）
-├── cloudfunctions/              5 个云函数源码（运行在 CloudBase，不参与静态部署）
+├── Chinese-games/                 七款游戏所在的文件夹
+│   ├── index.html                游戏列表入口（点任一卡片即玩）
+│   ├── kan-tu-xuan-pinyin.html   游戏1 · 看图选拼音
+│   ├── hanzi-unit-match.html     游戏2 · 识字消消乐 · 分单元版
+│   ├── qing-family-wheel.html    游戏3 · 青字家族大转盘
+│   ├── pinyin-wheel.html         游戏4 · 拼音大转盘
+│   ├── hanzi-wordcard.html       游戏5 · 智能汉字词卡（AI）
+│   ├── coze-sentence-archive.html 游戏6 · Coze 飞书句子错误档案（AI）
+│   ├── hanzi-pintu.html          游戏7 · 汉字拼图
+│   └── lib/                      七款游戏共用的前端库（cloudbase SDK / 公共逻辑）
+├── config.js                     占位符配置（部署时由 Secrets 注入真实值）
+├── config.example.js             本地预览模板（复制为 config.local.js 填值）
+├── content.js                    全站内容编辑系统前端（被各游戏加载）
+├── cloudfunctions/               5 个云函数源码（运行在 CloudBase，不参与静态部署）
 ├── .github/workflows/deploy.yml GitHub Pages 部署流水线
-└── README.md                    本文件
+└── README.md                     本文件
 ```
 
-> 每个游戏页顶部都有常驻顶栏：**「← 返回作品集」**（回到 `works.html`）与 **「⏹ 结束」**（重载重开本游戏）。
+> 每个游戏页顶部都有常驻顶栏：**「← 返回列表」**（回到 `Chinese-games/index.html`）与 **「⏹ 结束」**（重载重开本游戏）。
 
 ---
 
@@ -38,8 +36,8 @@ chinese-teaching-games/
 ### 方式 A：直接打开（最快，无需任何后端）
 
 1. 下载本仓库（或 `git clone`）。
-2. 双击 `works.html` —— 这是作品集总入口，里面是 7 款游戏的卡片，点任一卡片的「▶ 试玩」即玩。
-3. 也可以直接双击任意单个游戏 HTML（如 `hanzi-pintu.html`）单独运行。
+2. 打开 `Chinese-games/index.html` —— 这是游戏列表总入口，点任一卡片的「▶ 试玩」即玩。
+3. 也可以直接双击任意单个游戏 HTML（如 `Chinese-games/hanzi-pintu.html`）单独运行。
 
 > 7 款游戏里 **1/2/3/4/7 是纯前端游戏**，不依赖任何后端，离线即可完整游玩。
 > 游戏 5（智能汉字词卡）和 6（Coze 句子档案）的「AI 生成 / 批改」必须连原 CloudBase 云环境，详见各游戏「运行依赖」。
@@ -48,7 +46,7 @@ chinese-teaching-games/
 
 ```bash
 cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
-# 然后用浏览器打开 works.html 即可
+# 然后用浏览器打开 Chinese-games/index.html 即可
 ```
 
 `config.local.js` 已被 `.gitignore` 排除，不会被提交；CI 部署走的是仓库 Secrets 注入，与本地文件互不影响。
@@ -123,15 +121,15 @@ cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
 
 ### 游戏 5 · 智能汉字词卡 `hanzi-wordcard.html`
 
-**定位**：AI 词卡 · 多模态生成 + 共享汉字表。输入汉字即调用 Coze 工作流生成含图片 / 发音 / 例句 / 翻译的词卡，学生自生成组成全班共享汉字表。
+**定位**：AI 词卡 · 多模态生成 + 共享汉字表。输入汉字即调用云端工作流生成含图片 / 发音 / 例句 / 翻译的词卡，学生自生成组成共享汉字表。
 
 **玩法步骤**
 1. 在输入框输入**一个汉字或词语**（如「读」「书」「好」，支持单字或词语）。
-2. 点**「✨ 生成词卡」**：调用 Coze 工作流生成多模态词卡（图片 + 发音 + 例句 + 翻译）；若工作流无结构化输出，会自动改走智能体对话输出兜底。
+2. 点**「✨ 生成词卡」**：调用云端工作流生成多模态词卡（图片 + 发音 + 例句 + 翻译）；若工作流无结构化输出，会自动改走智能体对话输出兜底。
 3. 不满意可点**「↺ 重新生成」**。
-4. 不断新建，组成**全班共享汉字表**（数据沉淀云端）；卡片可勾选标记为「学习中 / 复习中」，用顶部 tab 筛选，或用**「🔁 标记为复习」「🔄 复习模式」**轮播复习。
+4. 不断新建，组成**共享汉字表**（数据沉淀云端）；卡片可勾选标记为「学习中 / 复习中」，用顶部 tab 筛选，或用**「🔁 标记为复习」「🔄 复习模式」**轮播复习。
 
-**运行依赖**：⚠️ **必须 CloudBase 在线**（`hanziApi` 调用 Coze 工作流）。未配置 `ENV_ID` / `ACCESS_KEY` 或未连原环境时，生成会失败。
+**运行依赖**：⚠️ **必须 CloudBase 在线**（调用云端工作流）。未配置 `ENV_ID` / `ACCESS_KEY` 或未连原环境时，生成会失败。
 
 ---
 
@@ -142,9 +140,9 @@ cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
 **玩法步骤**
 1. **第一步 · 生成情景图片**：输入一个生词（如「开心」「下雨」），点**「✨ 生成情景图片」**，AI 画出情景画面，帮助脑子里建立画面、降低造句门槛。
 2. 点**「💾 保存到云端」**：图片压缩后持久保存，换设备也能看到；下方列出你已收藏的全部图片。
-3. **第二步 · 写句子并批改**：在输入框写下句子，点批改，Coze 工作流**即时批改**；有错误时给出友好提示（「写错是进步最快的方式」），错误自动回流飞书多维表格形成可复盘档案。
+3. **第二步 · 写句子并批改**：在输入框写下句子，点批改，云端工作流**即时批改**；有错误时给出友好提示，错误自动回流飞书多维表格形成可复盘档案。
 
-**运行依赖**：⚠️ **必须 CloudBase + Coze 在线**（`sentenceArchiveApi`）。演示版 AI 批改依赖 Coze 额度，偶发不可用属正常现象；真实错题数据沉淀在飞书侧。
+**运行依赖**：⚠️ **必须 CloudBase + Coze 在线**。演示版 AI 批改依赖 Coze 额度，偶发不可用属正常现象；真实错题数据沉淀在飞书侧。
 
 ---
 
@@ -171,8 +169,8 @@ cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
 | 2 | 识字消消乐 · 分单元版 | ✅（含本地双人对战） | 联机对战、实时擂台 |
 | 3 | 青字家族大转盘 | ✅ | 实时擂台 |
 | 4 | 拼音大转盘 | ✅ | 实时擂台 |
-| 5 | 智能汉字词卡 | ❌（AI 生成必须云端） | 全部核心功能（hanziApi） |
-| 6 | Coze 句子错误档案 | ❌（AI 生成 + 批改必须云端） | 全部核心功能（sentenceArchiveApi + Coze） |
+| 5 | 智能汉字词卡 | ❌（AI 生成必须云端） | 全部核心功能 |
+| 6 | Coze 句子错误档案 | ❌（AI 生成 + 批改必须云端） | 全部核心功能 |
 | 7 | 汉字拼图 | ✅ | 实时擂台 |
 
 ---
@@ -183,7 +181,7 @@ cp config.example.js config.local.js   # 填入你自己的 ENV_ID / ACCESS_KEY
 | --- | --- | --- |
 | `contentApi` | 全站内容编辑系统的读写（按 `ckey` 覆盖静态文案） | `CONTENT_PASSCODE`（编辑口令） |
 | `hskkApi` | HSKK 易错发音档案：分页拉飞书表格、脱敏、按维度分类 | `FEISHU_APP_ID` / `FEISHU_APP_SECRET` / `FEISHU_APP_TOKEN` / `FEISHU_TABLE_ID` |
-| `hanziApi` | 智能汉字词卡：Coze 生成词卡 + 生词表增删查改 | CloudBase 环境内置 |
+| `hanziApi` | 智能汉字词卡：云端生成词卡 + 生词表增删查改 | CloudBase 环境内置 |
 | `sentenceArchiveApi` | Coze 句子档案：生词→情景图、句子→批改 + 飞书存档 | 依赖 Coze / 飞书额度 |
 
 > 这些函数只在原 CloudBase 环境运行、被前端匿名调用，本仓库仅存其**源码存档**，不参与 GitHub Pages 静态部署。
@@ -231,5 +229,6 @@ bash publish.sh                            # 建仓(若需)/推送/设 Secrets/�
 ## 七、备注
 
 - 站点全部使用**相对路径**，因此托管在 GitHub Pages 子路径（`/chinese-teaching-games/`）不会 404。
-- 本仓库站点根目录没有 `index.html`，访问时请直接打开 `works.html`（或单个游戏 HTML）。
+- 本仓库站点根目录没有 `index.html`，访问时请直接打开 `Chinese-games/index.html`（或单个游戏 HTML）。
 - `cloudfunctions/` 仅为后端源码存档，不参与 Pages 静态部署；它们运行在 CloudBase 上。
+- 游戏页顶部的「返回列表」与各游戏内「返回列表」按钮均指向 `Chinese-games/index.html`，不依赖任何已被移除的页面。

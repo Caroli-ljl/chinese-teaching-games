@@ -532,14 +532,14 @@ loadVoices();
 if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged=loadVoices; }
 bindSoundUI();
 bindCommonButtons();
-// 返回上一级悬浮按钮：所有加载本内核的游戏自动获得，回到游戏列表（works.html）。放在右下角，避免与游戏顶部控制栏重叠
+// 返回上一级悬浮按钮：所有加载本内核的游戏自动获得，回到本文件夹的游戏列表（index.html）。放在右下角，避免与游戏顶部控制栏重叠
 (function injectHome(){
   try{
-    // 用绝对路径 + _top，避免游戏在 iframe(/games/ 子目录) 内时相对解析成 /games/works.html(404 回退简历页) 或被套在 iframe 里
-    const worksUrl = (window.top && window.top.location.origin ? window.top.location.origin : location.origin) + '/works.html';
+    // 用相对路径 index.html：本文件夹下任意位置打开都能正确回到游戏列表，且 _top 可跳出 iframe
+    const homeUrl = 'index.html';
     if(document.getElementById('cbHomeBtn')) return;
     const b=document.createElement('a');
-    b.id='cbHomeBtn'; b.href=worksUrl; b.target='_top'; b.title='返回游戏列表';
+    b.id='cbHomeBtn'; b.href=homeUrl; b.target='_top'; b.title='返回游戏列表';
     b.textContent='←';
     b.style.cssText='position:fixed;right:12px;bottom:12px;z-index:99999;text-decoration:none;'+
       'background:rgba(64,158,255,.92);color:#fff;font-weight:700;font-size:18px;'+

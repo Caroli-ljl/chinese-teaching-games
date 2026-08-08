@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>智能汉字词卡 · AI 词卡生成器</title>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 <style>
   :root{
     --primary:#6d5dfc; --primary-d:#5a4fe0; --primary-l:#a99cff;
@@ -188,7 +188,7 @@
   .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
   .gtb-end:hover{background:#ffe6e6}
 </style>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 </head>
 <body>
 <div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
@@ -543,9 +543,9 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape') carousel.classList.remove('show');
 });
 
-/* ===== 返回作品集 / 回到顶端 ===== */
+/* ===== 返回列表 / 回到顶端 ===== */
 function goWorks(){
-  const back='works.html';
+  const back='index.html';
   try{ if(window.top&&window.top!==window) window.top.location.href=back; else window.location.href=back; }
   catch(e){ window.location.href=back; }
 }
@@ -564,7 +564,7 @@ function goWorks(){
 })();
 </script>
 <script>
-function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'index.html';if(p.indexOf('/games/')!==-1)return 'index.html';return 'index.html';}
 function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
 function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
 </script>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>中文教学游戏 · 互动教学原型合集</title>
+<style>
+  :root{ --bg:#f6f8fc; --card:#fff; --ink:#1f2937; --muted:#6b7280; --brand:#4f7cff; --brand2:#6d5dfc; --line:rgba(15,23,42,.08); }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+  .wrap{ max-width:980px; margin:0 auto; padding:48px 20px 64px; }
+  header h1{ font-size:30px; margin:0 0 8px; letter-spacing:-.5px; }
+  header p{ margin:0; color:var(--muted); font-size:15px; }
+  .badges{ margin:16px 0 28px; display:flex; flex-wrap:wrap; gap:8px; }
+  .badge{ font-size:12.5px; padding:5px 11px; border-radius:999px; background:#eef2ff; color:#3b5bdb; border:1px solid #dfe6ff; }
+  .badge.off{ background:#fff0f0; color:#e5484d; border-color:#ffd9d9; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:10px; text-decoration:none; color:inherit; transition:transform .15s ease, box-shadow .15s ease; }
+  .card:hover{ transform:translateY(-3px); box-shadow:0 10px 28px rgba(15,23,42,.10); }
+  .card .num{ font-size:13px; font-weight:700; color:var(--brand); }
+  .card h2{ font-size:18px; margin:0; }
+  .card p{ font-size:14px; color:var(--muted); margin:0; flex:1; }
+  .card .meta{ font-size:12.5px; }
+  .pill{ display:inline-block; font-size:11.5px; padding:3px 9px; border-radius:999px; background:#f1f0ff; color:#6d5dfc; border:1px solid #e3e0ff; }
+  .pill.req{ background:#fff0f0; color:#e5484d; border-color:#ffd9d9; }
+  .play{ align-self:flex-start; margin-top:4px; font-size:14px; font-weight:700; color:#fff; background:linear-gradient(135deg,var(--brand),var(--brand2)); padding:8px 16px; border-radius:999px; }
+  footer{ margin-top:40px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
+  footer code{ background:#eef2ff; padding:2px 6px; border-radius:6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>中文教学游戏 · 互动教学原型合集</h1>
+    <p>7 款独立可试玩的 HTML 小游戏，覆盖拼音认读、汉字识字、形声字规律、AI 词卡与 AI 批改等中文教学场景。</p>
+  </header>
+
+  <div class="badges">
+    <span class="badge">纯静态前端</span>
+    <span class="badge">7 款独立游戏</span>
+    <span class="badge">5 款离线可玩</span>
+    <span class="badge off">2 款需云端（AI 功能）</span>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="kan-tu-xuan-pinyin.html">
+      <span class="num">游戏 1</span>
+      <h2>看图选拼音</h2>
+      <p>拼音认读 · 零基础游戏化入口。用 emoji / 图片做视觉锚点，把「图像 → 汉字 → 拼音」做成有节奏、有反馈的认读游戏。</p>
+      <span class="meta"><span class="pill">离线可玩</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="hanzi-unit-match.html">
+      <span class="num">游戏 2</span>
+      <h2>识字消消乐 · 分单元版</h2>
+      <p>分单元词库 · 贴合教材进度。按课文单元抽词配对消除，支持本地双人对战、联机对战与自定义词库。</p>
+      <span class="meta"><span class="pill">离线可玩</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="qing-family-wheel.html">
+      <span class="num">游戏 3</span>
+      <h2>青字家族大转盘</h2>
+      <p>形声字字族 · 规律发现式教学。用转盘把抽象的「声旁表音、形旁表义」变成可玩的规律发现。</p>
+      <span class="meta"><span class="pill">离线可玩</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="pinyin-wheel.html">
+      <span class="num">游戏 4</span>
+      <h2>拼音大转盘</h2>
+      <p>拼音三档 · 随机暴露抗遗忘。用「转盘 + 听音选择」的随机重复暴露替代死记硬背，适配课堂随机点将。</p>
+      <span class="meta"><span class="pill">离线可玩</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="hanzi-wordcard.html">
+      <span class="num">游戏 5</span>
+      <h2>智能汉字词卡（AI）</h2>
+      <p>多模态词卡 + 共享汉字表。输入汉字即调用云端工作流生成含图片 / 发音 / 例句 / 翻译的词卡。</p>
+      <span class="meta"><span class="pill req">需云端 AI</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="coze-sentence-archive.html">
+      <span class="num">游戏 6</span>
+      <h2>Coze 句子错误档案（AI）</h2>
+      <p>AI 批改 + 飞书沉淀。先用 AI 生成情景图辅助造句，再即时批改，错误自动回流形成可复盘档案。</p>
+      <span class="meta"><span class="pill req">需云端 AI</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+
+    <a class="card" href="hanzi-pintu.html">
+      <span class="num">游戏 7</span>
+      <h2>汉字拼图</h2>
+      <p>部件拼字 · 形义拆解游戏化。拖拽偏旁部件拼出目标字，建立「部件 → 整字」的字形结构认知。</p>
+      <span class="meta"><span class="pill">离线可玩</span></span>
+      <span class="play">▶ 试玩</span>
+    </a>
+  </div>
+
+  <footer>
+    <p><strong>运行说明：</strong>直接用浏览器打开本页（<code>index.html</code>）即可进入游戏列表；也可单独打开任意一款游戏 HTML。</p>
+    <p>游戏 1 / 2 / 3 / 4 / 7 为纯前端，离线即可完整游玩；游戏 5 / 6 的「AI 生成 / 批改」需要配置云端环境（仓库根目录 <code>config.js</code> 中的 <code>ENV_ID</code> / <code>ACCESS_KEY</code>），详见仓库 README。</p>
+  </footer>
+</div>
+</body>
+</html>

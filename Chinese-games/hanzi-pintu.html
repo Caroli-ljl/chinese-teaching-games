@@ -166,7 +166,7 @@
   .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
   .gtb-end:hover{background:#ffe6e6}
 </style>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 </head>
 <body>
 <div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
@@ -174,7 +174,7 @@
   <!-- START -->
   <section id="start" class="screen active">
     <div style="display:flex;justify-content:flex-start">
-      <button class="back" onclick="goWorks()">← 返回作品集</button>
+      <button class="back" onclick="goWorks()">← 返回列表</button>
     </div>
     <div class="brand">✨ 汉字拼图</div>
     <p class="intro">把汉字拆成小零件，拖一拖拼回去——边玩边记住汉字怎么写！</p>
@@ -266,7 +266,7 @@
     <div class="stats" id="rStats"></div>
     <div class="review" id="rReview"></div>
     <div class="actions">
-      <button class="btn btn-ghost" onclick="goBack()">返回作品集</button>
+      <button class="btn btn-ghost" onclick="goBack()">返回列表</button>
       <button class="btn primary" onclick="replay()">再来一次</button>
       <button class="btn green" onclick="exportReview()">📤 导出复习单</button>
     </div>
@@ -750,7 +750,7 @@ function confetti(){
 //==================== navigation ====================//
 function goBack(){
   clearTimer();
-  var back='works.html';
+  var back='index.html';
   try{ if(window.top&&window.top!==window) window.top.location.href=back; else window.location.href=back; }
   catch(e){ window.location.href=back; }
 }
@@ -827,7 +827,7 @@ initCloud();
 updateBest();
 </script>
 <script>
-function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'index.html';if(p.indexOf('/games/')!==-1)return 'index.html';return 'index.html';}
 function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
 function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
 </script>

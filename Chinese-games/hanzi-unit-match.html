@@ -133,7 +133,7 @@ h1{font-size:clamp(22px,5vw,32px);margin:6px 0 2px;text-align:center;
   .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
   .gtb-end:hover{background:#ffe6e6}
 </style>
-<script src="config.js"></script>
+<script src="../config.js"></script>
 </head>
 <body>
 <div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
@@ -1127,7 +1127,7 @@ if(P.method!=='browser'){
 }
 </script>
 <script>
-function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/chinese-teaching-games/')!==-1)return 'index.html';if(p.indexOf('/games/')!==-1)return 'index.html';return 'index.html';}
 function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
 function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
 </script>
