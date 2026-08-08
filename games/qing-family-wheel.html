@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>青字家族大转盘 · 转盘识字</title>
+<style>
+:root{
+  --bg1:#fff6ee; --bg2:#eaf4ff;
+  --hanzi:#ff9a76; --hanzi-d:#ff7a59;
+  --pinyin:#43c4dd; --pinyin-d:#28a6c8;
+  --ok:#16b889; --ok-d:#0e9d76;
+  --bad:#ff5d6c;
+  --ink:#2b2b35; --muted:#8a8c9a;
+  --card:#ffffff;
+  --line:#edeff4;
+  --shadow:0 12px 36px rgba(70,82,120,.10);
+  --shadow-card:0 8px 20px rgba(60,72,110,.14);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;
+  min-height:100vh;color:var(--ink);
+  padding:24px 14px 64px;display:flex;flex-direction:column;align-items:center;
+}
+h1{font-size:clamp(22px,5vw,32px);margin:6px 0 2px;text-align:center;color:var(--ink);font-weight:800;letter-spacing:.5px;}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px;text-align:center;letter-spacing:.3px;}
+.panel{width:100%;max-width:760px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow);}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;}
+.btn{padding:10px 18px;border:none;border-radius:14px;cursor:pointer;font-size:14px;font-weight:600;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 6px rgba(60,72,110,.06);transition:.15s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(60,72,110,.12);}
+.btn:active{transform:scale(.97);}
+.btn.primary{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(14,157,118,.30);}
+.btn.primary:hover{box-shadow:0 10px 22px rgba(14,157,118,.40);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.stats{display:flex;gap:16px;justify-content:center;margin:6px 0 10px;font-size:13px;color:var(--muted);flex-wrap:wrap;}
+.stats b{color:var(--ink);font-size:17px;font-weight:800;}
+.stats .combo b{color:var(--ok-d);}
+.liveboard-panel{padding:14px 18px;margin-bottom:14px;}
+.liveboard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.lb-title{font-weight:800;color:var(--ink);font-size:15px;letter-spacing:.3px;}
+.liveboard{display:flex;gap:10px;}
+.lb-empty{color:var(--muted);font-size:13px;text-align:center;width:100%;padding:8px 0;}
+.lb-card{flex:1;border-radius:16px;padding:14px 8px;text-align:center;position:relative;box-shadow:var(--shadow-card);min-width:0;}
+.lb-1{background:linear-gradient(135deg,#ffe08a,#f7b733);color:#5a3b00;}
+.lb-2{background:linear-gradient(135deg,#eef2f7,#c7d0dd);color:#3a4252;}
+.lb-3{background:linear-gradient(135deg,#f3bd97,#d98a52);color:#4a2a12;}
+.lb-rank{font-size:28px;font-weight:900;line-height:1;}
+.lb-name{font-size:14px;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-score{font-size:13px;opacity:.85;margin-top:2px;}
+.lb-card.lb-me{outline:3px solid var(--ok);outline-offset:-3px;}
+.lb-card.lb-me::after{content:'你';position:absolute;top:-9px;right:8px;background:var(--ok);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;}
+/* ===== 转盘专属 ===== */
+.wheel-wrap{position:relative;width:min(300px,80vw);height:min(300px,80vw);margin:10px auto 6px;}
+.wheel{width:min(300px,80vw);height:min(300px,80vw);border-radius:50%;position:relative;transition:transform 1.5s cubic-bezier(.17,.67,.2,.99);box-shadow:var(--shadow-card);border:6px solid #fff;background:#eee;box-sizing:border-box;}
+.seg{position:absolute;inset:0;}
+.seg span{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:27px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.28);}
+.seg.hl span{color:#fff;text-shadow:0 0 10px #fff,0 0 4px #fff;}
+.wheel.hl-on{box-shadow:0 0 0 5px var(--ok),var(--shadow-card);}
+.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid var(--bad);z-index:3;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
+.qcard{margin:14px auto;max-width:440px;background:#fbfcfe;border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;display:none;}
+.qcard .qword{font-size:48px;font-weight:900;color:var(--ink);}
+.qcard .qmean{color:var(--muted);font-size:13px;margin-top:4px;}
+.opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px;}
+.opt{padding:12px 22px;border:none;border-radius:14px;cursor:pointer;font-size:18px;font-weight:700;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 6px rgba(60,72,110,.08);min-width:96px;transition:.15s;}
+.opt:hover{transform:translateY(-2px);}
+.opt.correct{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;}
+.opt.wrong{background:linear-gradient(135deg,#ff8a94,#ff5d6c);color:#fff;border-color:transparent;animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.overlay{position:fixed;inset:0;background:rgba(35,38,60,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;width:min(92vw,420px);box-shadow:var(--shadow);text-align:center;}
+.modal h3{margin:0 0 12px;color:var(--ink);}
+.modal .hint{color:var(--muted);font-size:12px;margin:8px 0;line-height:1.6;text-align:left;}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;}
+.win .big{font-size:42px;margin:6px 0;}
+.stars{font-size:30px;letter-spacing:4px;margin:6px 0;}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#2b2b35;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:60;max-width:80vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.comboPop{position:fixed;left:50%;top:34%;transform:translateX(-50%) scale(.6);font-size:34px;font-weight:800;color:var(--ok-d);opacity:0;pointer-events:none;z-index:55;text-shadow:0 2px 12px rgba(14,157,118,.35);transition:.25s;}
+.comboPop.show{opacity:1;transform:translateX(-50%) scale(1);}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:45;box-shadow:inset 0 0 0 0 rgba(255,80,80,0);transition:box-shadow .18s;}
+#flash.show{box-shadow:inset 0 0 90px 24px rgba(255,80,80,.5);}
+.set-row{display:flex;flex-direction:column;gap:6px;text-align:left;margin:12px 0;}
+.set-row label{font-size:13px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;}
+.set-row select,.set-row input[type=text]{padding:9px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fbfcfe;}
+.set-row select:focus,.set-row input[type=text]:focus{outline:none;border-color:var(--ok);}
+.set-row input[type=range]{width:100%;accent-color:var(--ok);}
+.set-note{font-size:11px;color:var(--muted);line-height:1.5;text-align:left;}
+.set-note b{color:var(--ink);}
+.status{display:inline-block;font-size:12px;color:var(--muted);margin-left:6px;padding:3px 10px;border-radius:999px;background:#eef0f5;}
+.status.ok{color:#0e9d76;background:#e6f7f0;}
+.status.warn{color:#c0392b;background:#fdecea;}
+.nickwrap{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);}
+.nick{width:120px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-family:inherit;background:#fbfcfe;}
+.nick:focus{outline:none;border-color:var(--ok);}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;align-self:stretch;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<h1>青字家族大转盘</h1>
+<div class="sub">国际中文教学 · 转盘识字 · 转动认字选读音 · 纯前端离线可用</div>
+
+<div class="panel liveboard-panel">
+  <div class="liveboard-head">
+    <span class="lb-title">🏆 实时擂台 · 当前前三名</span>
+    <span id="lbStatus" class="status">同步中…</span>
+  </div>
+  <div class="liveboard" id="liveboard">
+    <div class="lb-empty">还没有战绩，快来抢占榜首！</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="controls">
+    <button class="btn primary" id="startBtn">开始游戏</button>
+    <button class="btn" id="spinBtn">🎡 转动</button>
+    <button class="btn" id="resetBtn" disabled>重置</button>
+    <button class="btn" id="soundBtn">🔊 发音设置</button>
+    <button class="btn primary" id="testSoundBtn">🔊 测试发音</button>
+    <span id="soundStatus" class="status">就绪</span>
+    <button class="btn" id="cloudBtn">☁️ 云端榜</button>
+    <span id="cloudDot" class="status">☁️ 连接中</span>
+    <span class="nickwrap">昵称：<input id="nickInput" class="nick" type="text" maxlength="12" placeholder="输入名字" /></span>
+  </div>
+  <div class="stats">
+    <span>得分 <b id="score">0</b></span>
+    <span>最高 <b id="best">0</b></span>
+    <span>连击 <b id="combo">0</b></span>
+    <span>用时 <b id="time">0:00</b></span>
+    <span>尝试 <b id="attempts">0</b></span>
+    <span>剩余 <b id="left">8</b></span>
+  </div>
+
+  <div class="wheel-wrap">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+  <div class="qcard" id="qcard">
+    <div class="qword" id="qword"></div>
+    <div class="qmean" id="qmean"></div>
+    <div class="opts" id="qcardOpts"></div>
+  </div>
+  <div class="sub" style="margin-top:4px;">点击「转动」，停下后看指针指向的字，选出它的正确读音。</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalWin">
+    <div class="win">
+      <div class="big" id="endTitle">🎉 通关啦！</div>
+      <div class="stars" id="stars">⭐⭐⭐</div>
+      <p id="winText"></p>
+      <button class="btn primary" id="winAgain">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="soundOverlay">
+  <div class="modal">
+    <h3>🔊 发音设置</h3>
+    <div class="set-row">
+      <label>发音方式</label>
+      <select id="pMethod">
+        <option value="baidu">百度翻译 TTS（默认·真人普通话·进词预加载）</option>
+        <option value="youdao">有道真人发音（中文·兜底）</option>
+        <option value="browser">浏览器语音（离线·依赖本机中文嗓）</option>
+        <option value="custom">自定义 TTS 接口（接你自己的 API）</option>
+      </select>
+    </div>
+    <div class="set-row" id="tplRow" style="display:none;">
+      <label>自定义 TTS 地址模板</label>
+      <input type="text" id="pTpl" placeholder="https://你的接口?text={text}" />
+      <div class="set-note">用 <b>{text}</b> 占位要朗读的内容。可接 Edge TTS、讯飞、或自建服务。</div>
+    </div>
+    <div class="set-row">
+      <label><input type="checkbox" id="pAuto" /> 点卡片自动朗读（选中/配对时出声）</label>
+    </div>
+    <div class="set-row">
+      <label>语速 <span id="pRateV">正常</span></label>
+      <input type="range" id="pRate" min="1" max="7" step="1" value="3" />
+    </div>
+    <div class="set-row">
+      <label>音量 <span id="pVolV">1.0</span></label>
+      <input type="range" id="pVol" min="0" max="1" step="0.05" value="1" />
+    </div>
+    <div class="set-note" id="voiceInfo"></div>
+    <div class="row">
+      <button class="btn" id="soundClose">完成</button>
+      <button class="btn primary" id="soundTest">试听「你好」</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cloudOverlay">
+  <div class="modal" style="width:min(92vw,460px)">
+    <h3>☁️ 云端战绩榜</h3>
+    <div id="cloudList" style="max-height:50vh;overflow:auto"></div>
+    <div class="row"><button class="btn primary" id="cloudClose">关闭</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="nameOverlay">
+  <div class="modal">
+    <h3>先告诉我你是谁 👋</h3>
+    <p class="hint">开始游戏前请输入名字，这样你的成绩、排行榜和学情数据才知道归属谁。名字会自动记住，下次不用重输。</p>
+    <input id="nameInput" type="text" maxlength="12" placeholder="你的名字" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;" />
+    <div class="row"><button class="btn primary" id="nameConfirm">开始游戏</button></div>
+  </div>
+</div>
+<div id="flash"></div>
+<div class="toast" id="toast"></div>
+<div class="comboPop" id="comboPop"></div>
+
+<script>window.GAME_TYPE='qing_family';</script>
+<script src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<script src="lib/common.js"></script>
+<script>
+// ===== 青字家族成员：汉字 / 读音 / 释义 =====
+const QING = [
+  ['清','qīng','清澈'],['晴','qíng','晴天'],['请','qǐng','邀请'],['情','qíng','感情'],
+  ['蜻','qīng','蜻蜓'],['睛','jīng','眼睛'],['静','jìng','安静'],['精','jīng','精神'],
+  ['靖','jìng','安定'],['菁','jīng','菁华']
+];
+const uniquePinyins = [...new Set(QING.map(q=>q[1]))]; // qīng qíng qǐng jīng jìng
+const TARGET = 8; // 答对 8 个字即通关
+
+const state = {
+  cards:[], score:0, attempts:0, matched:0, total:0, combo:0, maxCombo:0, best:0,
+  playing:false, paused:false, spinning:false, landed:null, currentQ:null, round:0,
+  rotation:0, target:TARGET,
+  startTs:0, timer:null
+};
+window.state = state; // 供 common 的 preloadDeck 读取
+
+const speak = window.CB.speak;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function showToast(msg){ const t=document.getElementById('toast'); if(t){ t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); } }
+
+const $ = s=>document.querySelector(s);
+const wheelEl=$('#wheel'), qcard=$('#qcard'), qwordEl=$('#qword'), qmeanEl=$('#qmean'), qcardOpts=$('#qcardOpts');
+const scoreEl=$('#score'), timeEl=$('#time'), attemptsEl=$('#attempts'), leftEl=$('#left'),
+      bestEl=$('#best'), comboEl=$('#combo');
+const startBtn=$('#startBtn'), spinBtn=$('#spinBtn'), resetBtn=$('#resetBtn');
+const overlay=$('#overlay');
+let segEls=[];
+
+function bestKey(){ return 'qing_family_best'; }
+function loadBest(){ state.best = parseInt(localStorage.getItem(bestKey())||'0',10)||0; bestEl.textContent=state.best; }
+function saveBest(){ if(state.score>state.best){ state.best=state.score; localStorage.setItem(bestKey(),String(state.best)); bestEl.textContent=state.best; } }
+
+// ===== 转盘 DOM 构建 =====
+const segColors=['#ff9a76','#43c4dd','#16b889','#f3b24a','#7c8cf8','#ff9a76','#43c4dd','#16b889','#f3b24a','#7c8cf8'];
+function buildWheel(){
+  const stops=[];
+  for(let i=0;i<10;i++){ stops.push(`${segColors[i]} ${i*36}deg ${(i+1)*36}deg`); }
+  wheelEl.style.background=`conic-gradient(from 0deg, ${stops.join(',')})`;
+  segEls=[];
+  QING.forEach((q,i)=>{
+    const seg=document.createElement('div'); seg.className='seg';
+    const center=i*36+18;
+    seg.style.transform=`rotate(${center}deg)`;
+    const span=document.createElement('span'); span.textContent=q[0];
+    seg.appendChild(span); wheelEl.appendChild(seg); segEls.push(seg);
+  });
+}
+
+// ===== 必须定义的全局：buildDeck / setupRound =====
+function buildDeck(){
+  return QING.map(q=>({type:'hanzi', text:q[0]}));
+}
+
+function startTimer(){
+  state.startTs=Date.now();
+  state.timer=setInterval(()=>{
+    if(state.paused) return;
+    const s=Math.floor((Date.now()-state.startTs)/1000);
+    timeEl.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  },250);
+}
+function stopTimer(){ if(state.timer){ clearInterval(state.timer); state.timer=null; } }
+window.__stopTimer = stopTimer;
+
+function startGame(){
+  if(!window.CB.NICK.trim()){ window.CB.openNameGate(); return; }
+  stopTimer();
+  if(window.CB.net) { try{ window.CB.netLeave(); }catch(e){} }
+  setupRound(buildDeck());
+}
+
+function setupRound(cards){
+  window.state.cards = cards;
+  state.playing=true; state.paused=false; state.spinning=false; state.landed=null; state.currentQ=null;
+  state.score=0; state.attempts=0; state.matched=0; state.combo=0; state.maxCombo=0; state.round=0;
+  loadBest();
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0';
+  leftEl.textContent=state.target; timeEl.textContent='0:00';
+  resetBtn.disabled=false; spinBtn.disabled=false;
+  qcard.style.display='none'; wheelEl.classList.remove('hl-on');
+  window.CB.preloadDeck();
+  startTimer();
+  spin();
+}
+
+function spin(){
+  if(!state.playing || state.spinning) return;
+  state.spinning=true; qcard.style.display='none';
+  segEls.forEach(el=>el.classList.remove('hl'));
+  wheelEl.classList.remove('hl-on');
+  state.rotation += 360*5 + Math.floor(Math.random()*360);
+  wheelEl.style.transform=`rotate(${state.rotation}deg)`;
+  setTimeout(onSpinEnd, 1600);
+}
+
+function onSpinEnd(){
+  state.spinning=false;
+  const R=((state.rotation%360)+360)%360;
+  const center=((360-R)%360+360)%360;
+  const idx=Math.floor(center/36)%10;
+  state.landed=idx;
+  segEls.forEach((el,i)=>el.classList.toggle('hl', i===idx));
+  wheelEl.classList.add('hl-on');
+  showQuestion(QING[idx]);
+}
+
+function showQuestion(q){
+  state.currentQ=q;
+  const correct=q[1];
+  const distract=shuffle(uniquePinyins.filter(p=>p!==correct)).slice(0,3);
+  const choices=shuffle([correct, ...distract]);
+  qwordEl.textContent=q[0];
+  qmeanEl.textContent=q[2]+'（'+correct+'）';
+  qcardOpts.innerHTML='';
+  choices.forEach(py=>{
+    const b=document.createElement('button'); b.className='opt'; b.dataset.py=py; b.textContent=py;
+    b.addEventListener('click',()=>onAnswer(py));
+    qcardOpts.appendChild(b);
+  });
+  qcard.style.display='block';
+}
+
+function onAnswer(py){
+  if(!state.playing || state.spinning) return;
+  const q=state.currentQ; if(!q) return;
+  if(py===q[1]){
+    state.round++;
+    state.combo++; state.maxCombo=Math.max(state.maxCombo,state.combo);
+    const gain=10+(state.combo-1)*5;
+    state.score+=gain; scoreEl.textContent=state.score; comboEl.textContent=state.combo;
+    state.matched=state.round;
+    if(window.CB.P.autoSpeak) speak(q[0]);
+    window.CB.showCombo(state.combo);
+    window.CB.beep(880,.10); setTimeout(()=>window.CB.beep(1175,.12),80);
+    window.CB.logAttempt(q[0], q[1], true);
+    leftEl.textContent=Math.max(0, state.target-state.round);
+    [...qcardOpts.querySelectorAll('.opt')].forEach(b=>{ b.disabled=true; if(b.dataset.py===py) b.classList.add('correct'); });
+    if(state.round>=state.target){ setTimeout(win, 600); return; }
+    setTimeout(()=>{ qcard.style.display='none'; spin(); }, 750);
+  }else{
+    state.attempts++; attemptsEl.textContent=state.attempts;
+    state.combo=0; comboEl.textContent='0';
+    window.CB.failFeedback();
+    window.CB.logAttempt(q[0], q[1], false);
+    [...qcardOpts.querySelectorAll('.opt')].forEach(b=>{ if(b.dataset.py===py) b.classList.add('wrong'); });
+    setTimeout(()=>{ [...qcardOpts.querySelectorAll('.opt')].forEach(b=>b.classList.remove('wrong')); },400);
+  }
+}
+
+function togglePause(){
+  if(!state.playing) return;
+  state.paused=!state.paused;
+}
+
+function resetGame(){
+  stopTimer();
+  if(window.CB.net) { try{ window.CB.netLeave(); }catch(e){} }
+  if(overlay) overlay.classList.remove('show');
+  state.playing=false; state.spinning=false; state.currentQ=null; state.round=0; state.landed=null;
+  state.score=0; state.attempts=0; state.matched=0; state.combo=0; state.maxCombo=0; state.rotation=0;
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0'; leftEl.textContent=state.target; timeEl.textContent='0:00';
+  resetBtn.disabled=true; spinBtn.disabled=true;
+  qcard.style.display='none'; wheelEl.classList.remove('hl-on'); segEls.forEach(el=>el.classList.remove('hl'));
+  wheelEl.style.transform='rotate(0deg)';
+  loadBest();
+}
+
+function starRating(){
+  const r = state.attempts / Math.max(1, state.target);
+  if(r<=0.5) return 3;
+  if(r<=1.5) return 2;
+  return 1;
+}
+function starStr(n){ return '⭐'.repeat(n)+'☆'.repeat(3-n); }
+function endScreen(title,sub){
+  stopTimer(); state.playing=false;
+  $('#endTitle').textContent=title;
+  $('#stars').textContent=starStr(starRating());
+  $('#winText').innerHTML=sub;
+  if(overlay) overlay.classList.add('show');
+}
+
+function win(){
+  if(window.CB.net.active){ window.CB.netFinish(); return; }
+  if(window.CB.pk.active){ window.CB.pkEnd(); return; }
+  window.CB.beep(660,.12); setTimeout(()=>window.CB.beep(880,.12),120); setTimeout(()=>window.CB.beep(1175,.2),240);
+  window.CB.vibrate([40,30,40,30,120]);
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  const full=QING.map(q=>q[0]).join('');
+  speak(full);
+  window.CB.cloudSaveScore({player:(window.CB.NICK||'匿名学员'),mode:'single',score:state.score,correct:state.matched,wrong:state.attempts,duration:s});
+  const sub=`青字家族：<b>${full}</b><br>得分 <b>${state.score}</b> · 最高 <b>${state.best}</b> · 用时 <b>${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</b><br>答对 <b>${state.round}</b> 个字 · 最大连击 <b>${state.maxCombo}</b><br>青字家族全认得啦！`;
+  saveBest();
+  endScreen('🎉 通关啦！',sub);
+}
+function gameOver(){
+  if(window.CB.net.active){ window.CB.netFinish(); return; }
+  if(window.CB.pk.active){ window.CB.pkEnd(); return; }
+  window.CB.beep(330,.3,'sawtooth');
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  window.CB.cloudSaveScore({player:(window.CB.NICK||'匿名学员'),mode:'single',score:state.score,correct:state.matched,wrong:state.attempts,duration:s});
+  const sub=`本次得分 <b>${state.score}</b> · 最高 <b>${state.best}</b><br>已答对 <b>${state.round}/${state.target}</b> 个 · 最大连击 <b>${state.maxCombo}</b><br>再来一局挑战更高分！`;
+  endScreen('⏰ 本局结束',sub);
+}
+
+// ===== 事件绑定 =====
+startBtn.addEventListener('click',startGame);
+spinBtn.addEventListener('click',spin);
+resetBtn.addEventListener('click',resetGame);
+
+buildWheel();
+resetGame();
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

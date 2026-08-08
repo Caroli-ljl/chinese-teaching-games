@@ -1,0 +1,9 @@
+{
+  "name": "contentApi",
+  "version": "1.0.0",
+  "description": "全站可编辑内容 · 服务端口令校验 + CloudBase 后台读写",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest"
+  }
+}

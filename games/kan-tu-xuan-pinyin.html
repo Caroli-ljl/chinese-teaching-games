@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+<title>看图选拼音 · 中文教学互动游戏</title>
+<!-- CloudBase SDK：defer 异步加载，绝不阻塞游戏交互；游戏自身脚本在下方以普通脚本运行，加载即绑定点击 -->
+<script defer src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<style>
+  /* ===== Element UI 蓝白主题（与作品集站点一致） ===== */
+  :root{
+    --el-color-primary:#6d5dfc;
+    --el-color-primary-light-3:#8f84ff;
+    --el-color-primary-light-5:#a99cff;
+    --el-color-primary-light-7:#cabfff;
+    --el-color-primary-light-8:#e0dbff;
+    --el-color-primary-light-9:#f0edff;
+    --el-color-primary-dark-2:#5a4fe0;
+    --el-bg-color:#ffffff;
+    --el-bg-color-page:#f2f3f5;
+    --el-text-color-primary:#303133;
+    --el-text-color-regular:#606266;
+    --el-text-color-secondary:#909399;
+    --el-border-color:#dcdfe6;
+    --el-border-color-lighter:#ebeef5;
+    --el-border-radius-base:10px;
+    --el-border-radius-round:16px;
+    --el-fill-color-light:#f5f7fa;
+    --el-box-shadow-light:0 2px 12px rgba(0,0,0,.08);
+    --el-color-success:#67c23a;
+    --el-color-danger:#f56c6c;
+    --el-color-warning:#e6a23c;
+    --muted:#909399; --ink:#303133; --ok-d:#67c23a; --bad:#f56c6c; --line:#ebeef5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:linear-gradient(165deg,#fff4ec,#eafaf6,#eef1ff); color:var(--el-text-color-primary);
+    display:flex; justify-content:center; -webkit-text-size-adjust:100%;
+  }
+  .app{width:100%;max-width:430px;min-height:100vh;background:#fff;position:relative;display:flex;flex-direction:column;box-shadow:0 0 24px rgba(64,158,255,.06)}
+  .screen{display:none;flex:1;flex-direction:column;padding:18px 16px 96px;animation:fade .25s ease}
+  .screen.active{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* 顶栏 */
+  .topbar{display:flex;align-items:center;gap:10px;padding:10px 4px 14px}
+  .topbar .home{margin-left:auto}
+  .el-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;
+    font-size:14px;font-weight:500;padding:9px 16px;border-radius:var(--el-border-radius-base);border:1px solid transparent;background:#fff;color:var(--el-text-color-regular);transition:.15s}
+  .el-btn--primary{background:var(--el-color-primary);color:#fff;border-color:var(--el-color-primary)}
+  .el-btn--primary:hover{background:var(--el-color-primary-dark-2)}
+  .el-btn--round{border-radius:var(--el-border-radius-round)}
+  .el-btn--ghost{background:var(--el-color-primary-light-9);color:var(--el-color-primary);border-color:var(--el-color-primary-light-7)}
+  .el-btn--ghost:hover{background:var(--el-color-primary-light-8)}
+  .el-btn--plain{background:#fff;border-color:var(--el-border-color);color:var(--el-text-color-regular)}
+  .el-btn--plain:hover{color:var(--el-color-primary);border-color:var(--el-color-primary-light-5)}
+  .el-btn:active{transform:translateY(1px)}
+  /* 开始页 */
+  .hero-card{background:linear-gradient(135deg,var(--el-color-primary-light-9),#f0f9ff 60%,var(--el-color-primary-light-8));
+    border:1px solid var(--el-color-primary-light-8);border-radius:16px;padding:22px 18px;text-align:center;margin-bottom:16px}
+  .logo{font-size:46px;font-weight:800;color:var(--el-color-primary);line-height:1}
+  .game-name{font-size:24px;font-weight:800;margin-top:8px;color:var(--el-text-color-primary)}
+  .game-sub{color:var(--el-text-color-secondary);font-size:14px;margin-top:6px}
+  .section-title{font-size:15px;font-weight:700;color:var(--el-text-color-primary);margin:14px 2px 10px;display:flex;align-items:center;gap:6px}
+  .diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .diff-btn{border:1.5px solid var(--el-border-color);border-radius:12px;padding:14px 12px;background:#fff;cursor:pointer;text-align:left;transition:.15s}
+  .diff-btn .dt{font-size:15px;font-weight:700;color:var(--el-text-color-primary)}
+  .diff-btn .dd{font-size:12px;color:var(--el-text-color-secondary);margin-top:3px}
+  .diff-btn.selected{border-color:var(--el-color-primary);background:var(--el-color-primary-light-9);box-shadow:0 0 0 3px var(--el-color-primary-light-8)}
+  .diff-btn.custom{border-color:var(--el-color-primary-light-5);background:var(--el-color-primary-light-9)}
+  .row{display:flex;align-items:center;gap:10px;margin:12px 2px}
+  .row .lbl{font-size:14px;color:var(--el-text-color-regular)}
+  .toggle{margin-left:auto;width:46px;height:26px;border-radius:13px;background:var(--el-border-color);position:relative;cursor:pointer;transition:.2s}
+  .toggle.on{background:var(--el-color-primary)}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on::after{left:23px}
+  .best{background:var(--el-color-primary-light-9);border:1px solid var(--el-color-primary-light-8);border-radius:12px;padding:12px 14px;color:var(--el-color-primary);font-size:14px;font-weight:600;margin-top:6px}
+  .best b{font-size:18px}
+  /* 实时擂台 */
+  .lb{background:#fff;border:1px solid var(--el-border-color-lighter);border-radius:12px;padding:12px 14px;margin-top:6px}
+  .lb-head{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--el-text-color-secondary);margin-bottom:8px}
+  .lb-empty{color:var(--el-text-color-secondary);font-size:13px;padding:6px 0;text-align:center}
+  .lb-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:var(--el-fill-color-light)}
+  .lb-card .rk{font-size:20px;width:26px;text-align:center}
+  .lb-card .nm{font-weight:700;color:var(--el-text-color-primary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lb-card .sc{color:var(--el-color-primary);font-weight:800}
+  .lb-card.lb-me{background:var(--el-color-primary-light-9);border:1px solid var(--el-color-primary-light-7)}
+  .status{font-size:12px}
+  .status.ok{color:var(--el-color-success)}
+  .status.warn{color:var(--el-color-warning)}
+  .status.loading{color:var(--el-color-primary)}
+  /* 游戏页 */
+  .hud{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--el-text-color-regular);margin-bottom:8px}
+  .hud .score{margin-left:auto;font-weight:800;color:var(--el-color-primary);font-size:16px}
+  .progress{height:8px;background:var(--el-fill-color-light);border-radius:6px;overflow:hidden;margin-bottom:14px}
+  .progress>div{height:100%;background:linear-gradient(90deg,var(--el-color-primary),var(--el-color-primary-light-3));width:0;transition:width .3s}
+  .qcard{background:#fff;border:1px solid var(--el-border-color-lighter);border-radius:16px;padding:18px 16px;box-shadow:var(--el-box-shadow-light);text-align:center}
+  .qimg{font-size:64px;line-height:1;min-height:72px;display:flex;align-items:center;justify-content:center}
+  .qimg img{width:84px;height:84px;border-radius:14px;object-fit:cover}
+  .qword{font-size:22px;font-weight:800;margin:10px 0 2px}
+  .qspeak{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--el-color-primary-light-9);color:var(--el-color-primary);border:none;cursor:pointer;font-size:16px;vertical-align:middle;margin-left:6px}
+  .qhint{color:var(--el-text-color-secondary);font-size:13px;margin-top:4px}
+  .options{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+  .option-btn{font-size:22px;padding:16px;border-radius:14px;border:2px solid var(--el-border-color);background:#fff;cursor:pointer;color:var(--el-text-color-primary);transition:.12s;font-family:inherit}
+  .option-btn:active{transform:scale(.98)}
+  .option-btn.correct{background:var(--el-color-success);border-color:var(--el-color-success);color:#fff}
+  .option-btn.wrong{background:var(--el-color-danger);border-color:var(--el-color-danger);color:#fff}
+  .option-btn.disabled{pointer-events:none;opacity:.85}
+  .option-btn:not(.disabled):hover{border-color:var(--el-color-primary-light-5);background:var(--el-color-primary-light-9)}
+  .pinyin{font-family:"Noto Sans","Segoe UI",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  .feedback{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:15px;display:none}
+  .feedback.show{display:block;animation:fade .2s}
+  .feedback.correct-fb{background:#f0f9eb;border:1px solid #c2e7a8;color:#529b2e}
+  .feedback.wrong-fb{background:#fef0f0;border:1px solid #fab6b6;color:#c45656}
+  .fb-points{font-size:13px;color:var(--el-color-warning);font-weight:700;margin-top:4px}
+  .fb-detail{font-size:13px;color:var(--el-text-color-secondary);margin-top:4px}
+  .nav{display:flex;gap:10px;margin-top:16px}
+  .nav button{flex:1;display:none}
+  .nav button.show{display:inline-flex}
+  .game-ctrls{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid var(--el-border-color-lighter);z-index:30}
+  .game-ctrls button{flex:1;font-size:13px}
+  .timerbar{height:6px;background:var(--el-color-danger);border-radius:4px;overflow:hidden;margin-bottom:10px;display:none}
+  .timerbar>div{height:100%;background:var(--el-color-danger);width:100%;transition:width .1s linear}
+  .timerbar.danger>div{background:#c45656}
+  /* 连击 */
+  .combo{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:var(--el-color-warning);color:#fff;font-weight:800;padding:6px 16px;border-radius:20px;opacity:0;pointer-events:none;z-index:40;transition:.2s}
+  .combo.show{opacity:1;animation:pop .4s}
+  @keyframes pop{0%{transform:translateX(-50%) scale(.6)}60%{transform:translateX(-50%) scale(1.15)}100%{transform:translateX(-50%) scale(1)}}
+  /* 结果页 */
+  .result-card{text-align:center;background:#fff;border:1px solid var(--el-border-color-lighter);border-radius:16px;padding:22px 16px;box-shadow:var(--el-box-shadow-light)}
+  .result-emoji{font-size:54px}
+  .result-title{font-size:24px;font-weight:800;margin-top:6px}
+  .result-sub{color:var(--el-text-color-secondary);margin-top:4px}
+  .rank-badge{display:inline-block;margin-top:14px;padding:8px 22px;border-radius:20px;font-weight:800;font-size:18px;color:#fff}
+  .rank-badge.s{background:linear-gradient(135deg,#e6a23c,#f0c060)}
+  .rank-badge.a{background:var(--el-color-success)}
+  .rank-badge.b{background:var(--el-color-primary)}
+  .rank-badge.c{background:var(--el-text-color-secondary)}
+  .circle{width:120px;height:120px;border-radius:50%;margin:18px auto;display:flex;align-items:center;justify-content:center;flex-direction:column;
+    background:conic-gradient(var(--el-color-primary) var(--pct,0%),var(--el-fill-color-light) 0);position:relative}
+  .circle::before{content:"";position:absolute;inset:12px;background:#fff;border-radius:50%}
+  .circle .cv{position:relative;font-size:26px;font-weight:800;color:var(--el-color-primary)}
+  .circle .cl{position:relative;font-size:12px;color:var(--el-text-color-secondary)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+  .stat{background:var(--el-fill-color-light);border-radius:12px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:22px;color:var(--el-text-color-primary)}
+  .stat span{font-size:12px;color:var(--el-text-color-secondary)}
+  .review{margin-top:8px}
+  .review-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin-bottom:6px;background:var(--el-fill-color-light)}
+  .review-item.rv-wrong{background:#fef0f0}
+  .review-item .rv-emoji{font-size:24px}
+  .review-item img{width:30px;height:30px;border-radius:6px;object-fit:cover}
+  .review-item .rv-word{font-weight:700;flex:1}
+  .review-item .rv-correct{color:var(--el-color-success);font-weight:700}
+  .review-item .rv-wrong{color:var(--el-color-danger);font-weight:700;margin-right:6px}
+  .rv-speak{border:none;background:var(--el-color-primary-light-9);color:var(--el-color-primary);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:14px}
+  .result-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  /* 昵称遮罩 */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:16px;padding:22px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+  .modal h3{font-size:18px;margin-bottom:6px}
+  .modal p{color:var(--el-text-color-secondary);font-size:13px;margin-bottom:14px}
+  .modal input{width:100%;padding:12px 14px;border:1.5px solid var(--el-border-color);border-radius:10px;font-size:16px;margin-bottom:14px;text-align:center;font-family:inherit}
+  .modal input:focus{outline:none;border-color:var(--el-color-primary)}
+  /* 自定义词库 */
+  .bank-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:42vh;overflow:auto}
+  .bank-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--el-border-color-lighter);border-radius:10px;background:#fff}
+  .bank-item .bi-emoji{font-size:24px}
+  .bank-item .bi-word{font-weight:700}
+  .bank-item .bi-py{color:var(--el-text-color-secondary);font-size:13px}
+  .bank-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--el-color-primary)}
+  .bank-item .del{border:none;background:none;color:var(--el-color-danger);cursor:pointer;font-size:16px;margin-left:auto}
+  .add-row{display:flex;gap:8px;margin-top:10px}
+  .add-row input{flex:1;padding:10px 12px;border:1.5px solid var(--el-border-color);border-radius:10px;font-size:15px;font-family:inherit}
+  .add-row input:focus{outline:none;border-color:var(--el-color-primary)}
+  .count-tip{font-size:12px;color:var(--el-text-color-secondary);margin-top:8px}
+  /* 词典 */
+  .dict-box{margin-top:8px;background:var(--el-fill-color-light);border-radius:10px;padding:12px;font-size:14px;display:none}
+  .dict-box.show{display:block}
+  .dict-box .dw{font-weight:800;font-size:18px}
+  .dict-box .dpy{color:var(--el-color-primary);font-weight:700}
+  /* 提示横幅 / 悬浮返回 */
+  #cbHomeBtn{position:fixed;right:12px;bottom:64px;z-index:99999;text-decoration:none;background:rgba(64,158,255,.92);color:#fff;font-weight:700;font-size:18px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(64,158,255,.4)}
+  .toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(48,49,51,.92);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:200}
+  .toast.show{opacity:1}
+  .flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:150}
+  .flash.show{opacity:1}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:160}
+  @media(max-width:480px){.qimg{font-size:56px}.option-btn{font-size:20px}}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="app">
+  <!-- ===================== 开始页 ===================== -->
+  <section class="screen active" id="startScreen">
+    <div class="topbar">
+      <div class="section-title" style="margin:0">🎮 看图选拼音</div>
+      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回作品集</button>
+    </div>
+    <div class="hero-card">
+      <div class="logo">图</div>
+      <div class="game-name">看图选拼音</div>
+      <div class="game-sub">看图片，选出正确的拼音——简单好玩，记住汉字读音！</div>
+    </div>
+
+    <div class="section-title">选择难度</div>
+    <div class="diff-grid">
+      <div class="diff-btn selected" data-diff="easy" onclick="selectDifficulty('easy')">
+        <div class="dt">入门</div><div class="dd">8 题 · 随机</div>
+      </div>
+      <div class="diff-btn" data-diff="medium" onclick="selectDifficulty('medium')">
+        <div class="dt">进阶</div><div class="dd">12 题 · 随机</div>
+      </div>
+      <div class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">
+        <div class="dt">挑战</div><div class="dd">16 题 · 全部</div>
+      </div>
+      <div class="diff-btn custom" data-diff="custom" onclick="selectDifficulty('custom')">
+        <div class="dt">＋ 新增</div><div class="dd">自定义词库</div>
+      </div>
+    </div>
+
+    <div class="row" id="customCountRow" style="display:none">
+      <span class="lbl">自定义题数</span>
+      <input id="customCount" type="number" min="1" max="99" value="8" style="width:80px;margin-left:auto;padding:8px 10px;border:1.5px solid var(--el-border-color);border-radius:8px;font-size:15px">
+    </div>
+
+    <div class="row">
+      <span class="lbl">⏱ 限时模式（每题 10 秒）</span>
+      <div class="toggle" id="timerToggle" onclick="toggleTimer()"></div>
+    </div>
+
+    <div class="best">🏆 历史最高分：<b id="bestScore">0</b> 分</div>
+
+    <div class="section-title">🏅 实时擂台（前 3 名）</div>
+    <div class="lb">
+      <div class="lb-head"><span>☁️ 云端实时排行</span><span class="status" id="lbStatus">连接中…</span></div>
+      <div id="liveboard"><div class="lb-empty">加载中…</div></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="el-btn el-btn--primary el-btn--round" style="flex:1;padding:13px" onclick="startGame()">开始挑战</button>
+      <button class="el-btn el-btn--plain el-btn--round" style="flex:1;padding:13px" onclick="showBank()">✏️ 自定义题库</button>
+    </div>
+    <div class="row" style="margin-top:10px;gap:8px">
+      <input id="dictInput" placeholder="查拼音/释义，如：苹果" onkeydown="if(event.key==='Enter')dictSearch()" style="flex:1;padding:10px 12px;border:1.5px solid var(--el-border-color);border-radius:10px;font-size:15px;font-family:inherit" />
+      <button class="el-btn el-btn--primary" onclick="dictSearch()">📖 查询</button>
+    </div>
+    <div class="dict-box" id="dictBox"></div>
+  </section>
+
+  <!-- ===================== 游戏页 ===================== -->
+  <section class="screen" id="gameScreen">
+    <div class="hud">
+      <span id="questionCounter">1/8</span>
+      <span id="comboInline" style="color:var(--el-color-warning);font-weight:700;display:none"></span>
+      <span class="score">⭐ <span id="scoreDisplay">0</span></span>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="timerbar" id="timerBar"><div id="timerFill"></div></div>
+
+    <div class="qcard">
+      <div class="qimg" id="questionImage">🍎</div>
+      <div class="qword"><span id="questionWord">苹果</span>
+        <button class="qspeak" onclick="speakText(currentWord)" title="朗读">🔊</button></div>
+      <div class="qhint">这个词语的拼音是？</div>
+      <div class="options" id="optionsGrid"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="nav">
+      <button class="el-btn el-btn--plain" id="prevBtn" onclick="prevQuestion()">← 上一题</button>
+      <button class="el-btn el-btn--primary" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
+    </div>
+
+    <div class="game-ctrls">
+      <button class="el-btn el-btn--plain" onclick="pauseGame()">⏸ 暂停</button>
+      <button class="el-btn el-btn--plain" onclick="confirmEnd()">⏹ 结束</button>
+      <button class="el-btn el-btn--plain" onclick="goBack()">← 返回</button>
+    </div>
+  </section>
+
+  <!-- ===================== 自定义词库页 ===================== -->
+  <section class="screen" id="bankScreen">
+    <div class="topbar">
+      <button class="el-btn el-btn--plain" onclick="showScreen('startScreen')">←</button>
+      <div class="section-title" style="margin:0">✏️ 自定义题库</div>
+    </div>
+    <p class="count-tip">只需输入汉字词语，系统自动匹配拼音与图案；勾选的词语加入练习。</p>
+    <div class="add-row">
+      <input id="bankInput" placeholder="输入汉字，如：西瓜" onkeydown="if(event.key==='Enter')addBankWord()" />
+      <button class="el-btn el-btn--primary" onclick="addBankWord()">＋ 添加</button>
+    </div>
+    <div class="bank-list" id="bankList"></div>
+    <div class="count-tip" id="bankCount"></div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="el-btn el-btn--plain" style="flex:1" onclick="exportBank()">📤 导出JSON</button>
+      <button class="el-btn el-btn--primary" style="flex:1" onclick="saveBankAndPlay()">💾 保存并开始</button>
+    </div>
+  </section>
+
+  <!-- ===================== 结果页 ===================== -->
+  <section class="screen" id="resultScreen">
+    <div class="topbar">
+      <div class="section-title" style="margin:0">🎉 结果</div>
+      <button class="el-btn el-btn--ghost home" onclick="goBack()">← 返回作品集</button>
+    </div>
+    <div class="result-card">
+      <div class="result-emoji" id="resultEmoji">🏆</div>
+      <div class="result-title" id="resultTitle">太棒了！</div>
+      <div class="result-sub" id="resultSubtitle"></div>
+      <div class="rank-badge" id="rankBadge">S 级</div>
+      <div class="circle" id="scoreCircle"><div class="cv" id="resultScore">90%</div><div class="cl">正确率</div></div>
+      <div class="stats">
+        <div class="stat"><b id="statCorrect">0</b><span>答对</span></div>
+        <div class="stat"><b id="statWrong">0</b><span>答错</span></div>
+        <div class="stat"><b id="statStreak">0</b><span>最长连对</span></div>
+        <div class="stat"><b id="statTotalScore">0</b><span>总分</span></div>
+      </div>
+    </div>
+    <div class="review" id="reviewSection" style="display:none">
+      <div class="section-title">全部题目回顾</div>
+      <div id="reviewList"></div>
+    </div>
+    <div class="result-btns">
+      <button class="el-btn el-btn--primary el-btn--round" onclick="restartGame()">再来一次</button>
+      <button class="el-btn el-btn--plain" onclick="exportWrongAnswers()">📋 导出错题</button>
+      <button class="el-btn el-btn--plain" onclick="showScreen('startScreen')">返回首页</button>
+    </div>
+  </section>
+
+  <!-- 昵称遮罩 -->
+  <div class="overlay" id="nameOverlay">
+    <div class="modal">
+      <h3>先告诉我你的名字 👋</h3>
+      <p>用于记录成绩到云端实时擂台</p>
+      <input id="nameInput" maxlength="12" placeholder="输入昵称" />
+      <button class="el-btn el-btn--primary el-btn--round" style="width:100%;padding:12px" id="nameConfirm">开始游戏</button>
+    </div>
+  </div>
+  <!-- 暂停遮罩 -->
+  <div class="overlay" id="pauseOverlay">
+    <div class="modal">
+      <h3>⏸ 已暂停</h3>
+      <button class="el-btn el-btn--primary el-btn--round" style="width:100%;padding:12px;margin-bottom:10px" onclick="resumeGame()">继续游戏</button>
+      <button class="el-btn el-btn--plain el-btn--round" style="width:100%;padding:12px" onclick="goBack()">回到首页</button>
+    </div>
+  </div>
+
+  <div class="combo" id="comboPop"></div>
+  <div class="toast" id="toast"></div>
+  <div class="flash" id="flash"></div>
+  <canvas class="confetti" id="confetti"></canvas>
+</div>
+
+<script>
+/* =========================================================================
+ * 看图选拼音 —— 自包含稳健版
+ * 设计要点：
+ *  1) 游戏核心（HTML 属性 onclick + 本脚本）同步绑定，加载即可点击，绝不依赖云端 SDK。
+ *  2) CloudBase SDK（lib/cloudbase.full.js）以 defer 异步加载，就绪后由 initCloud() 接管
+ *     实时存分 + 实时擂台；即使云端不可用，游戏照常可玩（最高分存 localStorage）。
+ *  3) 配色严格使用 Element UI 蓝白主题变量，与作品集站点一致。
+ * ========================================================================= */
+/* 注意：本游戏全部函数均为全局声明，供 HTML 内联 onclick 直接调用（与原游戏可用模式一致）。
+   切勿用 IIFE 包裹，否则内联 onclick 在全局作用域找不到函数，会表现为「点不动」。 */
+
+/* ---------- 配置 ---------- */
+var ENV_ID=window.ENV_ID || '__ENV_ID__';
+var ACCESS_KEY=window.ACCESS_KEY || '__ACCESS_KEY__';
+window.GAME_TYPE='kan_tu_xuan_pinyin';
+
+/* ---------- 题库（保留原游戏内容） ---------- */
+var DQ_ALL=[
+  {emoji:'🍎',word:'苹果',pinyin:'píng guǒ',options:['píng guǒ','xiāng jiāo'],detail:'苹果，水果的一种，红色或绿色，脆甜可口'},
+  {emoji:'🐱',word:'猫',pinyin:'māo',options:['māo','gǒu'],detail:'猫，常见宠物，会抓老鼠，喵喵叫'},
+  {emoji:'💧',word:'水',pinyin:'shuǐ',options:['shuǐ','huǒ'],detail:'水，生命之源，无色无味的液体'},
+  {emoji:'📚',word:'书',pinyin:'shū',options:['shū','bǐ'],detail:'书，用来阅读学习的东西'},
+  {emoji:'☀️',word:'太阳',pinyin:'tài yáng',options:['tài yáng','yuè liang'],detail:'太阳，白天挂在天上，给我们光和热'},
+  {emoji:'🍚',word:'米饭',pinyin:'mǐ fàn',options:['mǐ fàn','miàn bāo'],detail:'米饭，中国人最常吃的主食'},
+  {emoji:'🚗',word:'车',pinyin:'chē',options:['chē','chuán'],detail:'车，在马路上跑的交通工具'},
+  {emoji:'🏠',word:'家',pinyin:'jiā',options:['jiā','huā'],detail:'家，我们住的地方，有家人陪伴'},
+  {emoji:'🌸',word:'花',pinyin:'huā',options:['huā','cǎo'],detail:'花，植物开的美丽花朵'},
+  {emoji:'✈️',word:'飞机',pinyin:'fēi jī',options:['fēi jī','huǒ chē'],detail:'飞机，在天上飞的交通工具'},
+  {emoji:'🎵',word:'音乐',pinyin:'yīn yuè',options:['yīn yuè','huà'],detail:'音乐，用声音创造的艺术'},
+  {emoji:'👩‍🏫',word:'老师',pinyin:'lǎo shī',options:['lǎo shī','xué shēng'],detail:'老师，在学校教我们知识的人'},
+  {emoji:'🏥',word:'医院',pinyin:'yī yuàn',options:['yī yuàn','xué xiào'],detail:'医院，生病了去看病的地方'},
+  {emoji:'🎭',word:'表演',pinyin:'biǎo yǎn',options:['biǎo yǎn','bǐ sài'],detail:'表演，在舞台上展示才艺'},
+  {emoji:'🌍',word:'世界',pinyin:'shì jiè',options:['shì jiè','guó jiā'],detail:'世界，我们生活的地球'},
+  {emoji:'💭',word:'想法',pinyin:'xiǎng fǎ',options:['xiǎng fǎ','kàn fǎ'],detail:'想法，脑子里的念头和主意'}
+];
+var DIFF_COUNTS={easy:8,medium:12,hard:16};
+/* 简易中文词典（自定义词库/查词典用，覆盖常用词） */
+var DICT={'苹果':['píng guǒ','水果的一种'],'猫':['māo','常见宠物'],'水':['shuǐ','生命之源'],'书':['shū','阅读学习的东西'],
+ '太阳':['tài yáng','天上的恒星'],'米饭':['mǐ fàn','主食'],'车':['chē','交通工具'],'家':['jiā','住的地方'],
+ '花':['huā','植物的繁殖器官'],'飞机':['fēi jī','空中交通工具'],'音乐':['yīn yuè','声音艺术'],'老师':['lǎo shī','教书的人'],
+ '医院':['yī yuàn','看病的地方'],'表演':['biǎo yǎn','展示才艺'],'世界':['shì jiè','地球'],'想法':['xiǎng fǎ','念头主意'],
+ '西瓜':['xī guā','夏季水果'],'香蕉':['xiāng jiāo','黄色水果'],'狗':['gǒu','宠物'],'火':['huǒ','燃烧的现象'],'笔':['bǐ','书写工具'],
+ '月亮':['yuè liang','夜空的天体'],'面包':['miàn bāo','烘焙食物'],'船':['chuán','水上交通工具'],'草':['cǎo','草本植物'],
+ '火车':['huǒ chē','轨道交通工具'],'画':['huà','绘画作品'],'学生':['xué shēng','学习的人'],'学校':['xué xiào','读书的地方'],
+ '比赛':['bǐ sài','竞技活动'],'国家':['guó jiā','政治实体'],'看法':['kàn fǎ','观点']};
+var EM={}; DQ_ALL.forEach(function(q){EM[q.word]=q.emoji;});
+
+/* ---------- 状态 ---------- */
+var currentDifficulty='easy', questions=[], currentIndex=0, totalScore=0, score=0, streak=0, maxStreak=0,
+    correctCount=0, wrongCount=0, answered=[], answeredOption=[], wrongList=[], correctList=[],
+    isPaused=false, isGameOver=false, timerEnabled=false, timeLeft=0, timerInterval=null,
+    questionStartTime=0, currentWord='', bank=[], cloudReady=false, tcb=null, db=null;
+
+/* ---------- 工具 ---------- */
+function $(id){return document.getElementById(id);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pf(s){try{return (s||'').normalize('NFC');}catch(e){return s||'';}}
+function toastMsg(m){var t=$('toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},1800);}
+function vibrate(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+function flashScreen(c){var f=$('flash');if(!f)return;f.style.background=c;f.classList.add('show');setTimeout(function(){f.classList.remove('show');},200);}
+
+/* ---------- 语音（百度→有道→浏览器） ---------- */
+var zhVoice=null;
+function loadVoices(){try{if('speechSynthesis'in window){var v=window.speechSynthesis.getVoices()||[];var zh=v.filter(function(x){return /^zh/i.test(x.lang)||/中文|普通话|国语/i.test(x.name);});zhVoice=zh[0]||null;}}catch(e){}}
+if('speechSynthesis'in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices;}
+function speakText(text){
+  if(!text)return;
+  var baidu='https://fanyi.baidu.com/gettts?lan=zh&text='+encodeURIComponent(text)+'&spd=3&source=web';
+  var youdao='https://dict.youdao.com/dictvoice?audio='+encodeURIComponent(text)+'&le=zh&type=2';
+  var a=new Audio();a.referrerPolicy='no-referrer';a.src=baidu;
+  a.play().catch(function(){var b=new Audio();b.referrerPolicy='no-referrer';b.src=youdao;b.play().catch(function(){if(zhVoice){try{window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.voice=zhVoice;window.speechSynthesis.speak(u);}catch(e){}}});});
+}
+
+/* ---------- 屏幕切换 ---------- */
+function showScreen(id){
+  var ss=document.querySelectorAll('.screen');
+  for(var i=0;i<ss.length;i++)ss[i].classList.remove('active');
+  $(id).classList.add('active');
+  if(id==='startScreen'){refreshBest();refreshLeaderboard();}
+}
+
+/* ---------- 难度 ---------- */
+function selectDifficulty(d){
+  currentDifficulty=d;
+  var btns=document.querySelectorAll('.diff-btn');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('selected');
+  var el=document.querySelector('.diff-btn[data-diff="'+d+'"]');if(el)el.classList.add('selected');
+  $('customCountRow').style.display=(d==='custom')?'flex':'none';
+}
+function toggleTimer(){$('timerToggle').classList.toggle('on');timerEnabled=$('timerToggle').classList.contains('on');}
+
+/* ---------- 自定义词库 ---------- */
+function loadBank(){try{bank=JSON.parse(localStorage.getItem('ktp_custom')||'[]');}catch(e){bank=[];}}
+function saveBank(){localStorage.setItem('ktp_custom',JSON.stringify(bank));}
+function addBankWord(){
+  var v=$('bankInput').value.trim();if(!v){toastMsg('请输入汉字');return;}
+  var w=v;var py='',dt='';
+  if(DICT[w]){py=DICT[w][0];dt=DICT[w][1];}
+  else{py='';dt='（请手动补充拼音）';}
+  bank.push({word:w,pinyin:py,detail:dt,emoji:EM[w]||'',selected:true});
+  $('bankInput').value='';saveBank();renderBank();
+}
+function renderBank(){
+  var list=$('bankList');list.innerHTML='';
+  bank.forEach(function(q,i){
+    var div=document.createElement('div');div.className='bank-item';
+    div.innerHTML='<span class="bi-emoji">'+(q.emoji||'🔤')+'</span>'+
+      '<span><span class="bi-word">'+q.word+'</span> <span class="bi-py pinyin">'+pf(q.pinyin||'')+'</span></span>'+
+      '<input type="checkbox" '+(q.selected!==false?'checked':'')+' onchange="toggleBank('+i+',this.checked)">'+
+      '<button class="del" onclick="delBank('+i+')">🗑</button>';
+    list.appendChild(div);
+  });
+  var sel=bank.filter(function(q){return q.selected!==false;}).length;
+  $('bankCount').textContent='已勾选 '+sel+' / 共 '+bank.length+' 个词语';
+}
+function toggleBank(i,v){if(bank[i]){bank[i].selected=v;saveBank();renderBank();}}
+function delBank(i){bank.splice(i,1);saveBank();renderBank();}
+function showBank(){loadBank();renderBank();showScreen('bankScreen');}
+function saveBankAndPlay(){
+  saveBank();
+  if(!bank.some(function(q){return q.selected!==false;})){toastMsg('请至少勾选一个词语');return;}
+  selectDifficulty('custom');
+  startGame();
+}
+function exportBank(){
+  var data=JSON.stringify(bank,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ktp_custom.json';a.click();
+}
+
+/* ---------- 出题 ---------- */
+function getQuestions(diff){
+  var result=[];
+  if(diff==='custom'){
+    var n=parseInt($('customCount').value)||8;n=Math.max(1,Math.min(99,n));
+    var pool=bank.filter(function(q){return q.selected!==false&&q.pinyin;});
+    shuffle(pool);result=pool.slice(0,Math.min(n,pool.length));
+    result.forEach(function(q){
+      var others=DQ_ALL.map(function(x){return x.pinyin;}).concat(bank.map(function(x){return x.pinyin;}));
+      others=others.filter(function(p){return p&&p!==q.pinyin;});
+      shuffle(others);var wrong=others[0]||'shī bài';
+      q.options=[q.pinyin,wrong];
+    });
+  }else{
+    var count=DIFF_COUNTS[diff]||8;
+    var p=shuffle(DQ_ALL.slice());result=p.slice(0,Math.min(count,p.length));
+  }
+  result.forEach(function(q){q.options=shuffle(q.options.slice());});
+  return result;
+}
+
+/* ---------- 昵称关卡 ---------- */
+function getNick(){return localStorage.getItem('hpm_nick')||'';}
+function startGame(){
+  if(!getNick()){
+    $('nameInput').value='';$('nameOverlay').classList.add('show');setTimeout(function(){$('nameInput').focus();},50);
+    return;
+  }
+  startRound();
+}
+$('nameConfirm').addEventListener('click',function(){
+  var v=$('nameInput').value.trim();
+  if(!v){toastMsg('请先输入名字');$('nameInput').focus();return;}
+  localStorage.setItem('hpm_nick',v.slice(0,12));
+  $('nameOverlay').classList.remove('show');
+  startRound();
+});
+$('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')$('nameConfirm').click();});
+
+/* ---------- 开局 ---------- */
+function startRound(){
+  questions=getQuestions(currentDifficulty);
+  currentIndex=0;totalScore=0;score=0;streak=0;maxStreak=0;correctCount=0;wrongCount=0;
+  answered=new Array(questions.length).fill(null);answeredOption=new Array(questions.length).fill(-1);
+  wrongList=[];correctList=[];isPaused=false;isGameOver=false;
+  showScreen('gameScreen');renderQuestion();
+  if(timerEnabled)startTimer();
+}
+function renderQuestion(){
+  if(currentIndex>=questions.length){endGame();return;}
+  var q=questions[currentIndex];currentWord=q.word;
+  $('questionCounter').textContent=(currentIndex+1)+'/'+questions.length;
+  $('progressBar').style.width=(currentIndex/questions.length*100)+'%';
+  $('scoreDisplay').textContent=totalScore;
+  var imgEl=$('questionImage');
+  if(q.imageUrl){imgEl.innerHTML='<img src="'+q.imageUrl+'">';}
+  else if(q.emoji){imgEl.textContent=q.emoji;}
+  else if(EM[q.word]){imgEl.textContent=EM[q.word];}
+  else{imgEl.textContent='🔤';}
+  $('questionWord').textContent=q.word;
+  var ci=$('comboInline');
+  if(streak>=2){ci.style.display='inline';ci.textContent='🔥 x'+streak;}else{ci.style.display='none';}
+  var grid=$('optionsGrid');grid.innerHTML='';
+  q.options.forEach(function(opt,i){
+    var b=document.createElement('button');b.className='option-btn pinyin';b.textContent=pf(opt);
+    b.onclick=function(){selectOption(i);};
+    if(answered[currentIndex]!==null){
+      b.classList.add('disabled');
+      if(opt===q.pinyin)b.classList.add('correct');
+      if(answeredOption[currentIndex]===i&&answered[currentIndex]==='wrong')b.classList.add('wrong');
+    }
+    grid.appendChild(b);
+  });
+  var fb=$('feedback');fb.className='feedback';fb.classList.remove('show');
+  updateNav();questionStartTime=Date.now();
+}
+function updateNav(){
+  var prev=$('prevBtn'),next=$('nextBtn');
+  prev.classList.toggle('show',currentIndex>0);
+  var isLast=currentIndex>=questions.length-1,hasAns=answered[currentIndex]!==null;
+  next.classList.toggle('show',hasAns||isLast);
+  next.textContent=(isLast&&hasAns)?'查看结果 →':'下一题 →';
+}
+function selectOption(idx){
+  if(isPaused||isGameOver||answered[currentIndex]!==null)return;
+  var q=questions[currentIndex];
+  var isCorrect=q.options[idx]===q.pinyin;
+  answeredOption[currentIndex]=idx;
+  var btns=document.querySelectorAll('.option-btn');
+  btns.forEach(function(b,i){b.classList.add('disabled');if(q.options[i]===q.pinyin)b.classList.add('correct');if(i===idx&&!isCorrect)b.classList.add('wrong');});
+  var fb=$('feedback');
+  if(isCorrect){
+    answered[currentIndex]='correct';correctCount++;streak++;if(streak>maxStreak)maxStreak=streak;
+    correctList.push({q:q,chosen:q.options[idx]});
+    var pts=100,comboBonus=Math.min((streak-1)*20,140);pts+=comboBonus;
+    var el=(Date.now()-questionStartTime)/1000,speedBonus=el<5?50:(el<8?20:0);pts+=speedBonus;totalScore+=pts;score++;
+    flashScreen('rgba(103,194,58,.15)');beep(660,0.1);if(streak>=3)beep(880,0.12);
+    if(streak>=2){var cp=$('comboPop');cp.textContent='🔥 连击 x'+streak;cp.classList.add('show');setTimeout(function(){cp.classList.remove('show');},650);}
+    fb.className='feedback correct-fb show';
+    var h='✅ 正确！ <span class="pinyin">'+pf(q.pinyin)+'</span> — '+q.word;
+    if(comboBonus>0)h+='<div class="fb-points">连击+'+comboBonus+' 🚀</div>';
+    if(speedBonus>0)h+='<div class="fb-points">速度+'+speedBonus+' ⚡</div>';
+    fb.innerHTML=h;
+  }else{
+    answered[currentIndex]='wrong';streak=0;wrongCount++;
+    wrongList.push({q:q,chosen:q.options[idx]});
+    flashScreen('rgba(245,108,108,.25)');beep(200,0.18,'square');vibrate([100,50,100,50,200]);
+    fb.className='feedback wrong-fb show';
+    fb.innerHTML='❌ 正确答案是 <strong class="pinyin">'+pf(q.pinyin)+'</strong> — '+q.word+'<div class="fb-detail">'+q.detail+'</div>';
+  }
+  $('scoreDisplay').textContent=totalScore;
+  speakText(q.word);updateNav();
+  if(timerEnabled)clearTimer();
+}
+function prevQuestion(){if(currentIndex>0){currentIndex--;renderQuestion();}}
+function nextQuestion(){if(currentIndex<questions.length-1){currentIndex++;renderQuestion();}else if(answered[currentIndex]!==null){endGame();}}
+
+/* ---------- 计时 ---------- */
+function startTimer(){timeLeft=10;var fill=$('timerFill');$('timerBar').style.display='block';fill.style.width='100%';fill.parentNode.classList.remove('danger');
+  clearTimer();timerInterval=setInterval(function(){if(isPaused)return;timeLeft-=0.1;var p=Math.max(0,timeLeft/10*100);fill.style.width=p+'%';if(timeLeft<=3)fill.parentNode.classList.add('danger');if(timeLeft<=0){clearTimer();handleTimeout();}},100);}
+function clearTimer(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+function handleTimeout(){if(answered[currentIndex]!==null)return;
+  answered[currentIndex]='wrong';answeredOption[currentIndex]=-1;streak=0;wrongCount++;
+  var q=questions[currentIndex];wrongList.push({q:q,chosen:'(超时)'});
+  var btns=document.querySelectorAll('.option-btn');btns.forEach(function(b,i){b.classList.add('disabled');if(q.options[i]===q.pinyin)b.classList.add('correct');});
+  beep(160,0.2,'square');vibrate([200,100,200]);flashScreen('rgba(245,108,108,.25)');
+  var fb=$('feedback');fb.className='feedback wrong-fb show';fb.innerHTML='⏰ 超时！正确答案是 <strong class="pinyin">'+pf(q.pinyin)+'</strong> — '+q.word;
+  speakText(q.word);updateNav();
+}
+function pauseGame(){if(isGameOver)return;isPaused=true;$('pauseOverlay').classList.add('show');clearTimer();}
+function resumeGame(){isPaused=false;$('pauseOverlay').classList.remove('show');if(timerEnabled)startTimer();}
+function confirmEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+
+/* ---------- 返回 ---------- */
+function goBack(){
+  clearTimer();isPaused=false;isGameOver=true;$('pauseOverlay').classList.remove('show');
+  var back=location.origin+'/works.html';
+  try{if(window.top&&window.top!==window)window.top.location.href=back;else window.location.href=back;}catch(e){window.location.href=back;}
+}
+
+/* ---------- 结束 / 结算 ---------- */
+function endGame(){
+  isGameOver=true;clearTimer();
+  var total=questions.length,pct=total>0?Math.round(correctCount/total*100):0;
+  var rank,rc,emoji,title,sub;
+  if(pct>=90){rank='S';rc='s';emoji='🏆';title='太棒了！';sub='拼音掌握得很扎实！';}
+  else if(pct>=70){rank='A';rc='a';emoji='🎉';title='很不错！';sub='大部分拼音都掌握了！';}
+  else if(pct>=50){rank='B';rc='b';emoji='💪';title='继续加油！';sub='还有提升空间，多练几次！';}
+  else{rank='C';rc='c';emoji='📖';title='需要多练习';sub='别灰心，每次练习都在进步！';}
+  $('resultEmoji').textContent=emoji;$('resultTitle').textContent=title;$('resultSubtitle').textContent=sub;
+  var badge=$('rankBadge');badge.textContent=rank+' 级';badge.className='rank-badge '+rc;
+  $('scoreCircle').style.setProperty('--pct',pct+'%');
+  $('resultScore').textContent=pct+'%';
+  $('statCorrect').textContent=correctCount;$('statWrong').textContent=wrongCount;
+  $('statStreak').textContent=maxStreak;$('statTotalScore').textContent=totalScore;
+  var rl=$('reviewList');rl.innerHTML='';
+  if(questions.length){
+    $('reviewSection').style.display='block';
+    questions.forEach(function(q,i){
+      var ok=answered[i]==='correct';
+      var div=document.createElement('div');div.className='review-item '+(ok?'rv-correct':'rv-wrong');
+      var pic=q.imageUrl?'<img src="'+q.imageUrl+'">':((q.emoji||EM[q.word])?'<span class="rv-emoji">'+(q.emoji||EM[q.word])+'</span>':'🔤');
+      div.innerHTML=pic+'<span class="rv-word">'+q.word+'</span>'+
+        (ok?'<span class="rv-correct pinyin">'+pf(q.pinyin)+'</span>'
+           :'<span class="rv-wrong pinyin">'+pf(q.options[answeredOption[i]]||'')+'</span><span class="rv-correct pinyin">'+pf(q.pinyin)+'</span>')+
+        '<button class="rv-speak" onclick="speakText(\''+q.word+'\')">🔊</button>';
+      rl.appendChild(div);
+    });
+  }else{$('reviewSection').style.display='none';}
+  showScreen('resultScreen');
+  if(pct>=70)launchConfetti();
+  beep(880,0.15);setTimeout(function(){beep(1047,0.2);},120);
+  saveBest();
+  saveScoreCloud();
+}
+function restartGame(){startRound();}
+
+/* ---------- 本地最高分 ---------- */
+function bestKey(){return 'ktp_best_'+currentDifficulty;}
+function refreshBest(){$('bestScore').textContent=parseInt(localStorage.getItem(bestKey())||'0',10);}
+function saveBest(){var k=bestKey(),cur=parseInt(localStorage.getItem(k)||'0',10);if(totalScore>cur)localStorage.setItem(k,totalScore);}
+
+/* ---------- 错题导出 ---------- */
+function exportWrongAnswers(){
+  var lines=['看图选拼音 · 错题复习','日期：'+new Date().toLocaleString(),'','正确率：'+$('resultScore').textContent,''];
+  wrongList.forEach(function(w,i){lines.push((i+1)+'. '+w.q.word+'　正确：'+w.q.pinyin+'　你的答案：'+w.chosen+'　'+w.q.detail);});
+  var blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ktp_wrong.txt';a.click();
+}
+
+/* ---------- 词典 ---------- */
+function dictSearch(){
+  var inp=$('dictInput');var word=(inp?inp.value:'').trim();if(!word){toastMsg('请输入要查询的词语');return;}
+  var box=$('dictBox');if(!box)return;
+  if(DICT[word]){box.innerHTML='<div class="dw">'+word+'</div><div class="dpy pinyin">'+pf(DICT[word][0])+'</div><div>'+DICT[word][1]+'</div> <button class="qspeak" onclick="speakText(\''+word+'\')">🔊</button>';}
+  else{box.innerHTML='<div class="dw">'+word+'</div><div>未找到，试试常用词（苹果/猫/水/书/西瓜…）</div>';}
+  box.classList.add('show');
+}
+
+/* ---------- 音效 ---------- */
+var actx;
+function beep(freq,dur,type){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var o=actx.createOscillator(),g=actx.createGain();o.type=type||'sine';o.frequency.value=freq;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.18,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);o.start();o.stop(actx.currentTime+dur);}catch(e){}}
+
+/* ---------- 五彩纸屑 ---------- */
+function launchConfetti(){
+  var c=$('confetti'),x=c.getContext('2d');if(!x)return;c.width=innerWidth;c.height=innerHeight;
+  var colors=['#409EFF','#67C23A','#E6A23C','#F56C6C','#79bbff','#a0cfff'];
+  var ps=[];for(var i=0;i<60;i++)ps.push({x:Math.random()*c.width,y:-20-Math.random()*c.height/2,v:2+Math.random()*3,a:Math.random()*6.28,va:(Math.random()-.5)*.2,c:colors[i%colors.length],s:6+Math.random()*6});
+  var t0=Date.now();
+  (function anim(){
+    x.clearRect(0,0,c.width,c.height);
+    ps.forEach(function(p){p.y+=p.v;p.x+=Math.sin(p.a)*1;p.a+=p.va;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s);x.restore();});
+    if(Date.now()-t0<1800)requestAnimationFrame(anim);else x.clearRect(0,0,c.width,c.height);
+  })();
+}
+
+/* ---------- 云端（增强层，绝不阻塞游戏） ---------- */
+function initCloud(){
+  if(tcb)return;
+  var wait=function(){
+    if(window.cloudbase){
+      try{
+        tcb=window.cloudbase.init({env:ENV_ID,region:'ap-shanghai',accessKey:ACCESS_KEY,auth:{detectSessionInUrl:true}});
+        var auth=(typeof tcb.auth==='function')?tcb.auth():tcb.auth;
+        auth.signInAnonymously().then(function(r){
+          if(r&&r.error)throw new Error((r.error&&(r.error.message||r.error.description))||'匿名登录失败');
+          db=tcb.database();cloudReady=true;
+          var ds=$('lbStatus');if(ds){ds.textContent='已同步';ds.className='status ok';}
+          refreshLeaderboard();
+          try{db.collection('scores').watch({onChange:function(){refreshLeaderboard();},onError:function(){}});}catch(e){}
+          setInterval(refreshLeaderboard,8000);
+        }).catch(function(e){cloudFail(e);});
+      }catch(e){cloudFail(e);}
+    }else if(Date.now()-waitStart<9000){setTimeout(wait,80);}
+    else{cloudFail(new Error('SDK 未加载'));}
+  };
+  var waitStart=Date.now();
+  if(!window.cloudbase)setTimeout(wait,80);else wait();
+}
+function cloudFail(e){
+  cloudReady=false;var ds=$('lbStatus');if(ds){ds.textContent='云端不可用';ds.className='status warn';}
+  var lb=$('liveboard');if(lb)lb.innerHTML='<div class="lb-empty">云端暂不可用，成绩仅存本地</div>';
+  console.warn('cloudbase',e);
+}
+function saveScoreCloud(){
+  if(!cloudReady||!db)return;
+  try{
+    db.collection('scores').add({game_type:window.GAME_TYPE,player:getNick()||'匿名学员',mode:'single',score:totalScore,
+      correct:correctCount,wrong:wrongCount,duration:0,created_at:new Date().toISOString()}).then(function(){refreshLeaderboard();}).catch(function(e){console.warn('save',e);});
+  }catch(e){}
+}
+function refreshLeaderboard(){
+  if(!cloudReady||!db)return;
+  try{
+    db.collection('scores').orderBy('score','desc').limit(60).get().then(function(res){
+      var rows=(res.data||[]).filter(function(r){return r.game_type===window.GAME_TYPE;}).slice(0,3);
+      renderLeaderboard(rows);
+    }).catch(function(){var ds=$('lbStatus');if(ds){ds.textContent='同步失败';ds.className='status warn';}});
+  }catch(e){}
+}
+function renderLeaderboard(rows){
+  var lb=$('liveboard');if(!lb)return;
+  if(!rows.length){lb.innerHTML='<div class="lb-empty">还没有战绩，快来抢占榜首！</div>';return;}
+  var medals=['🥇','🥈','🥉'];
+  lb.innerHTML=rows.map(function(r,i){
+    var me=(getNick()&&r.player===getNick())?' lb-me':'';
+    return '<div class="lb-card'+me+'"><div class="rk">'+medals[i]+'</div><div class="nm">'+r.player+'</div><div class="sc">'+r.score+' 分</div></div>';
+  }).join('');
+}
+
+/* ---------- 初始化 ---------- */
+selectDifficulty('easy');
+refreshBest();
+initCloud();
+</script>
+</body>
+</html>

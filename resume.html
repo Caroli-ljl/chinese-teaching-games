@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>李佳路 Caroli · AI 产品经理简历（教育领域深耕）</title>
+<meta name="description" content="李佳路 Caroli · 暨南大学国际中文教育硕士（保研）· 求职：AI 产品经理（实习 / 校招）。教育为深耕领域，能独立落地 AI 产品、数据驱动迭代。" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="李佳路 Caroli · AI 产品经理简历（教育领域深耕）" />
+<meta property="og:description" content="AI 产品经理（教育领域深耕）· 实习 / 校招。懂场景 · 懂 AI · 能落地。 / AI Product Manager (Education focus) · Internship / Campus hire — bridges linguistics & Chinese-teaching insight with shippable AI workflows." />
+<meta property="og:image" content="assets/avatar.jpg" />
+<meta property="og:url" content="https://Caroli-ljl.github.io/jialu-portfolio/resume.html" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="stylesheet" href="assets/element-theme.css" />
+<script src="config.js"></script>
+<script src="games/lib/cloudbase.full.js"></script>
+<script src="content.js?v=4"></script>
+<style>
+  :root{
+    --ink:#1f2a37; --sub:#5b6675; --line:#e6ebf2; --card:#fff; --bg:#eef2f7;
+    --accent:#2f5fd0; --accent-d:#23489e; --tag:#eef3ff; --todo:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;
+    color:var(--ink);line-height:1.62;font-size:14px;-webkit-font-smoothing:antialiased}
+
+  .toolbar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    justify-content:center;padding:10px 14px;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(20,40,80,.06)}
+  .toolbar .tbtn{font-size:13px;border:1px solid var(--accent);color:var(--accent);background:#fff;
+    padding:7px 14px;border-radius:8px;cursor:pointer;transition:.15s;font-weight:600}
+  .toolbar .tbtn:hover{background:var(--accent);color:#fff}
+  .toolbar .tbtn.primary{background:var(--accent);color:#fff}
+  .toolbar .tbtn.ghost{border-color:#c2cad6;color:var(--sub)}
+  .toolbar .sep{width:1px;height:22px;background:var(--line)}
+  .toolbar .hint{font-size:12px;color:var(--sub)}
+  #saveState{font-size:12px;color:#2e9b57;opacity:0;transition:.3s}
+  #saveState.show{opacity:1}
+
+  .page{max-width:820px;margin:22px auto;background:var(--card);box-shadow:0 8px 30px rgba(20,40,80,.10);
+    border-radius:6px;overflow:hidden}
+  header.rh{padding:30px 40px 22px;background:linear-gradient(135deg,#2f5fd0 0%,#23489e 100%);color:#fff;
+    display:flex;gap:22px;align-items:flex-start;justify-content:space-between}
+  .rh-main{flex:1;min-width:0}
+  header.rh h1{font-size:27px;letter-spacing:2px;margin-bottom:3px}
+  header.rh h1 .en{font-size:14px;font-weight:400;opacity:.85;letter-spacing:0;margin-left:8px}
+  header.rh .role{font-size:15px;opacity:.95;margin-bottom:12px;font-weight:500}
+  .contact{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;opacity:.96}
+  .contact span{display:inline-flex;align-items:center;gap:5px}
+  .obj{margin-top:12px;background:rgba(255,255,255,.14);padding:9px 13px;border-radius:8px;font-size:13px}
+
+  /* 照片位 */
+  .photo-box{position:relative;flex:0 0 auto;width:108px;height:108px;border-radius:12px;overflow:hidden;
+    background:rgba(255,255,255,.16);cursor:pointer;border:2px dashed rgba(255,255,255,.5);
+    display:none;align-items:center;justify-content:center;transition:.15s}
+  .photo-box:hover{border-color:#fff}
+  .photo-box img{width:100%;height:100%;object-fit:contain;display:none;padding:3px}
+  .photo-box .ph-add{font-size:12px;text-align:center;opacity:.92;padding:6px;line-height:1.4}
+  .photo-box.has{background:transparent;border:none;border-radius:0;box-shadow:none;display:flex}
+  .photo-box.has img{display:block;padding:0}
+  .photo-box.has .ph-add{display:none}
+  .photo-box .ph-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
+    background:rgba(0,0,0,.55);color:#fff;border:none;font-size:12px;cursor:pointer;display:none;line-height:20px}
+  .photo-box:hover .ph-del{display:block}
+  /* 作者编辑态才显示空上传框（HR 看不到未填的虚线框） */
+  body.cb-editing .photo-box{display:flex}
+
+  section.rb{padding:16px 40px;border-bottom:1px solid var(--line)}
+  section.rb:last-child{border-bottom:none}
+  h2.rb{font-size:15.5px;color:var(--accent-d);border-left:4px solid var(--accent);padding-left:10px;
+    margin:6px 0 12px;font-weight:700}
+  h3.rb{font-size:14px;margin:13px 0 5px;color:var(--ink)}
+  h3.rb .meta{font-weight:400;color:var(--sub);font-size:12.5px;margin-left:8px}
+  h3.rb .role{font-weight:600;color:var(--accent);font-size:12.5px;margin-left:6px}
+  ul{list-style:none;padding-left:0}
+  ul.rb li{position:relative;padding:4px 0 4px 16px}
+  ul.rb li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;
+    background:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px}
+  .kv{font-size:13px;color:var(--sub)}
+  .kv b{color:var(--ink)}
+  .pill{display:inline-block;background:var(--tag);color:var(--accent-d);border:1px solid #d6e2ff;
+    border-radius:13px;padding:2px 10px;margin:3px 5px 3px 0;font-size:12px}
+  .todo{color:var(--todo);background:#fdecea;border-radius:4px;padding:0 5px;font-size:12px}
+  footer.rf{padding:14px 40px 24px;color:var(--sub);font-size:12px;text-align:center}
+
+  .attach{padding:14px 40px;background:#fafcff;border-bottom:1px solid var(--line);display:none}
+  .attach.has{display:block}
+  body.cb-editing .attach{display:block}
+  /* 顶部「下载附件简历」按钮：有附件时才显示，避免 HR 点到空白下载 */
+  #btnAttach{display:none}
+  .attach .at-title{font-size:13px;font-weight:700;color:var(--accent-d);margin-bottom:8px}
+  .attach .at-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .attach .at-file{font-size:13px;color:var(--ink)}
+  .attach .at-file .nm{font-weight:600}
+  .attach .at-hint{font-size:12px;color:var(--sub)}
+
+  [contenteditable="true"]{outline:2px dashed #9bb8f0;outline-offset:3px;border-radius:4px;background:#fbfdff;cursor:text}
+  [contenteditable="true"]:focus{outline-color:var(--accent);background:#fff}
+  body.editing .editonly{display:inline-flex}
+  .editonly{display:none}
+  #editBanner{display:none;position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+    background:#23489e;color:#fff;font-size:12.5px;padding:7px 16px;border-radius:20px;z-index:60;
+    box-shadow:0 4px 14px rgba(20,40,80,.25)}
+  body.editing #editBanner{display:block}
+
+  @media(max-width:680px){
+    header.rh,section.rb,footer.rf,.attach{padding-left:18px;padding-right:18px}
+    header.rh{flex-direction:column;align-items:center;text-align:center}
+    .photo-box{order:-1}
+    .contact{justify-content:center}
+    .grid2{grid-template-columns:1fr}
+    .page{margin:10px}
+    body{padding-bottom:60px}
+  }
+  @media print{
+    html,body{background:#fff}
+    .toolbar,#editBanner,.editonly,.sidebar,.menuBtn,.backTop{display:none !important}
+    .main{margin-left:0 !important}
+    .page{margin:0;box-shadow:none;border-radius:0;max-width:100%}
+    header.rh{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    section.rb,header.rh,.attach{page-break-inside:avoid}
+    [contenteditable]{outline:none !important;background:transparent !important}
+  }
+
+  /* ===== 左侧导航栏（与首页 / 作品集一致，Element 风） ===== */
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:240px;
+    background:var(--el-bg-color,#fff); border-right:1px solid var(--el-border-color-lighter,#ebeef5);
+    display:flex; flex-direction:column; padding:18px 0; overflow-y:auto; z-index:50;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:4px 18px 14px; border-bottom:1px solid var(--el-border-color-lighter,#ebeef5); margin-bottom:8px}
+  .brand .ava{width:40px; height:40px; border-radius:var(--el-border-radius-base,6px); flex:none; object-fit:cover; border:2px solid var(--el-color-primary-light-8,#d9ecff)}
+  .brand b{font-size:16px; line-height:1.2; color:var(--el-text-color-primary,#303133)}
+  .brand small{display:block; color:var(--el-text-color-secondary,#909399); font-size:11.5px; margin-top:2px}
+  .nav{display:flex; flex-direction:column; gap:2px; margin-top:6px}
+  .nav a{
+    display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--el-text-color-regular,#606266);
+    padding:0 18px; height:48px; font-size:14px; font-family:inherit; font-weight:500; border-right:2px solid transparent;
+  }
+  .nav a:hover{background:var(--el-fill-color-light,#f5f7fa); color:var(--el-color-primary,#409eff)}
+  .nav a.active{background:var(--el-color-primary-light-9,#ecf5ff); color:var(--el-color-primary,#409eff); border-right-color:var(--el-color-primary,#409eff); font-weight:600}
+  .nav .em{width:20px; text-align:center; flex:none}
+  .nav-bottom{margin-top:auto; display:flex; flex-direction:column}
+  .nav-foot{padding:12px 16px 2px; border-top:1px solid var(--el-border-color-lighter,#ebeef5); font-size:11.5px; color:var(--el-text-color-secondary,#909399); line-height:1.6}
+
+  /* 侧栏操作区：管理 / 恢复默认 样式与首页 · 作品集 左侧导航项完全一致，置于侧栏最底部左下角 */
+  .nav-ops{margin-top:8px; padding:0; display:flex; flex-direction:column; gap:2px}
+  .nav-ops .nav-link{
+    display:flex; align-items:center; gap:10px; text-align:left; width:100%; white-space:nowrap;
+    text-decoration:none; color:var(--el-text-color-regular,#606266);
+    padding:0 18px; height:48px; font-size:14px; font-family:inherit; font-weight:500;
+    border:none; border-right:2px solid transparent; background:none; cursor:pointer;
+  }
+  .nav-ops .nav-link:hover{background:var(--el-fill-color-light,#f5f7fa); color:var(--el-color-primary,#409eff)}
+  .nav-ops .nav-link.active{background:var(--el-color-primary-light-9,#ecf5ff); color:var(--el-color-primary,#409eff); border-right-color:var(--el-color-primary,#409eff); font-weight:600}
+  .nav-ops .em{width:20px; text-align:center; flex:none; display:inline-flex; align-items:center; justify-content:center}
+  .nav-ops .txt{display:inline-block}
+  .nav-ops .editonly{display:none}
+  .nav-ops #saveState{display:block; text-align:center; font-size:12px; color:#2e9b57; opacity:0; transition:.3s; margin-top:2px; padding:0 18px}
+  .nav-ops #saveState.show{opacity:1}
+  body.editing .nav-ops .editonly{display:flex}
+  .main{margin-left:240px}
+  .menuBtn{
+    display:none; position:fixed; top:14px; left:14px; z-index:60;
+    width:42px; height:42px; border-radius:var(--el-border-radius-base,6px); border:1px solid var(--el-border-color,#dcdfe6);
+    background:#fff; font-size:20px; cursor:pointer; color:var(--el-color-primary,#409eff); box-shadow:var(--el-box-shadow-light,0 2px 12px rgba(0,0,0,.1));
+  }
+  .menuBtn.open{left:auto; right:14px; z-index:63}
+  .nav-mask{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:55}
+  .nav-mask.show{display:block}
+  @media(min-width:861px){ .nav-mask{display:none !important} }
+
+  /* ===== 回到顶部（始终显示，点击平滑回顶） ===== */
+  .backTop{
+    position:fixed; right:18px; bottom:18px; z-index:95; width:40px; height:40px; border-radius:50%;
+    background:var(--el-bg-color,#fff); color:var(--el-color-primary,#409eff); border:1px solid var(--el-border-color,#dcdfe6);
+    box-shadow:var(--el-box-shadow-light,0 2px 12px rgba(0,0,0,.1)); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:var(--el-transition-base,.25s);
+  }
+  .backTop:hover{background:var(--el-color-primary-light-9,#ecf5ff); color:var(--el-color-primary,#409eff)}
+  .backTop:active{background:var(--el-color-primary-light-8,#d9ecff)}
+  .backTop svg{width:18px; height:18px; fill:currentColor}
+
+  @media(max-width:860px){
+    .sidebar{transform:translateX(-100%); transition:transform .25s; box-shadow:0 0 40px rgba(0,0,0,.15)}
+    .sidebar.open{transform:none; z-index:62}
+    .main{margin-left:0}
+    .menuBtn{display:flex; align-items:center; justify-content:center}
+    .toolbar{padding-left:60px}
+  }
+</style>
+</head>
+<body>
+
+<button class="menuBtn" id="menuBtn" aria-label="打开菜单">☰</button>
+<div class="nav-mask" id="navMask"></div>
+
+<!-- ===== 左侧导航栏（与首页 / 作品集一致） ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <img class="ava" src="assets/avatar.jpg" alt="李佳路 Caroli 头像" />
+    <div><b>李佳路 Caroli</b><small>AI 产品经理</small></div>
+  </div>
+  <nav class="nav">
+    <a href="index.html"><span class="em">🏠</span> 首页</a>
+    <a href="works.html"><span class="em">🎨</span> 作品集</a>
+    <a href="resume.html" class="active"><span class="em">📄</span> 简历</a>
+  </nav>
+
+  <div class="nav-bottom">
+    <div class="nav-foot">© 2026 李佳路 Caroli · AI 产品经理</div>
+
+    <!-- 操作区（管理 / 恢复默认，样式与首页·作品集左侧导航项一致；HR 不可见编辑；置于侧栏最底部左下角） -->
+    <div class="nav-ops">
+      <button class="nav-link editonly" id="btnReset"><span class="em">↺</span><span class="txt">恢复默认</span></button>
+      <span id="saveState" class="nav-save">已保存到云端</span>
+      <input type="file" id="fileAttach" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none" />
+      <input type="file" id="filePhoto" accept="image/*" style="display:none" />
+    </div>
+  </div>
+</aside>
+
+<main class="main" id="top">
+
+<div class="toolbar" id="toolbar">
+  <button class="tbtn" id="btnPdf">🖨️ 打印当前PDF</button>
+  <button class="tbtn" id="btnAttach">📎 下载附件简历</button>
+</div>
+<div id="editBanner">编辑中：直接点文字修改，点「✅ 完成编辑」即保存；改完 HR 也能看到</div>
+
+<div class="page" id="page">
+  <header class="rh">
+    <div class="rh-main">
+      <h1>李佳路 <span class="en">Caroli</span></h1>
+      <div class="role">AI 产品经理（实习 / 校招）</div>
+      <div class="contact">
+        <span>📱 15675291195</span>
+        <span>✉️ lijialu-caroli@foxmail.com</span>
+        <span>中共党员</span>
+      </div>
+      <div class="obj">
+        <b>求职意向：</b>AI 产品经理方向，教育为深耕领域。擅长用「语言学 + 中文教学」视角拆解场景痛点，并用 AI 工作流落地可复用的产品闭环；也适用于其他需要反馈与干预机制的产品方向。<br/>
+        具备"场景理解 + 独立落地 AI 产品 + 数据驱动迭代"的复合能力，希望将一线教学洞察转化为可规模化的产品。
+      </div>
+    </div>
+    <div class="photo-box" id="photoBox" title="点击上传照片">
+      <img id="photoImg" alt="李佳路照片" />
+      <div class="ph-add">＋<br/>上传照片</div>
+      <button class="ph-del" id="photoDel" title="移除照片">×</button>
+    </div>
+  </header>
+
+  <div id="content">
+  <section class="rb">
+    <h2 class="rb">个人总结</h2>
+    <ul class="rb">
+      <li><b>交叉背景稀缺：</b>计算语言学 × AI 产品——本科构建 19 万字古代汉语情感语料库、研究生评测大模型 HSK 看图写作能力，能把语言学洞察直接转化为产品决策，是 AI 产品 PM 赛道少见的复合背景（语言学 × AI）。</li>
+      <li><b>懂教学场景：</b>累计 9 个月+ 国际中文教学辅助经验（HSKK 口语 / 毕业论文 / 二语课堂三类场景），熟悉学习者"输入—练习—反馈—复习"完整闭环，能把教学痛点准确翻译成产品需求。</li>
+      <li><b>能独立落地 AI 教育产品：</b>独立用 Coze / 智谱搭建教育智能体与工作流（生词卡、语法批改、笔顺查询、教案优化），覆盖"需求定义→原型→上线→数据回收"全链路，具备 PM 稀缺的亲手交付能力。</li>
+      <li><b>用数据驱动迭代：</b>将飞书 + Python 词云 / 知识图谱用于学习行为可视化，用真实错误数据反推针对性教学方案，建立"数据→决策"闭环。</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">教育背景</h2>
+    <h3 class="rb">暨南大学 <span class="meta">国际中文教育 · 硕士（保研）· 2025.09–2027.06（在读）</span></h3>
+    <h3 class="rb">湖南科技大学 <span class="meta">汉语国际教育 · 本科 · GPA 3.63/4.0 · 综合排名 1/51（保研）· 2021.09–2025.06</span></h3>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">教育产品实践（核心）</h2>
+
+    <h3 class="rb">智能生词卡生成工作流 <span class="meta">Coze 工作流 + 云开发</span> <span class="role">独立设计 / 开发</span></h3>
+    <ul class="rb">
+      <li>针对二语学习者课后复习缺结构化生词材料、纸卡制作耗时且无发音的痛点，设计"输入汉字即生成可复习词卡"工具，降低教师备课与学生自学门槛。</li>
+      <li>用 Coze 搭建工作流，定义汉字 / 拼音 / 词语 / 例句 / 句子发音 / 汉字发音等字段，对接云函数代理与云数据库；前端实现"学习 / 复习"双模式画廊、灯箱看全图、纯图片轮播与发音键，并自动识别改名后的发音字段以兼容工作流迭代。</li>
+      <li>试点 <b>2</b> 名学生（小样本，未规模化），单元复习完成率提升 <b>50%</b>。</li>
+    </ul>
+
+    <h3 class="rb">语法错题档案与针对性教学系统 <span class="meta">Coze 智能体 + 飞书可视化</span> <span class="role">独立设计 / 开发</span></h3>
+    <ul class="rb">
+      <li>针对学生写作语法错误易"化石化"、教师逐句批改负担重且缺乏系统性归因的问题，用 AI 批改 + 数据沉淀，把零散错误转化为可分析、可干预的教学资产。</li>
+      <li>搭建"看图说话"写作批改智能体降低造句压力；学生提交后由 Coze 批改并生成结构化语法错误档案，错误数据同步飞书做可视化分析，反推重点讲解模块。</li>
+      <li>累计批改 <b>50</b> 句，高频错误 Top3：<b>成分残缺/冗余、搭配不当、语序/词序</b>；针对性练习后学生语法准确率提升 <b>25%</b>。</li>
+    </ul>
+
+    <h3 class="rb">课堂互动小游戏矩阵 <span class="meta">AI 辅助开发</span> <span class="role">独立开发 / 部署</span></h3>
+    <ul class="rb">
+      <li>针对线上 / 线下课堂学生注意力易分散、传统操练枯燥参与低的问题，用轻量游戏化手段提升课堂参与度与知识点留存。</li>
+      <li>用 AI 辅助开发独立产出 <b>7</b> 款可试玩互动原型（看图选拼音、识字消消乐、青字家族大转盘、拼音大转盘、汉字拼图、智能汉字词卡等），覆盖拼音、识字、形声字、写作等多个教学方向，部署至教学网站供师生即开即用，按课堂反馈迭代交互。</li>
+      <li>累计用于 <b>8</b> 堂课，课堂参与度提升 <b>1/3</b>（课堂观察前测后测），教师满意度 <b>90%</b>（合作教师课后反馈）。</li>
+    </ul>
+
+    <h3 class="rb">笔顺查询 & 教案优化智能体 <span class="meta">智谱 / 大语言模型</span> <span class="role">独立搭建</span></h3>
+    <ul class="rb">
+      <li>针对留学生课后笔顺掌握困难、教师教案撰写重复劳动多的问题，把"查笔顺""写教案"两件事自动化以释放教学精力。</li>
+      <li>在智谱构建智能体，从汉典网抓取笔顺信息辅助课后自学；用通用大模型优化教案（学情分析、教学目标 / 重难点、活动设计、反思）。</li>
+      <li>为 <b>2</b> 名师生提供笔顺查询 / 教案优化支持，单课时教案撰写平均节省 <b>30 分钟</b>。</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">教学 / 助教经历</h2>
+
+    <h3 class="rb">越南东亚大学 HSKK 口语课程 <span class="meta">助教</span> <span class="role">2026.03 – 2026.04</span></h3>
+    <ul class="rb">
+      <li>学生口语打卡完成质量参差、错误缺乏系统归纳，协助教师操练、督促并批改口语打卡。</li>
+      <li>用飞书建立错误档案，导出 Python 词云呈现高频错误内容与原因，帮助学生定位薄弱点、做针对性口语训练并提升表达信心。带教 <b>6</b> 名学生，借助错误档案与高频词云，口语打卡完成率从 <b>50%</b> 升至 <b>70%</b>。</li>
+    </ul>
+
+    <h3 class="rb">暨南大学 华教系 2026 届毕业论文 <span class="meta">助教</span> <span class="role">2026.01 – 2026.06</span></h3>
+    <ul class="rb">
+      <li>指导多名学生完成提纲、初稿、定稿；严格按规范审格式；跟踪进度、协调师生沟通并向系部汇报。指导 <b>2</b> 名学生完成毕业论文，首次答辩一次性通过率 <b>100%</b>。</li>
+    </ul>
+
+    <h3 class="rb">暨南大学 第二语言课堂 <span class="meta">助教</span> <span class="role">2025.10 – 2025.12</span></h3>
+    <ul class="rb">
+      <li>为 2 名二语学习者定制个性化辅导计划，配套练习与知识点梳理；同步用 Coze 词卡、生图 AI、陪伴式知识库等工具提升效果。2 名定制辅导学生阶段测评平均提升 <b>15 分</b>。</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">科研与数据能力</h2>
+    <h3 class="rb">校级科研项目（SRIP）负责人 <span class="meta">YS2229</span> <span class="role">2022.05 – 2023.09</span></h3>
+    <ul class="rb">
+      <li>以数字人文方法挖掘文学作品中的社会变迁，确定选题 → 设计研究方法（文本分析 + NLP：jieba 分词、哈工大近义词 / 停用词表）→ 统筹 5 人团队分工与进度 → 撰写成果。</li>
+      <li>成功立项并结项，为数字人文研究提供新视角与数据支持，提升团队研究能力与数据处理技能。</li>
+    </ul>
+    <h3 class="rb">本科毕业论文 <span class="meta">古代汉语情感语料库</span></h3>
+    <ul class="rb">
+      <li>创建 19 万字古代汉语情感语料库，采用"机器 + 人工"混合标注；对比 SikuBERT 后选用 jiayan 字符级 HMM 分词。</li>
+      <li>jiayan 分词正确率 P=0.750 / 召回率 R=0.798 / F 值=0.773，标注效果符合语感。</li>
+    </ul>
+    <h3 class="rb">研究生课程论文 <span class="meta">HSK 汉字知识图谱</span></h3>
+    <ul class="rb">
+      <li>基于《新版 HSK 考试大纲》书写字，对"扌"部首汉字做深度标注（基础属性、部件拆解、声旁有效性、核心义项），用 Neo4j 构建含字形 / 语音 / 语义的专题汉字知识图谱。</li>
+      <li>探讨图谱在智能检索、自适应学习路径与可视化教学中的应用，为国际中文数智化教材与精准教学提供参考。</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">校内职务与领导力</h2>
+    <ul class="rb">
+      <li><b>党支部副书记</b>（外国语学院，2024–2025）：策划执行主题党日与理论学习，落实上级部署，增强支部凝聚力。</li>
+      <li><b>党建会档案部部长</b>（2023–2024）：负责全院党员档案整理与毕业生组织关系转接，核查 5 个支部会议记录规范性。</li>
+      <li><b>班主任助理</b>（2024–2025）：协助新生入学、军训管理与适应指导，组织迎新团建。</li>
+      <li><b>学习委员</b>（2021–2022）：搭建师生沟通桥梁，按学情分配互助，班级挂科率最低。</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">荣誉奖项</h2>
+    <ul class="rb">
+      <li>2024 全国跨文化能力竞赛（NICC）全国初级组一等奖（国家级）</li>
+      <li>2023 第六届"外教社杯"全国大学生跨文化能力大赛 校级二等奖</li>
+      <li>校级一等奖学金（连续两年 2021–2023）、三好学生、优秀共青团员、优秀学生</li>
+      <li>湖南科技大学"研究性学习成果展示竞赛"三等奖（2022）、一等奖（2023）</li>
+    </ul>
+  </section>
+
+  <section class="rb">
+    <h2 class="rb">技能与证书</h2>
+    <div class="grid2">
+      <div>
+        <div class="kv"><b>证书：</b>高中语文教资、英语教资；CET-6(506)、CET-4(559)；普通话二级甲等</div>
+        <div class="kv" style="margin-top:8px"><b>产品 / AI：</b></div>
+        <div style="margin-top:4px">
+          <span class="pill">需求拆解</span><span class="pill">用户流程设计</span><span class="pill">Coze 工作流</span>
+          <span class="pill">智谱智能体</span><span class="pill">大模型提示词</span><span class="pill">AI 辅助开发(Trae)</span><span class="pill">云开发(云函数/云数据库)</span>
+        </div>
+      </div>
+      <div>
+        <div class="kv"><b>数据 / 技术：</b></div>
+        <div style="margin-top:4px">
+          <span class="pill">Python(分词/词云)</span><span class="pill">基础数据分析</span><span class="pill">Neo4j 知识图谱</span><span class="pill">自然语言处理基础</span>
+        </div>
+        <div class="kv" style="margin-top:8px"><b>办公：</b>Office 三件套熟练（文档 / 数据 / 演示）</div>
+        <div class="kv" style="margin-top:8px"><b>教育：</b>6 个月+ 教学辅助、第二语言教学规律、跨文化沟通</div>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /#content -->
+
+  <div class="attach" id="attachBox">
+    <div class="at-title">📎 附件简历（HR 可下载的 PDF / Word 原件）</div>
+    <div class="at-row" id="atRow">
+      <span class="at-hint" id="atHint"></span>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- 回到顶部（与作品集界面一致） -->
+<button class="backTop" id="backTop" title="回到顶部" aria-label="回到顶部">
+  <svg viewBox="0 0 1024 1024" aria-hidden="true"><path d="M512 384 192 704h640L512 384z"/></svg>
+</button>
+
+<script>
+  /* 移动端左侧菜单开合 */
+  (function(){
+    var mb=document.getElementById('menuBtn'), sb=document.getElementById('sidebar'), mask=document.getElementById('navMask');
+    function setMenu(open){ sb.classList.toggle('open',open); mb.classList.toggle('open',open); if(mask) mask.classList.toggle('show',open); }
+    if(mb&&sb){ mb.addEventListener('click',function(){ setMenu(!sb.classList.contains('open')); });
+      if(mask) mask.addEventListener('click',function(){ setMenu(false); });
+      sb.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ if(a.getAttribute('href') && a.getAttribute('href').startsWith('#')){ setMenu(false); } }); }); }
+  })();
+  /* 回到顶部按钮：始终显示，点击平滑回顶 */
+  (function(){
+    var bt=document.getElementById('backTop');
+    if(!bt) return;
+    bt.addEventListener('click',function(){
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:0, behavior: reduce?'auto':'smooth'});
+    });
+  })();
+</script>
+
+<script>
+(function(){
+  var ENV_ID = window.ENV_ID || '__ENV_ID__';
+  var ACCESS_KEY = window.ACCESS_KEY || '__ACCESS_KEY__';
+  var KEY_CACHE = 'jialu_resume_key';
+  var MAX = { photo: 5*1024*1024, attach: 8*1024*1024 };
+
+  var content = document.getElementById('content');
+  var DEFAULT_CONTENT = content.innerHTML;
+  var body = document.body, saveState = document.getElementById('saveState');
+  var tcb = null, cloudReady = false, timer = null;
+
+  function flashSaved(msg){ saveState.textContent = msg || '已保存到云端'; saveState.classList.add('show');
+    clearTimeout(timer); timer = setTimeout(function(){ saveState.classList.remove('show'); }, 1400); }
+  function toast(msg){ flashSaved(msg); }
+  function ensureKey(){
+    var k = localStorage.getItem(KEY_CACHE);
+    if(k) return k;
+    k = prompt('请输入简历编辑口令（由站点管理员设置）：', '');
+    if(k === null) return null;
+    k = (k || '').trim();
+    if(!k) return null;
+    localStorage.setItem(KEY_CACHE, k);
+    return k;
+  }
+  function badKey(){ localStorage.removeItem(KEY_CACHE); }
+
+  function initCloud(){
+    return new Promise(function(resolve){
+      try{
+        if(!window.cloudbase){ toast('CloudBase SDK 未加载'); resolve(false); return; }
+        tcb = window.cloudbase.init({ env: ENV_ID, region: 'ap-shanghai', accessKey: ACCESS_KEY, auth:{ detectSessionInUrl:true } });
+        var auth = (typeof tcb.auth === 'function') ? tcb.auth() : tcb.auth;
+        auth.signInAnonymously().then(function(r){
+          if(r && r.error){ cloudReady=false; toast('云端连接失败'); resolve(false); }
+          else { cloudReady=true; resolve(true); }
+        }).catch(function(e){ cloudReady=false; toast('云端连接失败'); resolve(false); });
+      }catch(e){ cloudReady=false; toast('云端初始化失败'); resolve(false); }
+    });
+  }
+  function call(action, data){
+    if(!cloudReady) return Promise.resolve({ result:{ ok:false, error:'云端未连接' } });
+    return tcb.callFunction({ name:'resumeApi', data: Object.assign({ action: action }, data||{}) })
+      .then(function(res){ return res && res.result ? res.result : { ok:false, error:'空响应' }; })
+      .catch(function(e){ return { ok:false, error:(e&&e.message)||String(e) }; });
+  }
+
+  // 照片
+  var photoBox = document.getElementById('photoBox');
+  var photoImg = document.getElementById('photoImg');
+  var filePhoto = document.getElementById('filePhoto');
+  var photoDel = document.getElementById('photoDel');
+  function setPhoto(url){ if(url){ photoImg.src=url; photoBox.classList.add('has'); } else { photoImg.src='assets/avatar.jpg'; photoBox.classList.add('has'); } }
+
+  function uploadPhoto(file){
+    if(file.size > MAX.photo){ alert('照片过大（超过 5MB），请换一张小一点的图片再传'); return; }
+    var rd = new FileReader();
+    rd.onload = function(){
+      var b64 = rd.result;
+      var key = ensureKey(); if(!key) return;
+      call('savePhoto', { key:key, data:b64 }).then(function(r){
+        if(!r.ok){ if(/口令/.test(r.error||'')) badKey(); alert('上传失败：'+(r.error||'')); return; }
+        setPhoto(r.photoUrl); flashSaved('照片已更新');
+      });
+    };
+    rd.onerror = function(){ alert('照片读取失败'); };
+    rd.readAsDataURL(file);
+  }
+  photoBox.addEventListener('click', function(e){ if(e.target===photoDel) return; filePhoto.click(); });
+  photoDel.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(!confirm('移除照片？')) return;
+    var key = ensureKey(); if(!key) return;
+    call('removePhoto', { key:key }).then(function(r){ if(r.ok){ setPhoto(''); flashSaved('照片已移除'); } else { if(/口令/.test(r.error||'')) badKey(); alert('移除失败：'+(r.error||'')); } });
+  });
+  filePhoto.addEventListener('change', function(){ if(filePhoto.files[0]) uploadPhoto(filePhoto.files[0]); filePhoto.value=''; });
+
+  // 附件
+  var fileAttach = document.getElementById('fileAttach');
+  var atRow = document.getElementById('atRow');
+  var atHint = document.getElementById('atHint');
+  var attachBox = document.getElementById('attachBox');
+  var curAttach = { name:'', url:'' };
+  // 投递简历标准命名：名字-学校-学历-岗位（HR 下载时使用，不依赖上传时的文件名）
+  var STD_ATTACH_NAME = '李佳路Caroli-暨南大学-硕士-AI产品经理';
+  function extOf(n){ var m = (n||'').match(/\.([A-Za-z0-9]+)$/); return m ? m[1].toLowerCase() : 'pdf'; }
+  // 兜底：浏览器原生「打印 / 另存为 PDF（Ctrl+P）」默认文件名取 <title>，此处统一改成标准投递命名
+  var _prevTitle = '';
+  window.addEventListener('beforeprint', function(){ _prevTitle = document.title; document.title = STD_ATTACH_NAME + '.pdf'; });
+  window.addEventListener('afterprint', function(){ if(_prevTitle){ document.title = _prevTitle; _prevTitle = ''; } });
+  function setAttach(name, url){
+    curAttach = { name:name||'', url:url||'' };
+    atRow.innerHTML = '';
+    if(attachBox) attachBox.classList.toggle('has', !!(name && url));
+    var btnAttachEl = document.getElementById('btnAttach');
+    if(btnAttachEl) btnAttachEl.style.display = (name && url) ? '' : 'none';
+    if(name && url){
+      var info = document.createElement('span'); info.className='at-file';
+      info.innerHTML = '📄 <span class="nm">'+esc(name)+'</span>';
+      var dl = document.createElement('a'); dl.className='el-btn'; dl.textContent='⬇️ 下载附件'; dl.href=url; dl.download=STD_ATTACH_NAME + '.' + extOf(name); dl.style.textDecoration='none';
+      var del = document.createElement('button'); del.className='el-btn el-btn--danger'; del.textContent='🗑 移除';
+      del.onclick = function(e){ e.stopPropagation(); if(!confirm('移除附件简历？')) return; var k=ensureKey(); if(!k) return;
+        call('removeAttach',{key:k}).then(function(r){ if(r.ok){ setAttach('',''); } else { if(/口令/.test(r.error||'')) badKey(); alert('移除失败：'+(r.error||'')); } }); };
+      atRow.appendChild(info); atRow.appendChild(dl); atRow.appendChild(del);
+    } else { atRow.appendChild(atHint); }
+  }
+  // 本人（简历主人）点击附件区即可上传原件；HR 用顶部「下载附件简历」按钮下载
+  attachBox.addEventListener('click', function(e){
+    if(curAttach.name && curAttach.url) return;       // 已有附件时不触发上传
+    if(e.target && e.target.tagName === 'A') return;  // 不拦截下载链接
+    fileAttach.click();
+  });
+  fileAttach.addEventListener('change', function(){
+    var f = fileAttach.files[0]; if(!f) return;
+    if(f.size > MAX.attach){ alert('文件过大（超过 8MB），请压缩后重试。'); fileAttach.value=''; return; }
+    var rd = new FileReader();
+    rd.onload = function(){
+      var key = ensureKey(); if(!key){ fileAttach.value=''; return; }
+      call('saveAttach', { key:key, data:rd.result, name:f.name }).then(function(r){
+        if(!r.ok){ if(/口令/.test(r.error||'')) badKey(); alert('上传失败：'+(r.error||'')); }
+        else { setAttach(r.attachName, r.attachUrl); flashSaved('附件已上传'); }
+      });
+    };
+    rd.readAsDataURL(f); fileAttach.value='';
+  });
+  document.getElementById('btnAttach').addEventListener('click', function(){
+    if(curAttach.name && curAttach.url){
+      var a = document.createElement('a'); a.href = curAttach.url; a.download = STD_ATTACH_NAME + '.' + extOf(curAttach.name);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } else {
+      // 无云端附件时直接打印当前页为 PDF，HR 可保存归档；临时改 title 让浏览器默认文件名即标准命名
+      var prevTitle = document.title;
+      document.title = STD_ATTACH_NAME + '.pdf';
+      window.print();
+      setTimeout(function(){ document.title = prevTitle; }, 1500);
+    }
+  });
+
+  // 编辑：旧版简历专用「管理」按钮已移除，统一使用 content.js 全站编辑器（可改全部内容）。
+  // 以下 btnEdit 逻辑仅作防御性守卫：页面若仍含该按钮才绑定，否则跳过，避免脚本抛错影响其他按钮。
+  var btnEdit = document.getElementById('btnEdit');
+  if (btnEdit) {
+    var LABEL_OFF = '<span class="em">⚙️</span><span class="txt">管理</span>';
+    var LABEL_ON = '<span class="em">✅</span><span class="txt">完成编辑</span>';
+    btnEdit.addEventListener('click', function(){
+      var on = body.classList.toggle('editing');
+      content.querySelectorAll('h1,h2.rb,h3.rb,li,div.obj,.kv,.role,.meta,.contact span').forEach(function(el){
+        el.setAttribute('contenteditable', on ? 'true' : 'false');
+      });
+      btnEdit.innerHTML = on ? LABEL_ON : LABEL_OFF;
+      btnEdit.classList.toggle('active', on);
+      if(!on){ finishEdit(); }
+    });
+    function finishEdit(){
+      var key = ensureKey();
+      if(!key){ body.classList.add('editing'); btnEdit.innerHTML=LABEL_ON; btnEdit.classList.add('active');
+        content.querySelectorAll('[contenteditable]').forEach(function(el){ el.setAttribute('contenteditable','true'); });
+        return; }
+      call('saveContent', { key:key, content: content.innerHTML }).then(function(r){
+        if(!r.ok){ if(/口令/.test(r.error||'')) badKey(); alert('保存失败：'+(r.error||''));
+          body.classList.add('editing'); btnEdit.innerHTML=LABEL_ON; btnEdit.classList.add('active');
+          content.querySelectorAll('[contenteditable]').forEach(function(el){ el.setAttribute('contenteditable','true'); });
+          return; }
+        flashSaved('已保存到云端，HR 也能看到');
+      });
+    }
+  }
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if(!confirm('恢复为默认简历文字？当前修改将丢失（照片 / 附件保留）。')) return;
+    var key = ensureKey(); if(!key) return;
+    call('saveContent', { key:key, content: DEFAULT_CONTENT }).then(function(r){
+      if(!r.ok){ if(/口令/.test(r.error||'')) badKey(); alert('恢复失败：'+(r.error||'')); return; }
+      content.innerHTML = DEFAULT_CONTENT; flashSaved('已恢复默认');
+    });
+  });
+  document.getElementById('btnPdf').addEventListener('click', function(){ window.print(); });
+
+  function esc(s){ return (s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  // 启动：拉取云端数据（HR 看到的就是这里的内容）
+  initCloud().then(function(ok){
+    if(!ok) return; // 云端不可用时仍展示静态默认简历
+    call('get').then(function(d){
+      if(d && d.ok){
+        if(d.content) content.innerHTML = d.content;
+        if(d.photoUrl) setPhoto(d.photoUrl);
+        if(d.attachName && d.attachUrl) setAttach(d.attachName, d.attachUrl);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>李佳路 Caroli · AI 产品经理（教育领域深耕）</title>
+<meta name="description" content="李佳路 Caroli，暨南大学国际中文教育硕士（保研）。AI 产品经理——以教育为深耕领域，能用 AI 工作流把场景痛点做成可落地的产品闭环；懂场景 · 懂 AI · 能落地。" />
+<meta name="author" content="李佳路" />
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="李佳路 Caroli · AI 产品经理（教育领域深耕）" />
+<meta property="og:description" content="AI 产品经理，教育为深耕领域。懂场景 · 懂 AI · 能落地——7 款可试玩互动原型 + AI 工作流 + 数据驱动闭环。 / AI Product Manager (Education focus): 7 playable prototypes, AI workflows, data-driven loop." />
+<meta property="og:image" content="assets/avatar.jpg" />
+<meta property="og:url" content="https://Caroli-ljl.github.io/jialu-portfolio/" />
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="李佳路 Caroli · AI 产品经理（教育领域深耕）" />
+<meta name="twitter:description" content="AI 产品经理，教育为深耕领域。懂场景 · 懂 AI · 能落地。 / AI Product Manager (Education focus)." />
+<!-- JSON-LD 结构化数据：搜索引擎 / ATS 可读 -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "李佳路",
+  "alternateName": "李佳路 Caroli",
+  "jobTitle": "AI 产品经理 求职者",
+  "description": "暨南大学国际中文教育硕士（保研），AI 产品经理，教育为深耕领域。懂场景 · 懂 AI · 能落地——用 AI 工作流把场景痛点做成可落地的产品闭环。",
+  "url": "https://Caroli-ljl.github.io/jialu-portfolio/",
+  "image": "https://Caroli-ljl.github.io/jialu-portfolio/assets/avatar.jpg",
+  "email": "mailto:lijialu-caroli@foxmail.com",
+  "telephone": "+86-15675291195",
+  "alumniOf": [
+    {"@type": "CollegeOrUniversity", "name": "暨南大学"},
+    {"@type": "CollegeOrUniversity", "name": "湖南科技大学"}
+  ],
+  "knowsAbout": ["AI 产品管理", "计算语言学", "AI 工作流", "产品方法论", "数据驱动", "自然语言处理", "教育科技"]
+}
+</script>
+<link rel="stylesheet" href="assets/element-theme.css" />
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  a{color:inherit}
+
+  /* ===== 左侧导航栏（Element el-menu，与 works / resume 一致） ===== */
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; width:240px;
+    background:var(--el-bg-color); border-right:1px solid var(--el-border-color-lighter);
+    display:flex; flex-direction:column; padding:18px 0; overflow-y:auto; z-index:50;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:4px 18px 14px; border-bottom:1px solid var(--el-border-color-lighter); margin-bottom:8px}
+  .brand .ava{width:40px; height:40px; border-radius:var(--el-border-radius-base); flex:none; object-fit:cover; border:2px solid var(--el-color-primary-light-8)}
+  .brand b{font-size:16px; line-height:1.2; color:var(--el-text-color-primary)}
+  .brand small{display:block; color:var(--el-text-color-secondary); font-size:11.5px; margin-top:2px}
+  .nav{display:flex; flex-direction:column; gap:2px; margin-top:6px}
+  .nav a{
+    display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--el-text-color-regular);
+    padding:0 18px; height:48px; font-size:14px; font-family:inherit; font-weight:500; border-right:2px solid transparent;
+  }
+  .nav a:hover{background:var(--el-fill-color-light); color:var(--el-color-primary)}
+  .nav a.active{background:var(--el-color-primary-light-9); color:var(--el-color-primary); border-right-color:var(--el-color-primary); font-weight:600}
+  .nav .em{width:20px; text-align:center; flex:none}
+  .nav-bottom{margin-top:auto; display:flex; flex-direction:column}
+  .nav-foot{padding:12px 16px 2px; border-top:1px solid var(--el-border-color-lighter); font-size:11.5px; color:var(--el-text-color-secondary); line-height:1.6}
+
+  /* 侧栏操作区：管理 样式与导航项完全一致，置于侧栏最底部左下角（与简历页一致） */
+  .nav-ops{margin-top:8px; padding:0; display:flex; flex-direction:column; gap:2px}
+  .nav-ops .nav-link{
+    display:flex; align-items:center; gap:10px; text-align:left; width:100%; white-space:nowrap;
+    text-decoration:none; color:var(--el-text-color-regular);
+    padding:0 18px; height:48px; font-size:14px; font-family:inherit; font-weight:500;
+    border:none; border-right:2px solid transparent; background:none; cursor:pointer;
+  }
+  .nav-ops .nav-link:hover{background:var(--el-fill-color-light); color:var(--el-color-primary)}
+  .nav-ops .nav-link.active{background:var(--el-color-primary-light-9); color:var(--el-color-primary); border-right-color:var(--el-color-primary); font-weight:600}
+  .nav-ops .em{width:20px; text-align:center; flex:none; display:inline-flex; align-items:center; justify-content:center}
+  .nav-ops .txt{display:inline-block}
+  .main{margin-left:240px}
+  .menuBtn{
+    display:none; position:fixed; top:14px; left:14px; z-index:60;
+    width:42px; height:42px; border-radius:var(--el-border-radius-base); border:1px solid var(--el-border-color);
+    background:#fff; font-size:20px; cursor:pointer; color:var(--el-color-primary); box-shadow:var(--el-box-shadow-light);
+  }
+  .menuBtn.open{left:auto; right:14px; z-index:63}
+  .nav-mask{display:none;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:55}
+  .nav-mask.show{display:block}
+  @media(min-width:861px){ .nav-mask{display:none !important} }
+
+  /* ===== 顶部本页导航（关于我 / 证书 / 联系我 横向吸顶） ===== */
+  .subnav{
+    position:sticky; top:0; z-index:40;
+    background:var(--el-bg-color); border-bottom:1px solid var(--el-border-color-lighter);
+    display:flex; align-items:center; gap:4px; padding:10px 24px;
+  }
+  .subnav .snav{
+    display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+    color:var(--el-text-color-regular); font-size:14px; font-weight:500;
+    padding:8px 16px; border-radius:var(--el-border-radius-base); white-space:nowrap;
+  }
+  .subnav .snav:hover{background:var(--el-fill-color-light); color:var(--el-color-primary)}
+  .subnav .snav.active{background:var(--el-color-primary-light-9); color:var(--el-color-primary); font-weight:600}
+  .subnav .em{width:20px; text-align:center; flex:none}
+  .subnav .spacer{margin-left:auto; font-size:13px; color:var(--el-text-color-secondary); font-weight:600; padding-right:4px}
+
+  /* ===== Hero（Element 风：浅蓝渐变背景 + 主蓝点缀） ===== */
+  .hero{
+    background:linear-gradient(135deg,var(--el-color-primary-light-9) 0%, #F0F9FF 60%, var(--el-color-primary-light-8) 100%);
+    color:var(--el-text-color-primary); padding:96px 0 64px; position:relative; overflow:hidden;
+    border-bottom:1px solid var(--el-border-color-lighter);
+  }
+  .hero .wrap{max-width:1080px; margin:0 auto; padding:0 24px; display:flex; flex-direction:column; align-items:center; text-align:center}
+  .hero .avatar{width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #fff; box-shadow:0 0 0 6px var(--el-color-primary-light-7); margin-bottom:22px}
+  .hero h1{font-size:42px; font-weight:800; letter-spacing:.5px}
+  .hero .role{font-size:20px; margin-top:10px; color:var(--el-color-primary); font-weight:700}
+  .hero .role b{color:var(--el-color-primary-dark-2)}
+  .slogan{margin-top:14px; font-size:18px; color:var(--el-text-color-secondary); font-weight:600}
+  .tags{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:22px}
+  .cta{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; justify-content:center}
+  .stats{display:flex; flex-wrap:wrap; gap:10px 28px; justify-content:center; margin-top:36px; padding-top:24px; border-top:1px solid var(--el-border-color-light); font-size:14px; color:var(--el-text-color-secondary)}
+  .stats b{color:var(--el-text-color-primary)}
+  /* 首页核心能力（招聘向：可量化、替代泛标签） */
+  .caps{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:30px; width:100%}
+  .cap{background:#fff; border:1px solid var(--el-border-color-lighter); border-radius:var(--el-border-radius-base); padding:18px 18px; text-align:left; box-shadow:var(--el-box-shadow-light)}
+  .cap .cap-t{font-size:15px; font-weight:800; color:var(--el-color-primary); margin-bottom:8px}
+  .cap .cap-d{font-size:13.5px; color:var(--el-text-color-secondary); line-height:1.65}
+  .el-tag--soft{ background:var(--el-color-primary-light-9); color:var(--el-color-primary); border:1px solid var(--el-color-primary-light-8); border-radius:var(--el-border-radius-round); padding:4px 14px; font-size:13px; font-weight:600 }
+
+  /* ===== 精选作品集（首页主菜：置于关于我之前） ===== */
+  .feat-cases{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:18px}
+  .feat-case{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid var(--el-border-color-lighter);border-radius:var(--el-border-radius-base);box-shadow:var(--el-box-shadow-light);padding:22px;transition:var(--el-transition-base);text-decoration:none;color:inherit}
+  .feat-case:hover{box-shadow:var(--el-box-shadow);transform:translateY(-2px)}
+  .feat-case .fc-k{font-size:12px;font-weight:800;color:var(--el-color-primary);letter-spacing:1px}
+  .feat-case h3{font-size:18px;font-weight:800;color:var(--el-text-color-primary)}
+  .feat-case p{font-size:13.5px;color:var(--el-text-color-secondary);line-height:1.65;flex:1}
+  .feat-case .fc-go{font-size:14px;font-weight:700;color:var(--el-color-primary)}
+  .feat-case .fc-think{font-size:12.5px;color:var(--el-color-success);background:linear-gradient(135deg,#ecfdf5,#f0f9ff);border-left:3px solid var(--el-color-success);padding:8px 10px;border-radius:8px;line-height:1.6;font-weight:600}
+  @media(max-width:860px){ .feat-cases{grid-template-columns:1fr} }
+
+  /* ===== 通用 section ===== */
+  section{padding:64px 0}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+
+  /* ===== 关于我 ===== */
+  .about-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  .card .ic{width:44px; height:44px; border-radius:var(--el-border-radius-base); background:var(--el-color-primary-light-9); color:var(--el-color-primary); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px}
+  .card h3{font-size:18px; margin-bottom:8px; color:var(--el-text-color-primary)}
+  .card p{color:var(--el-text-color-secondary); font-size:14.5px}
+  .card p b{color:var(--el-text-color-primary)}
+  .about-prose{max-width:760px; margin:28px auto 0; color:var(--el-text-color-regular); font-size:15.5px}
+  .about-prose p{margin-bottom:12px}
+  .hl{color:var(--el-color-primary-dark-2); font-weight:700}
+
+  /* ===== 证书墙 ===== */
+  .cert-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px}
+  .cert .em{font-size:24px}
+  .cert .ct{font-size:14.5px; font-weight:600; color:var(--el-text-color-primary)}
+  .cert .cs{font-size:13px; color:var(--el-text-color-secondary)}
+
+  /* ===== 联系（Element 主蓝区块） ===== */
+  .contact{background:var(--el-color-primary-light-9); border-top:1px solid var(--el-border-color-lighter)}
+  .contact .el-section-title{color:var(--el-color-primary-dark-2)}
+  .contact .el-section-sub{color:var(--el-text-color-secondary)}
+  .contact-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:14px}
+  .c-card{background:#fff; border:1px solid var(--el-border-color-lighter); border-radius:var(--el-border-radius-base); padding:20px; box-shadow:var(--el-box-shadow-light)}
+  .c-card .k{font-size:13px; color:var(--el-color-primary); font-weight:700; margin-bottom:6px}
+  .c-card .v{font-size:17px; font-weight:700; color:var(--el-text-color-primary)}
+  .c-card a{color:var(--el-color-primary-dark-2); text-decoration:none}
+  .c-card a:hover{text-decoration:underline}
+  .contact-cta{text-align:center; margin-top:30px}
+  .cta-line{max-width:660px; margin:0 auto 20px; color:var(--el-text-color-primary); font-size:15.5px; line-height:1.75; text-align:center}
+  .cta-line strong{color:var(--el-color-primary-dark-2)}
+  .contact-cta .el-btn{margin:0 6px}
+  .footer{background:var(--el-bg-color-page); color:var(--el-text-color-secondary); text-align:center; font-size:13px; padding:26px 0; border-top:1px solid var(--el-border-color-lighter)}
+
+  /* 编辑态提示 */
+  .editHint{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--el-color-primary);background:var(--el-color-primary-light-9);
+    border:1px dashed var(--el-color-primary);border-radius:var(--el-border-radius-round);padding:3px 12px;margin-bottom:14px;font-weight:600}
+
+  @media(max-width:480px){
+    .hero{padding:80px 0 48px}
+    .hero h1{font-size:28px}
+    .hero .role{font-size:15px}
+    .hero .slogan{font-size:15px}
+    .stats{font-size:12.5px; gap:8px 16px; line-height:1.6}
+    .el-section-title{font-size:22px}
+    .cta{flex-direction:column; width:100%}
+    .cta a{width:100%; text-align:center}
+  }
+  @media(max-width:860px){
+    .sidebar{transform:translateX(-100%); transition:transform .25s; box-shadow:0 0 40px rgba(0,0,0,.15)}
+    .sidebar.open{transform:none; z-index:62}
+    .main{margin-left:0}
+    .menuBtn{display:flex; align-items:center; justify-content:center}
+    .subnav{padding:8px 14px 8px 64px; overflow-x:auto}
+    .subnav .snav{padding:8px 12px; font-size:13px}
+    .subnav .spacer{display:none}
+    .hero h1{font-size:32px}
+    .about-grid,.cert-grid,.contact-grid,.caps{grid-template-columns:1fr}
+    section{padding:48px 0}
+  }
+  .el-btn--student{background:linear-gradient(135deg,#7c3aed,#06b6d4); color:#fff; border:none; font-weight:600; box-shadow:0 6px 18px rgba(124,58,237,.28)}
+  .el-btn--student:hover{filter:brightness(1.08); transform:translateY(-1px)}
+  .ns-note{display:flex;gap:14px;align-items:flex-start;max-width:780px;margin:18px auto;padding:16px 18px;background:#fff;border:1px solid var(--el-border-color);border-left:4px solid var(--el-color-warning);border-radius:var(--el-border-radius-base);box-shadow:var(--el-box-shadow-light)}
+  .ns-note .ns-ic{font-size:26px;line-height:1}
+  .ns-note strong{display:block;color:var(--el-text-color-primary);margin-bottom:6px;font-size:14px}
+  .ns-note p{margin:0 0 6px;font-size:13px;color:var(--el-text-color-regular);line-height:1.7}
+  .ns-note .ns-meta{font-size:12px;color:var(--el-text-color-secondary);margin-bottom:0}
+
+  /* ===== 求职方向列表 / 证书价值注 / 数据高亮 ===== */
+  .dir-list{margin:10px 0 0; padding-left:18px; color:var(--el-text-color-secondary); font-size:13.5px; line-height:1.7}
+  .dir-list li{margin-bottom:2px}
+  .cv{font-size:12px; color:var(--el-text-color-secondary); margin-top:4px; font-weight:500; line-height:1.45}
+  .cert .cs{line-height:1.5}
+  .stats b{color:var(--el-color-primary-dark-2); font-size:17px; font-weight:800}
+
+  /* ===== 底部固定行动栏（滚动后浮现） ===== */
+  body{padding-bottom:54px}
+  .floatbar{position:fixed; left:240px; right:0; bottom:0; z-index:55; display:flex; gap:8px;
+    padding:8px 16px calc(8px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.96); backdrop-filter:blur(6px);
+    border-top:1px solid var(--el-border-color); box-shadow:0 -4px 18px rgba(0,0,0,.08);
+    transform:translateY(130%); transition:transform .28s ease}
+  .floatbar.show{transform:none}
+  .floatbar a{flex:1; text-align:center; text-decoration:none; font-size:14px; font-weight:700;
+    padding:11px 6px; border-radius:var(--el-border-radius-base); white-space:nowrap}
+  .floatbar .fb-resume{background:var(--el-color-primary); color:#fff}
+  .floatbar .fb-works{background:var(--el-color-primary-light-9); color:var(--el-color-primary); border:1px solid var(--el-color-primary-light-8)}
+  .floatbar .fb-contact{background:var(--el-fill-color-light); color:var(--el-text-color-primary)}
+  @media(max-width:860px){ .floatbar{left:0} }
+  @media(max-width:480px){ .floatbar a{font-size:13px; padding:10px 4px} }
+
+  /* ===== 产品方法论（三原则） ===== */
+  .method-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:10px}
+  .method{background:#fff; border:1px solid var(--el-border-color-lighter); border-radius:var(--el-border-radius-base); padding:22px; box-shadow:var(--el-box-shadow-light); text-align:left}
+  .method .ic{width:48px; height:48px; border-radius:50%; background:var(--el-color-primary-light-9); color:var(--el-color-primary); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:12px}
+  .method h3{font-size:17px; margin-bottom:8px; color:var(--el-text-color-primary)}
+  .method p{color:var(--el-text-color-secondary); font-size:14px; line-height:1.7}
+  .method .tag{display:inline-block; margin-top:12px; background:var(--el-color-primary-light-9); color:var(--el-color-primary); border:1px solid var(--el-color-primary-light-8); border-radius:var(--el-border-radius-round); padding:3px 12px; font-size:12.5px; font-weight:600}
+  @media(max-width:860px){ .method-grid{grid-template-columns:1fr} }
+
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+  <button class="menuBtn" id="menuBtn" aria-label="打开菜单">☰</button>
+  <div class="nav-mask" id="navMask"></div>
+
+<!-- ===== 左侧导航栏 ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <img class="ava" src="assets/avatar.jpg" alt="李佳路 Caroli 头像" />
+    <div><b>李佳路 Caroli</b><small>AI 产品经理</small></div>
+  </div>
+  <nav class="nav">
+    <a href="index.html" class="active"><span class="em">🏠</span> 首页</a>
+    <a href="works.html"><span class="em">🎨</span> 作品集</a>
+    <a href="resume.html"><span class="em">📄</span> 简历</a>
+  </nav>
+  <div class="nav-bottom">
+    <div class="nav-foot">© 2026 李佳路 Caroli · AI 产品经理</div>
+
+  </div>
+</aside>
+
+<main id="top" class="main">
+
+  <!-- ===== 顶部本页导航（关于我 / 证书 / 联系我） ===== -->
+  <nav class="subnav" aria-label="本页导航">
+    <a class="snav" href="#works"><span class="em">🎨</span> 精选作品</a>
+    <a class="snav" href="#method"><span class="em">🧭</span> 方法论</a>
+    <a class="snav" href="#about"><span class="em">👤</span> 关于我</a>
+    <a class="snav" href="#certs"><span class="em">🏅</span> 证书</a>
+    <a class="snav" href="#contact"><span class="em">✉️</span> 联系我</a>
+    <span class="spacer">李佳路 Caroli · AI 产品经理（教育领域深耕）</span>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="wrap">
+      <img class="avatar" src="assets/avatar.jpg" alt="李佳路 Caroli 头像" />
+      <h1 data-ckey="index:heroTitle">李佳路 Caroli</h1>
+      <div class="role" data-ckey="index:heroRole">AI 产品经理</div>
+      <div class="slogan" data-ckey="index:heroSlogan">从课堂痛点出发，完成互动学习工具、AI 批改工作流与学情数据闭环的设计和落地</div>
+
+      <div class="caps" aria-label="核心能力">
+        <div class="cap"><div class="cap-t">真实教学场景</div><div class="cap-d">服务 HSKK 实战课堂，持续沉淀课堂问题与学习反馈</div></div>
+        <div class="cap"><div class="cap-t">AI 产品落地</div><div class="cap-d">搭建词卡、写作批改、学情沉淀等 AI 工作流</div></div>
+        <div class="cap"><div class="cap-t">原型与验证</div><div class="cap-d">完成 7 款可试玩互动原型，覆盖拼音 / 识字 / 写作训练</div></div>
+      </div>
+
+      <div class="cta">
+        <a class="el-btn el-btn--primary el-btn--round" href="works.html#games">🎮 试玩 7 款原型</a>
+        <a class="el-btn el-btn--primary el-btn--round" href="works.html">查看作品集 →</a>
+        <a class="el-btn el-btn--round" href="resume.html">查看完整简历 →</a>
+        <a class="el-btn el-btn--round" href="#contact">联系我</a>
+      </div>
+      <div class="stats">
+        <span><b>暨南大学硕士</b>（保研）</span>
+        <span><b>综合排名 1/51</b></span>
+        <span><b>7 款</b> 可试玩互动原型</span>
+        <span>服务 <b>HSKK 实战课堂</b></span>
+        <span><b>2027 届</b> · 可实习 / 校招</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== 产品方法论（三原则：始于用户 / 敏捷落地 / 数据驱动） ===== -->
+  <section id="method">
+    <div class="wrap">
+      <div class="el-kicker">PRODUCT METHOD</div>
+      <div class="el-section-title">我的产品方法论</div>
+      <div class="el-section-sub">产品经理的核心不是"会用多少工具"，而是用一套稳定的思维方式，把教学痛点变成可落地的产品。这是我做每一个项目都遵循的三条原则。</div>
+      <div class="method-grid">
+        <div class="method">
+          <div class="ic">🎯</div>
+          <h3>始于用户</h3>
+          <p>所有设计都源于对一线教师与留学生课堂痛点的观察——先搞清楚"为谁、解决什么具体问题"，再谈方案。</p>
+          <span class="tag">痛点驱动</span>
+        </div>
+        <div class="method">
+          <div class="ic">⚡</div>
+          <h3>敏捷落地</h3>
+          <p>善用 Coze 工作流与 AI 辅助开发，把想法快速验证成可用的产品原型，用最小成本拿到真实反馈再迭代。</p>
+          <span class="tag">快速验证</span>
+        </div>
+        <div class="method">
+          <div class="ic">📊</div>
+          <h3>数据驱动</h3>
+          <p>通过飞书等工具沉淀学情数据，让"练了什么、错在哪、该练什么"有迹可循，迭代有据可依而非拍脑袋。</p>
+          <span class="tag">闭环迭代</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 精选作品集（PM 候选人最该突出的，置于关于我之前） ===== -->
+  <section id="works">
+    <div class="wrap">
+      <div class="el-kicker">FEATURED WORKS</div>
+      <div class="el-section-title">精选作品集</div>
+      <div class="el-section-sub">产品经理作品集的核心是「用数据讲故事」。下面是两个重点产品案例——每个都按「背景 → 目标 → 方案 → 数据 → 复盘」展开，并配有可试玩原型与数据看板演示。</div>
+      <div class="feat-cases">
+        <a class="feat-case" href="works.html#student">
+          <div class="fc-k">CASE 01</div>
+          <h3>🎮 课堂互动产品体系</h3>
+          <p>围绕"拼音（语音）· 识字（字形）· 写作批改（表达）· 错误复盘（反馈）"这几个不同的教学方向，分别拆解成一组可玩的互动原型与 AI 工作流；含 7 款可试玩原型与教学交互原型库。</p>
+          <div class="fc-think">💡 产品思考：以语言学视角拆解中文教学痛点，把拼音、识字、写作等方向分别做成可玩原型，让抽象教学法变成可参与的产品。</div>
+          <div class="fc-go">查看案例与试玩 →</div>
+        </a>
+        <a class="feat-case" href="works.html#teacher">
+          <div class="fc-k">CASE 02</div>
+          <h3>📊 AI 学情诊断与错题闭环</h3>
+          <p>用 Coze 批改 + 飞书沉淀 + 数据看板，把"课堂纠错"从滞后变成即时、可复盘、可干预的系统；含学情词云与数据看板演示。</p>
+          <div class="fc-think">💡 产品思考：用 AI 补位教师的即时性缺口，把课堂纠错从"滞后批改"做成"即时反馈 + 可复盘"的系统闭环。</div>
+          <div class="fc-go">查看案例与演示 →</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 关于我 ===== -->
+  <section id="about">
+    <div class="wrap">
+      <div class="el-kicker">ABOUT</div>
+      <div class="el-section-title">关于我</div>
+      <div class="el-section-sub">为什么是我来做 AI 产品——一段把「语言学 × AI × 教学」揉在一起、能力可迁移至多行业的经历。</div>
+      <div class="about-grid">
+        <div class="el-card card">
+          <div class="ic">🎓</div>
+          <h3>交叉背景</h3>
+          <p>暨南大学国际中文教育硕士（保研），本硕导师均为<span class="hl">计算语言学 / 语料库语言学</span>方向。既懂中文教学场景，又懂自然语言处理与 AI 产品落地。</p>
+        </div>
+        <div class="el-card card">
+          <div class="ic">🤖</div>
+          <h3>实战经历</h3>
+          <p>用 <span class="hl">Coze</span> 搭建「词卡生成」「看图说话写作批改」等课堂 AI 工作流；用 AI 辅助开发做出 7 款可试玩课堂互动原型（看图选拼音、识字消消乐、青字家族大转盘、拼音大转盘、汉字拼图、智能汉字词卡等），覆盖拼音、识字、形声字、写作方向；用大模型辅助教案设计与学情分析。</p>
+        </div>
+        <div class="el-card card">
+          <div class="ic">🎯</div>
+          <h3>求职意向</h3>
+          <p><span class="hl">AI 产品经理</span>方向，教育为深耕领域。擅长用「语言学 + 中文教学」视角拆解场景痛点，并用 AI 工作流落地可复用的产品闭环；也适用于其他需要反馈与干预机制的产品方向。</p>
+        </div>
+      </div>
+      <div style="margin-top:18px;padding:16px 18px;border:1px solid var(--el-border-color-lighter);border-radius:var(--el-border-radius-lg);background:var(--el-color-primary-light-9)">
+        <div style="font-size:12px;letter-spacing:.08em;color:var(--el-color-primary);font-weight:500;margin-bottom:10px">WHY HIRE ME · 我能给贵司带来什么</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+          <div><div style="font-weight:500;font-size:13.5px;margin-bottom:4px">场景化痛点拆解（语言学 / 教育切入）</div><div style="font-size:12.5px;color:var(--el-text-color-secondary);line-height:1.6">把拼音、识字、写作等方向拆成可落地产品，而非堆功能清单</div></div>
+          <div><div style="font-weight:500;font-size:13.5px;margin-bottom:4px">AI 工作流从 0 到 1</div><div style="font-size:12.5px;color:var(--el-text-color-secondary);line-height:1.6">独立用 Coze / 云函数搭词卡、批改、学情闭环并亲手交付</div></div>
+          <div><div style="font-weight:500;font-size:13.5px;margin-bottom:4px">数据驱动闭环</div><div style="font-size:12.5px;color:var(--el-text-color-secondary);line-height:1.6">飞书 + 词云 + 看板，让"练了什么、错在哪"有迹可循</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 证书墙 ===== -->
+  <section id="certs">
+    <div class="wrap">
+      <div class="el-kicker">CREDENTIALS</div>
+      <div class="el-section-title">证书墙 · 信任背书</div>
+      <div class="el-section-sub">全部真实，背调可查。</div>
+      <div class="cert-grid">
+        <div class="el-card cert"><span class="em">📜</span><div><div class="ct">高中语文 + 英语教师资格证</div><div class="cs">双科任教资格 · 熟悉 K12 / 对外汉语课堂，具备教师视角</div></div></div>
+        <div class="el-card cert"><span class="em">🏅</span><div><div class="ct">2024 NICC 全国跨文化能力竞赛</div><div class="cs">初级组一等奖（国家级）</div></div></div>
+        <div class="el-card cert"><span class="em">🎓</span><div><div class="ct">校级一等奖学金</div><div class="cs">连续两年 · 强自驱与学习效率</div></div></div>
+        <div class="el-card cert"><span class="em">🗣️</span><div><div class="ct">普通话二级甲等</div><div class="cs">普通话二甲</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 联系（含联系我） ===== -->
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <div class="el-kicker">CONTACT</div>
+      <div class="el-section-title">联系我</div>
+      <div class="contact-grid">
+        <div class="c-card"><div class="k">📧 邮箱</div><div class="v"><a href="mailto:lijialu-caroli@foxmail.com">lijialu-caroli@foxmail.com</a></div></div>
+        <div class="c-card"><div class="k">📱 电话 / 微信（同号）</div><div class="v"><a href="tel:15675291195">15675291195</a></div></div>
+        <div class="c-card"><div class="k">🎓 学历</div><div class="v">暨南大学（211）· 保研硕士</div></div>
+        <div class="c-card"><div class="k">💼 求职方向</div><div class="v">AI 产品经理<div class="cv">教育深耕 · 工具类 SaaS · 内容 / 出海产品</div></div></div>
+      </div>
+      <div class="contact-cta">
+        <a class="el-btn el-btn--primary el-btn--round" href="resume.html">📄 查看完整简历</a>
+        <a class="el-btn el-btn--default el-btn--round" href="works.html">🎮 看可试玩作品</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap">© 2026 李佳路 Caroli · AI 产品经理 · 数据存于腾讯云开发（CloudBase）</div>
+  </footer>
+
+  <!-- 底部固定行动栏：滚动后浮现（简历 / 作品演示 / 联系） -->
+  <div class="floatbar" id="floatbar">
+    <a class="fb-resume" href="resume.html">📄 简历</a>
+    <a class="fb-works" href="works.html">🎮 作品演示</a>
+    <a class="fb-contact" href="tel:15675291195">📱 联系</a>
+  </div>
+</main>
+
+<noscript>
+  <div class="ns-note">
+    <div class="ns-ic">📭</div>
+    <div>
+      <strong>你正在以「无 JavaScript」模式浏览</strong>
+      <p>本页所有文字、作品与联系方式均已完整呈现；仅技能条动画、移动端折叠菜单等增强交互不可用。如需完整体验，请在浏览器中启用 JavaScript 后重新打开。</p>
+      <p class="ns-meta">李佳路 Caroli · AI 产品经理 · 暨南大学硕士（保研）<br>邮箱 lijialu-caroli@foxmail.com · 手机 15675291195</p>
+    </div>
+  </div>
+</noscript>
+
+<script>
+  document.documentElement.classList.add('js');
+
+  const menuBtn=document.getElementById('menuBtn');
+  const sidebar=document.getElementById('sidebar');
+  const navMask=document.getElementById('navMask');
+  function setMenu(open){
+    sidebar.classList.toggle('open',open);
+    menuBtn.classList.toggle('open',open);
+    if(navMask) navMask.classList.toggle('show',open);
+  }
+  menuBtn.addEventListener('click',()=>{ setMenu(!sidebar.classList.contains('open')); });
+  if(navMask) navMask.addEventListener('click',()=>setMenu(false));
+  sidebar.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    if(a.getAttribute('href') && a.getAttribute('href').startsWith('#')){ setMenu(false); }
+  }));
+
+  /* 本页锚点高亮（关于我 / 证书 / 联系我，顶部 subnav） */
+  const secLinks=[...document.querySelectorAll('.subnav a[href^="#"]')];
+  const secMap=new Map(secLinks.map(a=>[a.getAttribute('href').slice(1),a]));
+  if('IntersectionObserver' in window && secMap.size){
+    const so=new IntersectionObserver((es)=>{
+      es.forEach(e=>{
+        if(e.isIntersecting){
+          secLinks.forEach(l=>l.classList.remove('active'));
+          const l=secMap.get(e.target.id);
+          if(l) l.classList.add('active');
+        }
+      });
+    },{rootMargin:'-45% 0px -50% 0px'});
+    ['works','method','about','certs','contact'].forEach(id=>{ const el=document.getElementById(id); if(el) so.observe(el); });
+  }
+
+  /* 滚动渐显 */
+  const revealEls=[...document.querySelectorAll('.about-grid, .about-prose, .cert-grid, .contact-grid, .contact-cta, .card, .c-card')];
+  revealEls.forEach(el=>el.classList.add('reveal'));
+  if('IntersectionObserver' in window){
+    const rio=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); rio.unobserve(e.target); } }); },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+    revealEls.forEach(el=>rio.observe(el));
+  } else { revealEls.forEach(el=>el.classList.add('in')); }
+
+  /* 底部行动栏：滚动超过一屏后浮现 */
+  const floatbar=document.getElementById('floatbar');
+  if(floatbar){
+    const onScroll=()=>{ floatbar.classList.toggle('show', window.scrollY>400); };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  }
+</script>
+<script src="games/lib/cloudbase.full.js"></script>
+<script src="content.js?v=4"></script>
+
+<!-- 访问分析 / 热力图（可选）：前往 https://clarity.microsoft.com 免费注册，拿到项目 ID 后填入下方 CLARITY_ID 即可启用；
+     留空则不加载任何外部脚本，不影响页面功能与隐私。 -->
+<script>
+  (function(){
+    var CLARITY_ID = ''; // ← 在此填入你的 Microsoft Clarity 项目 ID（留空则不使用）
+    if(!CLARITY_ID) return;
+    window.clarity = window.clarity || function(){ (window.clarity.q = window.clarity.q || []).push(arguments); };
+    var s = document.createElement('script');
+    s.async = true; s.src = 'https://www.clarity.ms/tag/' + CLARITY_ID;
+    document.head.appendChild(s);
+  })();
+</script>
+</body>
+</html>

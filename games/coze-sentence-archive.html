@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的句子练习小助手 · 学生端</title>
+<script src="../config.js"></script>
+<script src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<script src="lib/common.js"></script>
+<style>
+  :root{
+    --indigo:#6d5dfc; --cyan:#1fb6c1; --coral:#ff8a65; --ink:#2d3142; --muted:#7c8499;
+    --line:#eceff5; --ok:#1faf6b; --bad:#ff5b6e; --card:#fff;
+    --soft:#fff7f1;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:linear-gradient(165deg,#fff4ec 0%,#eafaf6 52%,#eef1ff 100%);
+    color:var(--ink); min-height:100vh; padding:24px 16px 64px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  header.top{text-align:center;margin-bottom:20px}
+  header.top h1{font-size:26px;margin:0 0 6px;background:linear-gradient(135deg,var(--indigo),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;letter-spacing:.01em}
+  header.top p{margin:4px 0;color:var(--muted);font-size:14px;line-height:1.6}
+  .welcome{display:inline-block;margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-size:13px;color:var(--indigo);font-weight:700;box-shadow:0 6px 18px rgba(109,93,252,.12)}
+  .en{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:3px;letter-spacing:.01em}
+  .tip{display:flex;gap:8px;align-items:flex-start;margin-top:12px;padding:10px 12px;background:var(--soft);border:1px dashed #ffd9c2;border-radius:12px;font-size:13px;color:#a8552b;line-height:1.6}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+  .card h2{font-size:17px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.6}
+  label{display:block;font-size:13px;font-weight:600;margin:0 0 6px;color:#334155}
+  input[type=text],textarea{
+    width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;
+    font-family:inherit;color:var(--ink);background:#fff;resize:vertical;outline:none;transition:border-color .15s;
+  }
+  input[type=text]:focus,textarea:focus{border-color:var(--indigo)}
+  textarea{min-height:84px;line-height:1.6}
+  .btn{
+    margin-top:12px;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--indigo),var(--cyan));color:#fff;font-weight:700;font-size:15px;
+    padding:12px 20px;border-radius:12px;box-shadow:0 8px 20px rgba(99,102,241,.28);transition:transform .12s,filter .12s;
+  }
+  .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .result{margin-top:16px}
+  .imgbox{text-align:center;line-height:0}
+  .imgbox img{max-width:100%;max-height:320px;width:auto;height:auto;object-fit:contain;border-radius:14px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(15,23,42,.1)}
+  .badge{display:inline-block;padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px}
+  .badge.ok{background:#e7f8ef;color:var(--ok)}
+  .badge.bad{background:#ffeaea;color:var(--bad)}
+  .badge.info{background:#eef0ff;color:#5b54e6}
+  .field{margin:10px 0;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px}
+  .field .k{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .field .v{font-size:14.5px;margin-top:3px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+  .field.err{background:#fef2f2;border-color:#fecaca}
+  .field.fix{background:#f0fdf4;border-color:#bbf7d0}
+  .err-box{margin-top:14px;padding:12px 14px;background:#fef2f2;border:1px solid #fecaca;color:var(--bad);border-radius:12px;font-size:14px}
+  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}
+  details{margin-top:12px}
+  summary{cursor:pointer;font-size:13px;color:var(--muted)}
+  pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;overflow:auto;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px;line-height:1.7}
+  .loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .arc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:14px}
+  .arc-item{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.06);display:flex;flex-direction:column}
+  .arc-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#f1f5f9}
+  .arc-meta{padding:10px 12px}
+  .arc-word{font-weight:700;font-size:15px;line-height:1.3;word-break:break-word}
+  .arc-text{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4;word-break:break-word}
+  .arc-del{position:absolute;top:8px;right:8px;border:none;background:rgba(220,38,38,.92);color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .arc-del:hover{background:#dc2626}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--indigo);font-size:14px;font-weight:700;margin-bottom:12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;transition:filter .12s}
+  .back-btn:hover{filter:brightness(1.04)}
+  .to-top{position:fixed;right:20px;bottom:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--cyan));color:#fff;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(99,102,241,.4);font-size:22px;display:none;align-items:center;justify-content:center;z-index:50}
+  .to-top.show{display:flex}
+  .to-top:hover{filter:brightness(1.06)}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<div class="wrap">
+  <header class="top">
+    <div class="welcome">👋 欢迎来练习中文 · Welcome to practice Chinese</div>
+    <h1>📝 我的句子练习小助手</h1>
+    <p>留学生造句好伙伴：先借图想象情景，再交句子，AI 老师马上帮你改<div class="en">Your study buddy: imagine a scene from a word, write a sentence, and get instant AI feedback.</div></p>
+  </header>
+
+  <section class="card">
+    <h2>🎨 第一步：生成情景图片</h2>
+    <p class="sub">输入一个生词（如「开心」「下雨」），AI 帮你画出情景画面。脑子里有了画面，造句就更容易啦！<div class="en">Type a Chinese word and AI draws a scene for you — a picture makes writing easier.</div></p>
+    <label for="wordInput">生词 / Word</label>
+    <input type="text" id="wordInput" placeholder="例如：开心 / 旅行 / 朋友  (e.g. happy / travel / friend)" maxlength="20">
+    <button class="btn" id="genBtn">✨ 生成情景图片</button>
+    <div class="result" id="imgResult"></div>
+  </section>
+
+  <section class="card">
+    <h2>✅ 第二步：交作业 — 句子批改</h2>
+    <p class="sub">用上面的词造一个句子交上来，AI 老师马上检查。写错了也没关系，我们一起看看怎么改～<div class="en">Write a sentence and submit. Don't worry about mistakes — we'll fix them together.</div></p>
+    <label for="sentenceInput">我的句子 / My sentence</label>
+    <textarea id="sentenceInput" placeholder="例如：昨天我和朋友去公园，我们很开心。(e.g. Yesterday I went to the park with my friend and we were happy.)"></textarea>
+    <label for="studentInput">你的名字（可选）/ Your name (optional)</label>
+    <input type="text" id="studentInput" placeholder="例如：李明  (e.g. Li Ming)" maxlength="30">
+    <button class="btn" id="correctBtn">📮 交作业，请批改</button>
+    <div class="result" id="correctResult"></div>
+  </section>
+
+  <section class="card">
+    <h2>📂 我的图片收藏</h2>
+    <p class="sub">生成图片后点「💾 保存到云端」，图片会压缩后存到云端（持久保存、换设备也能看到）。下面是你已收藏的全部图片。<div class="en">Save images to the cloud so they stay with you across devices.</div></p>
+    <button class="btn" id="loadArchiveBtn" style="margin-top:0">🔄 刷新收藏</button>
+    <div class="result" id="archiveList"></div>
+  </section>
+
+  <footer>
+    批改由 AI（Coze 工作流）完成 · 偏误句会自动写入飞书多维表格存档，方便课后复盘与针对性干预；正确句仅作即时反馈、不入库。<br>
+    <div class="en">Feedback by AI (Coze) · Error sentences are saved to a Feishu base for review; correct sentences are not stored.</div>
+  </footer>
+</div>
+
+<button class="to-top" id="toTopBtn" title="回到顶端">↑</button>
+
+<script>
+(async function(){
+  const API='sentenceArchiveApi';
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function dig(obj,key){ if(!obj||typeof obj!=='object') return undefined; if(obj[key]!==undefined) return obj[key]; for(const k of Object.keys(obj)){ const v=obj[k]; if(v&&typeof v==='object'&&v[key]!==undefined) return v[key]; } return undefined; }
+  function friendlyErr(e){
+    var m=(e&&e.message)||String(e||'');
+    // 真正的额度 / 配额类问题（区分于网络抖动或执行超时）
+    if(/credits?|quota|额度|已达上限|plan limit|insufficient|余额/i.test(m))
+      return '⚠️ Coze 额度或配额不足，请到 Coze 账户充值 / 升级套餐后重试。功能代码已就绪，不影响查看本页界面与历史存档。';
+    // 云函数平台层超时（非 Coze 额度问题）
+    if(/timed out|TIME_LIMIT|timeout|超时/i.test(m))
+      return '⚠️ 请求超时（云函数执行超过 180 秒上限）。通常是 Coze 工作流执行较慢或当前网络波动，请稍后重试；若反复超时，请检查 Coze 工作流运行是否正常。';
+    // 其他情况：原样展示真实错误，不再误判为「额度未充值」
+    return m;
+  }
+
+  async function callApi(action, data){
+    if(!window.CB) throw new Error('内核未加载');
+    if(!window.CB.cloudReady) await window.CB.initCloud();
+    const tcb = window.CB.tcb;
+    if(!tcb) throw new Error('云端未就绪');
+    const res = await tcb.callFunction({ name:API, data:Object.assign({action}, data||{}) });
+    const out = (res && res.result) || res;
+    if(!out || out.ok===false) throw new Error((out&&out.error)||'调用失败');
+    return out;
+  }
+
+  function pickImage(data){
+    const keys=['image','img','url','picture','pic','photo','data'];
+    for(const k of keys){ const v=dig(data,k); if(v && typeof v==='string' && v.trim()){ return {k, v:v.trim()}; } }
+    return null;
+  }
+  function imgSrc(v){ if(/^data:image\//i.test(v)) return v; if(/^https?:\/\//i.test(v)) return v; if(/^[A-Za-z0-9+/=]{20,}$/.test(v)) return 'data:image/png;base64,'+v; return v; }
+  function rawJson(data){ return '<details><summary>查看原始返回 JSON</summary><pre>'+esc(JSON.stringify(data,null,2))+'</pre></details>'; }
+
+  function renderImage(data){
+    const box=document.getElementById('imgResult');
+    const im=pickImage(data);
+    if(!im){
+      box.innerHTML='<div class="err-box">未识别到图片字段，已展示原始返回：</div>'+rawJson(data);
+      return;
+    }
+    currentImg = { url: imgSrc(im.v), text: (dig(data,'text')||'').toString() };
+    box.innerHTML='<div class="imgbox"><img src="'+esc(imgSrc(im.v))+'" alt="情景图片" onerror="this.parentNode.innerHTML=\'<div class=&quot;err-box&quot;>图片加载失败，可能是跨域或链接失效</div>\'"></div>'+
+      '<div class="hint">图片字段：'+esc(im.k)+'</div>'+
+      '<button class="btn" id="saveImgBtn" style="margin-top:14px">💾 保存到云端</button>'+
+      '<div id="saveStatus" class="hint"></div>';
+  }
+
+  function field(k,v,cls){
+    let val=v; if(typeof v==='object') val=JSON.stringify(v,null,2);
+    return '<div class="field '+(cls||'')+'"><div class="k">'+esc(k)+'</div><div class="v">'+esc(val)+'</div></div>';
+  }
+  // 显示逻辑（对应需求）：
+  //   句子正确（Coze 未给出错误原因）→ 只显示「该句子正确。太棒了。」这一句
+  //   句子有错（Coze 给出 error_reason）→ 显示错误原因 + 正确句子，并自动存档飞书
+  // 说明：Coze 聚合节点当前把 sentence 字段误填成固定夸赞文案，故「正确/错误」
+  //       以 error_reason 是否存在为准；原句统一用用户实际输入的 currentSentence 显示。
+  function renderCorrect(res){
+    const data = (res && res.data) || {};
+    const debugUrl = (res && res.debugUrl) || '';
+    const box=document.getElementById('correctResult');
+    const isEmpty = !data || Object.keys(data).length===0 ||
+      Object.values(data).every(v=> !v || (typeof v==='object' ? !Object.keys(v).length : !String(v).trim()));
+    if(isEmpty){
+      box.innerHTML='<div class="err-box">⚠️ 这次没有拿到批改结果，请稍后再试一次。<div class="en">No feedback this time — please try again in a moment.</div></div>'+
+        (debugUrl?'<div class="hint"><a href="'+esc(debugUrl)+'" target="_blank" rel="noopener">🔗 查看执行日志 / View logs</a></div>':'');
+      return;
+    }
+    currentCorrect = data;
+    const hasError = !!(data.error_reason && String(data.error_reason).trim());
+    const praise = '这句话写得很棒，完全正确！';
+
+    if(!hasError){
+      // 句子正确：只输出这一句，错误档案不记录正确句
+      box.innerHTML=
+        '<div style="margin-bottom:12px"><span class="badge ok">🎉 太棒了，句子正确！</span></div>'+
+        '<div class="field"><div class="k">结果 / Result</div><div class="v">'+esc(praise)+'</div></div>'+
+        '<div class="hint">你写的句子 / Your sentence：'+esc(currentSentence||'')+'　·　正确句仅作即时反馈，不写入档案</div>'+
+        (debugUrl?'<div class="hint"><a href="'+esc(debugUrl)+'" target="_blank" rel="noopener">🔗 查看执行日志 / View logs</a></div>':'');
+      return;
+    }
+
+    // 句子有错：展示错误原因 + 正确句子，并自动保存飞书
+    let html='<div style="margin-bottom:12px"><span class="badge bad">💡 这里有一处小问题</span></div>';
+    html+='<div class="field"><div class="k">我的句子 / My sentence</div><div class="v">'+esc(currentSentence||'')+'</div></div>';
+    html+=field('错误原因 / What to fix', data.error_reason||'', 'err');
+    html+=field('正确句子 / A better version', data.correct_sentence||'', 'fix');
+    html+='<div class="tip">🌱 别担心，写错是进步最快的方式！看看上面的提示，下次就更稳啦。<div class="en">Mistakes help you improve — read the tip and you\'ll do even better next time.</div></div>';
+    html+='<div id="feishuStatus" class="hint"><span class="loading"></span> 正在把这句存入老师的错句本…</div>';
+    if(debugUrl) html+='<div class="hint"><a href="'+esc(debugUrl)+'" target="_blank" rel="noopener">🔗 查看执行日志 / View logs</a></div>';
+    box.innerHTML=html;
+    autoSaveFeishu();
+  }
+
+  async function autoSaveFeishu(){
+    const status=document.getElementById('feishuStatus'); if(!status) return;
+    const student=document.getElementById('studentInput').value.trim();
+    try{
+      await callApi('saveCorrection',{ sentence:currentSentence, student, data:currentCorrect });
+      status.innerHTML='<span class="badge ok">✅ 已写入飞书句子档案 / Saved to Feishu archive</span>';
+    }catch(e){
+      status.innerHTML='<div class="err-box">自动保存失败：'+esc(e.message)+
+        ' <button class="btn" id="retryFeishuBtn" style="margin-top:8px;padding:6px 12px;font-size:13px">重试</button></div>';
+      const rb=document.getElementById('retryFeishuBtn'); if(rb) rb.onclick=autoSaveFeishu;
+    }
+  }
+
+  const genBtn=document.getElementById('genBtn');
+  const correctBtn=document.getElementById('correctBtn');
+  genBtn.addEventListener('click',async()=>{
+    const word=document.getElementById('wordInput').value.trim();
+    if(!word){ alert('请先输入生词'); return; }
+    currentWord=word;
+    genBtn.disabled=true; const old=genBtn.innerHTML; genBtn.innerHTML='<span class="loading"></span> 生成中…';
+    document.getElementById('imgResult').innerHTML='';
+    try{ const out=await callApi('genImage',{word}); renderImage(out.data); bindSave(); }
+    catch(e){ document.getElementById('imgResult').innerHTML='<div class="err-box">'+esc(friendlyErr(e))+'</div>'; }
+    finally{ genBtn.disabled=false; genBtn.innerHTML=old; }
+  });
+
+  let currentImg=null, currentWord='', currentSentence='', currentCorrect=null;
+  function bindSave(){
+    const btn=document.getElementById('saveImgBtn'); if(!btn) return;
+    const status=document.getElementById('saveStatus');
+    btn.onclick=async()=>{
+      if(!currentImg||!currentImg.url){ status.innerHTML='<span class="badge bad">没有可保存的图片</span>'; return; }
+      btn.disabled=true; const o=btn.innerHTML; btn.innerHTML='<span class="loading"></span> 保存中…'; status.innerHTML='';
+      try{
+        await callApi('saveImage',{ word:currentWord, text:currentImg.text, imageUrl:currentImg.url });
+        status.innerHTML='<span class="badge ok">✅ 已收藏到云端（换设备也能看）</span>';
+        loadArchive();
+      }catch(e){ status.innerHTML='<div class="err-box">保存失败：'+esc(e.message)+'</div>'; }
+      finally{ btn.disabled=false; btn.innerHTML=o; }
+    };
+  }
+  async function loadArchive(){
+    const box=document.getElementById('archiveList');
+    box.innerHTML='<div class="hint">加载中…</div>';
+    try{
+      const out=await callApi('listImages');
+      const list=out.list||[];
+      if(!list.length){ box.innerHTML='<div class="hint">还没有保存任何图片。生成图片后点「💾 保存到云端」即可。</div>'; return; }
+      box.innerHTML='<div class="arc-grid">'+list.map(it=>{
+        const src=it.url||''; const w=esc(it.word||'未命名');
+        return '<div class="arc-item" data-id="'+esc(it.id)+'" data-fid="'+esc(it.fileID||'')+'">'+
+          '<img class="arc-img" src="'+esc(src)+'" alt="'+w+'" onerror="this.style.display=\'none\'">'+
+          '<button class="arc-del" title="删除">✕</button>'+
+          '<div class="arc-meta"><div class="arc-word">'+w+'</div></div>'+
+          '</div>';
+      }).join('')+'</div>';
+    }catch(e){ box.innerHTML='<div class="err-box">加载失败：'+esc(e.message)+'</div>'; }
+  }
+  document.getElementById('loadArchiveBtn').addEventListener('click', loadArchive);
+  document.getElementById('archiveList').addEventListener('click', async(e)=>{
+    const del=e.target.closest('.arc-del'); if(!del) return;
+    const item=e.target.closest('.arc-item'); const id=item&&item.getAttribute('data-id'); const fid=item&&item.getAttribute('data-fid');
+    if(!id) return;
+    if(!confirm('确定删除这张存档图片？')) return;
+    try{ await callApi('removeImage',{ id, fileID:fid }); loadArchive(); }
+    catch(err){ alert('删除失败：'+(err&&err.message||err)); }
+  });
+  (function tryLoadArchive(){ if(window.CB && window.CB.cloudReady) loadArchive(); else setTimeout(tryLoadArchive, 800); })();
+
+  correctBtn.addEventListener('click',async()=>{
+    const s=document.getElementById('sentenceInput').value.trim();
+    if(!s){ alert('请先输入句子'); return; }
+    currentSentence=s;
+    correctBtn.disabled=true; const old=correctBtn.innerHTML; correctBtn.innerHTML='<span class="loading"></span> 批改中…';
+    document.getElementById('correctResult').innerHTML='';
+    try{ const out=await callApi('correct',{sentence:s}); renderCorrect(out); }
+    catch(e){ document.getElementById('correctResult').innerHTML='<div class="err-box">'+esc(friendlyErr(e))+'</div>'; }
+    finally{ correctBtn.disabled=false; correctBtn.innerHTML=old; }
+  });
+
+  // 顶部「返回上一级 / 结束」常驻栏见全局 gtbBack()/gtbEnd()（文件末尾脚本）
+  // 右下角「回到顶端」：页面可滚动且下滚超过 300px 才显示，回到顶部立即隐藏
+  const toTopBtn=document.getElementById('toTopBtn');
+  if(toTopBtn){
+    toTopBtn.classList.remove('show'); // 初始强制隐藏
+    const checkTop=()=>{
+      const y = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const scrollable = document.documentElement.scrollHeight > (window.innerHeight + 50);
+      toTopBtn.classList.toggle('show', scrollable && y > 300);
+    };
+    window.addEventListener('scroll', checkTop, {passive:true});
+    window.addEventListener('resize', checkTop);
+    checkTop();
+    toTopBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+  }
+})();
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>拼音大转盘 · 声母/韵母/整体认读 转盘认读</title>
+<style>
+:root{
+  --bg1:#fff6ee; --bg2:#eaf4ff;
+  --hanzi:#ff9a76; --hanzi-d:#ff7a59;
+  --pinyin:#43c4dd; --pinyin-d:#28a6c8;
+  --ok:#16b889; --ok-d:#0e9d76;
+  --bad:#ff5d6c;
+  --ink:#2b2b35; --muted:#8a8c9a;
+  --card:#ffffff;
+  --line:#edeff4;
+  --shadow:0 12px 36px rgba(70,82,120,.10);
+  --shadow-card:0 8px 20px rgba(60,72,110,.14);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;
+  min-height:100vh;color:var(--ink);
+  padding:24px 14px 64px;display:flex;flex-direction:column;align-items:center;
+}
+h1{font-size:clamp(22px,5vw,32px);margin:6px 0 2px;text-align:center;color:var(--ink);font-weight:800;letter-spacing:.5px;}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px;text-align:center;letter-spacing:.3px;}
+.panel{width:100%;max-width:760px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow);}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;}
+.levels{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.lv{padding:9px 16px;border:none;border-radius:999px;cursor:pointer;background:#fff;color:var(--muted);font-size:14px;border:1px solid var(--line);box-shadow:0 2px 6px rgba(60,72,110,.06);transition:.2s;}
+.lv:hover{transform:translateY(-1px);color:var(--ink);}
+.lv.active{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(14,157,118,.32);}
+.btn{padding:10px 18px;border:none;border-radius:14px;cursor:pointer;font-size:14px;font-weight:600;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 6px rgba(60,72,110,.06);transition:.15s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(60,72,110,.12);}
+.btn:active{transform:scale(.97);}
+.btn.primary{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(14,157,118,.30);}
+.btn.primary:hover{box-shadow:0 10px 22px rgba(14,157,118,.40);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.stats{display:flex;gap:16px;justify-content:center;margin:6px 0 10px;font-size:13px;color:var(--muted);flex-wrap:wrap;}
+.stats b{color:var(--ink);font-size:17px;font-weight:800;}
+.stats .combo b{color:var(--ok-d);}
+.overlay{position:fixed;inset:0;background:rgba(35,38,60,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;width:min(92vw,420px);box-shadow:var(--shadow);text-align:center;}
+.modal h3{margin:0 0 12px;color:var(--ink);}
+.modal textarea{width:100%;height:150px;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;resize:vertical;font-family:inherit;background:#fbfcfe;}
+.modal textarea:focus{outline:none;border-color:var(--ok);}
+.modal .hint{color:var(--muted);font-size:12px;margin:8px 0;line-height:1.6;text-align:left;}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;}
+.win .big{font-size:42px;margin:6px 0;}
+.stars{font-size:30px;letter-spacing:4px;margin:6px 0;}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#2b2b35;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:60;max-width:80vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.comboPop{position:fixed;left:50%;top:34%;transform:translateX(-50%) scale(.6);font-size:34px;font-weight:800;color:var(--ok-d);opacity:0;pointer-events:none;z-index:55;text-shadow:0 2px 12px rgba(14,157,118,.35);transition:.25s;}
+.comboPop.show{opacity:1;transform:translateX(-50%) scale(1);}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:45;box-shadow:inset 0 0 0 0 rgba(255,80,80,0);transition:box-shadow .18s;}
+#flash.show{box-shadow:inset 0 0 90px 24px rgba(255,80,80,.5);}
+.set-row{display:flex;flex-direction:column;gap:6px;text-align:left;margin:12px 0;}
+.set-row label{font-size:13px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;}
+.set-row select,.set-row input[type=text]{padding:9px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fbfcfe;}
+.set-row select:focus,.set-row input[type=text]:focus{outline:none;border-color:var(--ok);}
+.set-row input[type=range]{width:100%;accent-color:var(--ok);}
+.set-note{font-size:11px;color:var(--muted);line-height:1.5;text-align:left;}
+.set-note b{color:var(--ink);}
+.status{display:inline-block;font-size:12px;color:var(--muted);margin-left:6px;padding:3px 10px;border-radius:999px;background:#eef0f5;}
+.status.ok{color:#0e9d76;background:#e6f7f0;}
+.status.warn{color:#c0392b;background:#fdecea;}
+.nickwrap{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);}
+.nick{width:120px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-family:inherit;background:#fbfcfe;}
+.nick:focus{outline:none;border-color:var(--ok);}
+.liveboard-panel{padding:14px 18px;margin-bottom:14px;}
+.liveboard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.lb-title{font-weight:800;color:var(--ink);font-size:15px;letter-spacing:.3px;}
+.liveboard{display:flex;gap:10px;}
+.lb-empty{color:var(--muted);font-size:13px;text-align:center;width:100%;padding:8px 0;}
+.lb-card{flex:1;border-radius:16px;padding:14px 8px;text-align:center;position:relative;box-shadow:var(--shadow-card);min-width:0;}
+.lb-1{background:linear-gradient(135deg,#ffe08a,#f7b733);color:#5a3b00;}
+.lb-2{background:linear-gradient(135deg,#eef2f7,#c7d0dd);color:#3a4252;}
+.lb-3{background:linear-gradient(135deg,#f3bd97,#d98a52);color:#4a2a12;}
+.lb-rank{font-size:28px;font-weight:900;line-height:1;}
+.lb-name{font-size:14px;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-score{font-size:13px;opacity:.85;margin-top:2px;}
+.lb-card.lb-me{outline:3px solid var(--ok);outline-offset:-3px;}
+.lb-card.lb-me::after{content:'你';position:absolute;top:-9px;right:8px;background:var(--ok);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;}
+/* ===== 转盘专属 ===== */
+.wheel-wrap{position:relative;width:min(300px,80vw);height:min(300px,80vw);margin:8px auto 4px;}
+.wheel{position:absolute;inset:0;border-radius:50%;border:8px solid #fff;box-shadow:var(--shadow-card);transition:transform 1.5s cubic-bezier(.2,.7,.2,1);}
+.wheel-label{position:absolute;left:50%;top:50%;font-size:15px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35);transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;}
+.wheel-pointer{position:absolute;left:50%;top:-10px;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:26px solid var(--bad);z-index:6;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));}
+.wheel-pin{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#fff;z-index:7;box-shadow:0 2px 5px rgba(0,0,0,.3);}
+.wheel-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:#fff;box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:5;}
+.result{text-align:center;min-height:34px;margin:6px 0;}
+.result .py{font-size:34px;font-weight:900;color:var(--ink);letter-spacing:2px;}
+.result .hint{font-size:13px;color:var(--muted);}
+.quiz{margin:10px 0;min-height:40px;}
+.question{text-align:center;font-size:16px;font-weight:700;margin-bottom:12px;color:var(--ink);}
+.options{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.opt{padding:13px 20px;border:none;border-radius:14px;cursor:pointer;font-size:16px;font-weight:700;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-card);transition:.15s;min-width:92px;}
+.opt:hover{transform:translateY(-2px);}
+.opt:active{transform:scale(.97);}
+.opt.correct{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;}
+.opt.wrong{background:var(--bad);color:#fff;border-color:transparent;animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.feedback{text-align:center;min-height:26px;font-weight:700;margin-top:8px;font-size:15px;}
+.feedback.ok{color:var(--ok-d);}
+.feedback.no{color:var(--bad);}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;align-self:stretch;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<h1>拼音大转盘</h1>
+<div class="sub">国际中文教学 · 声母 / 韵母 / 整体认读 转盘认读 · 纯前端离线可用</div>
+
+<div class="panel liveboard-panel">
+  <div class="liveboard-head">
+    <span class="lb-title">🏆 实时擂台 · 当前前三名</span>
+    <span id="lbStatus" class="status">同步中…</span>
+  </div>
+  <div class="liveboard" id="liveboard">
+    <div class="lb-empty">还没有战绩，快来抢占榜首！</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="controls">
+    <div class="levels" id="levels">
+      <button class="lv active" data-cat="shengmu">声母</button>
+      <button class="lv" data-cat="yunmu">韵母</button>
+      <button class="lv" data-cat="zhengti">整体认读</button>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="startBtn">开始游戏</button>
+    <button class="btn" id="resetBtn">重置</button>
+    <button class="btn primary" id="spinBtn" disabled>🎡 转动转盘</button>
+    <button class="btn" id="soundBtn">🔊 发音设置</button>
+    <button class="btn primary" id="testSoundBtn">🔊 测试发音</button>
+    <span id="soundStatus" class="status">就绪</span>
+    <button class="btn" id="cloudBtn">☁️ 云端榜</button>
+    <span id="cloudDot" class="status">☁️ 连接中</span>
+    <span class="nickwrap">昵称：<input id="nickInput" class="nick" type="text" maxlength="12" placeholder="输入名字" /></span>
+  </div>
+  <div class="stats">
+    <span>得分 <b id="score">0</b></span>
+    <span>最高 <b id="best">0</b></span>
+    <span>连击 <b id="combo">0</b></span>
+    <span>用时 <b id="time">0:00</b></span>
+    <span>尝试 <b id="attempts">0</b></span>
+    <span>剩余 <b id="left">0</b></span>
+  </div>
+
+  <div class="wheel-wrap">
+    <div class="wheel-pointer"></div>
+    <div class="wheel-pin"></div>
+    <div class="wheel" id="wheel"><div class="wheel-hub">🎯</div></div>
+  </div>
+
+  <div class="result" id="result"><span class="hint">点击「转动转盘」开始认读</span></div>
+  <div class="controls">
+    <button class="btn" id="speakBtn" disabled>🔊 听发音（示例字）</button>
+  </div>
+  <div class="quiz" id="quiz"></div>
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="win">
+      <div class="big" id="endTitle">🎉 通关啦！</div>
+      <div class="stars" id="stars">⭐⭐⭐</div>
+      <p id="winText"></p>
+      <button class="btn primary" id="winAgain">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="customOverlay">
+  <div class="modal">
+    <h3>玩法说明</h3>
+    <div class="hint">选择「声母 / 韵母 / 整体认读」类别，点击「转动转盘」随机停在一个拼音上；点「听发音」可听该拼音对应的示例字，再回答选择题。共 10 题，答对得分。</div>
+    <div class="row"><button class="btn primary" id="customCancel">知道了</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="soundOverlay">
+  <div class="modal">
+    <h3>🔊 发音设置</h3>
+    <div class="set-row">
+      <label>发音方式</label>
+      <select id="pMethod">
+        <option value="baidu">百度翻译 TTS（默认·真人普通话·进词预加载）</option>
+        <option value="youdao">有道真人发音（中文·兜底）</option>
+        <option value="browser">浏览器语音（离线·依赖本机中文嗓）</option>
+        <option value="custom">自定义 TTS 接口（接你自己的 API）</option>
+      </select>
+    </div>
+    <div class="set-row" id="tplRow" style="display:none;">
+      <label>自定义 TTS 地址模板</label>
+      <input type="text" id="pTpl" placeholder="https://你的接口?text={text}" />
+      <div class="set-note">用 <b>{text}</b> 占位要朗读的内容。可接 Edge TTS、讯飞、或自建服务。</div>
+    </div>
+    <div class="set-row">
+      <label><input type="checkbox" id="pAuto" /> 点卡片自动朗读（选中/配对时出声）</label>
+    </div>
+    <div class="set-row">
+      <label>语速 <span id="pRateV">正常</span></label>
+      <input type="range" id="pRate" min="1" max="7" step="1" value="3" />
+    </div>
+    <div class="set-row">
+      <label>音量 <span id="pVolV">1.0</span></label>
+      <input type="range" id="pVol" min="0" max="1" step="0.05" value="1" />
+    </div>
+    <div class="set-note" id="voiceInfo"></div>
+    <div class="row">
+      <button class="btn" id="soundClose">完成</button>
+      <button class="btn primary" id="soundTest">试听「你好」</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cloudOverlay">
+  <div class="modal" style="width:min(92vw,460px)">
+    <h3>☁️ 云端战绩榜</h3>
+    <div id="cloudList" style="max-height:50vh;overflow:auto"></div>
+    <div class="row"><button class="btn primary" id="cloudClose">关闭</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="nameOverlay">
+  <div class="modal">
+    <h3>先告诉我你是谁 👋</h3>
+    <p class="hint">开始游戏前请输入名字，这样你的成绩、排行榜和学情数据才知道归属谁。名字会自动记住，下次不用重输。</p>
+    <input id="nameInput" type="text" maxlength="12" placeholder="你的名字" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;" />
+    <div class="row"><button class="btn primary" id="nameConfirm">开始游戏</button></div>
+  </div>
+</div>
+<div id="flash"></div>
+<div class="toast" id="toast"></div>
+<div class="comboPop" id="comboPop"></div>
+
+<script>window.GAME_TYPE='pinyin_wheel';</script>
+<script src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<script src="lib/common.js"></script>
+<script>
+// ===== 拼音词库（声母 / 韵母 / 整体认读，每项含示例字与示例字拼音）=====
+const CAT = {
+  shengmu: [
+    ['b','八','bā'],['p','爬','pá'],['m','妈','mā'],['f','发','fā'],['d','大','dà'],
+    ['t','他','tā'],['n','那','nà'],['l','来','lái'],['g','哥','gē'],['k','可','kě'],
+    ['h','和','hé'],['j','几','jī'],['q','七','qī'],['x','西','xī'],['zh','知','zhī'],
+    ['ch','吃','chī'],['sh','是','shì'],['r','日','rì'],['z','在','zài'],['c','草','cǎo'],['s','四','sì']
+  ],
+  yunmu: [
+    ['a','啊','ā'],['o','哦','ò'],['e','鹅','é'],['i','笔','bǐ'],['u','书','shū'],['ü','女','nǚ'],
+    ['ai','爱','ài'],['ei','飞','fēi'],['ao','好','hǎo'],['ou','手','shǒu'],['an','安','ān'],
+    ['en','恩','ēn'],['ang','帮','bāng'],['eng','风','fēng'],['ong','红','hóng'],['iu','牛','niú'],
+    ['ui','水','shuǐ'],['ie','写','xiě'],['üe','月','yuè'],['er','二','èr'],['in','心','xīn'],
+    ['ing','星','xīng'],['un','云','yún']
+  ],
+  zhengti: [
+    ['zhi','知','zhī'],['chi','吃','chī'],['shi','是','shì'],['ri','日','rì'],['zi','字','zì'],
+    ['ci','词','cí'],['si','四','sì'],['yi','一','yī'],['wu','五','wǔ'],['yu','鱼','yú'],
+    ['ye','叶','yè'],['yue','月','yuè'],['yuan','圆','yuán'],['yin','音','yīn'],['yun','云','yún'],['ying','英','yīng']
+  ]
+};
+const CAT_NAME = {shengmu:'声母', yunmu:'韵母', zhengti:'整体认读'};
+
+// 全局示例字池（用于生成选择题的干扰项）
+const POOL = [];
+Object.keys(CAT).forEach(k=>CAT[k].forEach(([py,char,full])=>POOL.push({py,char,full})));
+
+const FAIL_WORDS = ['差一点点~','再试试看!','不对哦 😯','别急，慢慢来','哎呀，差一点！','加油，你可以的！'];
+
+const state = {
+  cards:[], cat:'shengmu',
+  score:0, attempts:0, correct:0,
+  combo:0, maxCombo:0, best:0,
+  playing:false, spinning:false, quizActive:false, land:0, current:null,
+  qIndex:0, total:10,
+  startTs:0, timer:null
+};
+
+const $ = s=>document.querySelector(s);
+const wheelEl=$('#wheel'), resultEl=$('#result'), quizEl=$('#quiz'), feedbackEl=$('#feedback');
+const speakBtn=$('#speakBtn'), spinBtn=$('#spinBtn'), startBtn=$('#startBtn'), resetBtn=$('#resetBtn');
+const scoreEl=$('#score'), bestEl=$('#best'), comboEl=$('#combo'), timeEl=$('#time'),
+      attemptsEl=$('#attempts'), leftEl=$('#left');
+const overlay=$('#overlay');
+const speak = window.CB.speak;
+
+function toastMsg(msg){ const t=document.getElementById('toast'); if(t){ t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); } }
+
+function bestKey(){ return 'pinyin_wheel_best'; }
+function loadBest(){ state.best = parseInt(localStorage.getItem(bestKey())||'0',10)||0; bestEl.textContent=state.best; }
+function saveBest(){ if(state.score>state.best){ state.best=state.score; localStorage.setItem(bestKey(),String(state.best)); bestEl.textContent=state.best; } }
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ===== 转盘渲染（conic-gradient 扇区 + 径向标签）=====
+function buildWheel(cat){
+  const list = CAT[cat];
+  const N = list.length;
+  const sector = 360/N;
+  const R = 118; // 标签半径
+  const stops = [];
+  let labelsHtml = '<div class="wheel-hub">🎯</div>';
+  for(let i=0;i<N;i++){
+    const hue = Math.round(i*(360/N));
+    const c = `hsl(${hue},68%,62%)`;
+    stops.push(`${c} ${i*sector}deg ${(i+1)*sector}deg`);
+    const a = i*sector + sector/2; // 扇区中心角（0=正上方，顺时针）
+    const rad = (a-90)*Math.PI/180;
+    const x = 150 + R*Math.cos(rad);
+    const y = 150 + R*Math.sin(rad);
+    labelsHtml += `<span class="wheel-label" style="left:${x}px;top:${y}px;">${list[i][0]}</span>`;
+  }
+  wheelEl.style.background = `conic-gradient(${stops.join(',')})`;
+  wheelEl.innerHTML = labelsHtml;
+  wheelEl.style.transform = 'rotate(0deg)';
+}
+
+function isMatch(p, py, cat){
+  if(cat==='shengmu') return p.full.toLowerCase().startsWith(py.toLowerCase());
+  if(cat==='yunmu')   return p.full.toLowerCase().includes(py.toLowerCase());
+  return p.full.toLowerCase()===py.toLowerCase(); // zhengti
+}
+
+// ===== 抽题 =====
+function makeQuiz(entry){
+  const cat = state.cat;
+  const py = entry[0], char = entry[1], full = entry[2];
+  let qText;
+  if(cat==='shengmu') qText = `下列哪个汉字的声母是「${py}」？`;
+  else if(cat==='yunmu') qText = `下列哪个汉字的韵母包含「${py}」？`;
+  else qText = `下列哪个汉字读作「${py}」？`;
+
+  const wrongs = POOL.filter(p=>p.full!==full && p.char!==char && !isMatch(p,py,cat)).map(p=>p.char);
+  shuffle(wrongs);
+  const opts = shuffle([char, wrongs[0], wrongs[1]]);
+  const answer = opts.indexOf(char);
+  state.current = {py,char,full,cat,answer};
+  state.quizActive = true;
+
+  quizEl.innerHTML = `<div class="question">${qText}</div><div class="options"></div>`;
+  const optsEl = quizEl.querySelector('.options');
+  opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=o; b.dataset.idx=i;
+    b.addEventListener('click',()=>onAnswer(i));
+    optsEl.appendChild(b);
+  });
+}
+
+function spin(){
+  if(!state.playing || state.spinning || state.quizActive) return;
+  state.spinning=true;
+  state.quizActive=false;
+  quizEl.innerHTML=''; feedbackEl.textContent=''; feedbackEl.className='feedback';
+  const list = CAT[state.cat];
+  const N = list.length, sector = 360/N;
+  const land = Math.floor(Math.random()*N);
+  const a = land*sector + sector/2;
+  const rot = 360*5 - a; // 多转几圈并把落点扇区转到指针下
+  wheelEl.style.transform = `rotate(${rot}deg)`;
+  setTimeout(()=>{
+    state.spinning=false;
+    state.land=land;
+    const entry = list[land];
+    resultEl.innerHTML = `<div class="py">${entry[0]}</div><div class="hint">示例字「${entry[1]}」(${entry[2]})</div>`;
+    speakBtn.disabled=false; speakBtn.dataset.char=entry[1];
+    makeQuiz(entry);
+  }, 1600);
+}
+
+function onAnswer(idx){
+  if(!state.quizActive) return;
+  const q = state.current; if(!q) return;
+  state.quizActive=false;
+  state.attempts++; attemptsEl.textContent=state.attempts;
+  const optEls = [...quizEl.querySelectorAll('.opt')];
+  const correct = (idx===q.answer);
+  if(correct){
+    state.combo++; state.maxCombo=Math.max(state.maxCombo,state.combo);
+    const gain = 10 + (state.combo-1)*5;
+    state.score+=gain; scoreEl.textContent=state.score; comboEl.textContent=state.combo;
+    if(state.combo>=2) window.CB.showCombo(state.combo);
+    window.CB.beep(880,.10); setTimeout(()=>window.CB.beep(1175,.12),80);
+    window.CB.vibrate([30]);
+    speak(q.char);
+    if(optEls[idx]) optEls[idx].classList.add('correct');
+    feedbackEl.textContent = `✅ 正确！「${q.char}」读 ${q.full}`;
+    feedbackEl.className='feedback ok';
+    window.CB.logAttempt(q.char, q.full, true);
+  }else{
+    state.combo=0; comboEl.textContent='0';
+    window.CB.failFeedback();
+    if(optEls[idx]) optEls[idx].classList.add('wrong');
+    if(optEls[q.answer]) optEls[q.answer].classList.add('correct');
+    feedbackEl.textContent = `❌ 不对，正确答案是「${q.char}」(${q.full})`;
+    feedbackEl.className='feedback no';
+    window.CB.logAttempt(q.char, q.full, false);
+  }
+  state.qIndex++; saveBest();
+  leftEl.textContent = state.total - state.qIndex;
+  setTimeout(()=>{
+    quizEl.innerHTML='';
+    if(state.qIndex>=state.total){ win(); }
+    else { resultEl.innerHTML='<span class="hint">点击「转动转盘」继续下一题</span>'; speakBtn.disabled=true; }
+  }, 1200);
+}
+
+// ===== 计时器 =====
+function startTimer(){
+  state.startTs=Date.now();
+  state.timer=setInterval(()=>{
+    const s=Math.floor((Date.now()-state.startTs)/1000);
+    timeEl.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  },250);
+}
+function stopTimer(){ clearInterval(state.timer); state.timer=null; }
+window.__stopTimer = stopTimer;
+
+// ===== 必需全局函数 =====
+function buildDeck(){
+  // 进词即预加载：把所有示例字作为 hanzi 卡片，发音引擎会预拉音频
+  return POOL.map(p=>({type:'hanzi', text:p.char}));
+}
+function setupRound(cards){
+  state.cards = cards && cards.length ? cards : state.cards;
+  if(!state.cards.length) state.cards = buildDeck();
+  state.score=0; state.attempts=0; state.correct=0;
+  state.combo=0; state.maxCombo=0;
+  state.playing=true; state.spinning=false; state.quizActive=false; state.current=null;
+  state.qIndex=0; state.land=0;
+  loadBest();
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0'; leftEl.textContent=state.total;
+  spinBtn.disabled=false; resultEl.innerHTML='<span class="hint">点击「转动转盘」开始认读</span>';
+  speakBtn.disabled=true; quizEl.innerHTML=''; feedbackEl.textContent=''; feedbackEl.className='feedback';
+  buildWheel(state.cat);
+  window.CB.preloadDeck();
+  startTimer(); timeEl.textContent='0:00';
+}
+function startGame(){
+  if(!window.CB.NICK || !window.CB.NICK.trim()){ window.CB.openNameGate(); return; }
+  stopTimer();
+  setupRound(state.cards);
+}
+function resetGame(){
+  stopTimer();
+  window.CB.netLeave();
+  if(overlay) overlay.classList.remove('show');
+  state.playing=false; state.spinning=false; state.quizActive=false; state.current=null;
+  state.score=0; state.attempts=0; state.correct=0; state.combo=0; state.maxCombo=0; state.qIndex=0; state.land=0;
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0'; leftEl.textContent='0'; timeEl.textContent='0:00';
+  spinBtn.disabled=true; speakBtn.disabled=true;
+  resultEl.innerHTML='<span class="hint">选择类别后点击「开始游戏」</span>';
+  quizEl.innerHTML=''; feedbackEl.textContent=''; feedbackEl.className='feedback';
+  loadBest();
+  buildWheel(state.cat);
+  if(!state.cards.length) state.cards=buildDeck();
+}
+
+function starRating(){
+  const ratio = state.attempts / Math.max(1,state.total);
+  if(ratio<=1.35) return 3;
+  if(ratio<=2.1) return 2;
+  return 1;
+}
+function starStr(n){ return '⭐'.repeat(n)+'☆'.repeat(3-n); }
+function endScreen(title,sub){
+  stopTimer(); state.playing=false;
+  $('#endTitle').textContent=title;
+  $('#stars').textContent=starStr(starRating());
+  $('#winText').innerHTML=sub;
+  overlay.classList.add('show');
+}
+function win(){
+  if(window.CB.net.active){ window.CB.netFinish(); return; }
+  if(window.CB.pk.active){ window.CB.pkEnd(); return; }
+  window.CB.beep(660,.12); setTimeout(()=>window.CB.beep(880,.12),120); setTimeout(()=>window.CB.beep(1175,.2),240);
+  window.CB.vibrate([40,30,40,30,120]);
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  window.CB.cloudSaveScore({player:(window.CB.NICK||'匿名学员'),mode:'single',score:state.score,correct:state.correct,wrong:state.attempts-state.correct,duration:s});
+  const sub=`得分 <b>${state.score}</b> · 最高 <b>${state.best}</b> · 用时 <b>${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</b><br>答对 <b>${state.correct}/${state.total}</b> 题 · 最大连击 <b>${state.maxCombo}</b><br>拼音认读越来越熟练啦！`;
+  endScreen('🎉 全部完成！',sub);
+}
+function gameOver(){
+  if(window.CB.net.active){ window.CB.netFinish(); return; }
+  if(window.CB.pk.active){ window.CB.pkEnd(); return; }
+  window.CB.beep(330,.3,'sawtooth');
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  window.CB.cloudSaveScore({player:(window.CB.NICK||'匿名学员'),mode:'single',score:state.score,correct:state.correct,wrong:state.attempts-state.correct,duration:s});
+  endScreen('⏰ 结束',`本次得分 <b>${state.score}</b> · 最高 <b>${state.best}</b><br>答对 <b>${state.correct}/${state.total}</b> 题`);
+}
+
+// ===== 事件绑定 =====
+$('#levels').addEventListener('click',e=>{
+  const b=e.target.closest('.lv'); if(!b) return;
+  if(state.playing) return; // 游戏中不允许切换类别
+  [...$('#levels').children].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); state.cat=b.dataset.cat;
+  buildWheel(state.cat);
+});
+startBtn.addEventListener('click',startGame);
+resetBtn.addEventListener('click',resetGame);
+spinBtn.addEventListener('click',spin);
+speakBtn.addEventListener('click',()=>{ if(speakBtn.dataset.char) speak(speakBtn.dataset.char); });
+$('#customCancel').addEventListener('click',()=>{ if($('#customOverlay')) $('#customOverlay').classList.remove('show'); });
+
+// 首屏：构建牌组（供发音预加载），渲染初始转盘
+state.cards = buildDeck();
+buildWheel(state.cat);
+loadBest();
+resetGame();
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "hanziApi",
+  "version": "1.0.0",
+  "description": "汉字词卡：Coze 工作流代理 + 共享汉字表读写",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest"
+  }
+}

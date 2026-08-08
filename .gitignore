@@ -1,0 +1,13 @@
+# 依赖 / 系统文件
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# 本地私密覆盖（含真实密钥，切勿提交）
+config.local.js
+.env
+.env.local
+
+# 工作区元数据
+.workbuddy/

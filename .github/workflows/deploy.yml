@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 允许 GITHUB_TOKEN 部署到 Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个部署
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject CloudBase config from Secrets
+        # 真实 ENV_ID / ACCESS_KEY 仅存在于仓库 Secrets，部署时才注入 config.js，
+        # 因此密钥永远不会进入源码或 git 历史。
+        env:
+          ENV_ID: ${{ secrets.ENV_ID }}
+          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os
+          p = "config.js"
+          s = open(p, encoding="utf-8").read()
+          s = s.replace("__ENV_ID__", os.environ["ENV_ID"])
+          s = s.replace("__ACCESS_KEY__", os.environ["ACCESS_KEY"])
+          open(p, "w", encoding="utf-8").write(s)
+          print("config.js injected:", "__ENV_ID__" not in s and "__ACCESS_KEY__" not in s)
+          PY
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

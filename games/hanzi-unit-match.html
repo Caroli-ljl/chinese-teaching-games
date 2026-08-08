@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>识字消消乐 · 分单元版</title>
+<style>
+:root{
+  --bg1:#fff6ee; --bg2:#eaf4ff;
+  --hanzi:#ff9a76; --hanzi-d:#ff7a59;
+  --pinyin:#43c4dd; --pinyin-d:#28a6c8;
+  --ok:#16b889; --ok-d:#0e9d76;
+  --bad:#ff5d6c;
+  --ink:#2b2b35; --muted:#8a8c9a;
+  --card:#ffffff;
+  --line:#edeff4;
+  --shadow:0 12px 36px rgba(70,82,120,.10);
+  --shadow-card:0 8px 20px rgba(60,72,110,.14);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;
+  min-height:100vh;color:var(--ink);
+  padding:24px 14px 64px;display:flex;flex-direction:column;align-items:center;
+}
+h1{font-size:clamp(22px,5vw,32px);margin:6px 0 2px;text-align:center;
+  color:var(--ink);font-weight:800;letter-spacing:.5px;}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px;text-align:center;letter-spacing:.3px;}
+.panel{width:100%;max-width:760px;background:#fff;border:1px solid var(--line);
+  border-radius:24px;padding:20px;box-shadow:var(--shadow);}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;}
+.levels{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.lv{padding:9px 16px;border:none;border-radius:999px;cursor:pointer;
+  background:#fff;color:var(--muted);font-size:14px;border:1px solid var(--line);
+  box-shadow:0 2px 6px rgba(60,72,110,.06);transition:.2s;}
+.lv:hover{transform:translateY(-1px);color:var(--ink);}
+.lv.active{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;
+  box-shadow:0 6px 16px rgba(14,157,118,.32);}
+.btn{padding:10px 18px;border:none;border-radius:14px;cursor:pointer;font-size:14px;font-weight:600;
+  background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 6px rgba(60,72,110,.06);transition:.15s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(60,72,110,.12);}
+.btn:active{transform:scale(.97);}
+.btn.primary{background:linear-gradient(90deg,var(--ok),var(--ok-d));color:#fff;border-color:transparent;
+  box-shadow:0 6px 16px rgba(14,157,118,.30);}
+.btn.primary:hover{box-shadow:0 10px 22px rgba(14,157,118,.40);}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.stats{display:flex;gap:16px;justify-content:center;margin:6px 0 10px;font-size:13px;color:var(--muted);flex-wrap:wrap;}
+.stats b{color:var(--ink);font-size:17px;font-weight:800;}
+.stats .combo b{color:var(--ok-d);}
+.progress{height:10px;border-radius:999px;background:#eef0f5;overflow:hidden;margin:0 4px 16px;}
+.progress > i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--ok),#5fe0bd);transition:width .35s;}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(min-width:560px){.grid{grid-template-columns:repeat(6,1fr);}}
+.card{aspect-ratio:1/1;border-radius:18px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;font-weight:700;box-shadow:var(--shadow-card);
+  transition:transform .18s ease, box-shadow .18s ease, opacity .4s;position:relative;overflow:hidden;}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(60,72,110,.20);}
+.card:active{transform:scale(.97);}
+.card.hanzi{background:linear-gradient(135deg,var(--hanzi),var(--hanzi-d));color:#fff;font-size:clamp(20px,6vw,30px);}
+.card.pinyin{background:linear-gradient(135deg,var(--pinyin),var(--pinyin-d));color:#fff;font-size:clamp(13px,3.4vw,17px);letter-spacing:.5px;}
+.card.selected{transform:translateY(-4px) scale(1.04);outline:3px solid #fff;outline-offset:-3px;
+  box-shadow:0 0 0 4px rgba(255,122,89,.35),0 14px 30px rgba(255,122,89,.30);}
+.card.pinyin.selected{box-shadow:0 0 0 4px rgba(40,166,200,.35),0 14px 30px rgba(40,166,200,.30);}
+.card.wrong{animation:shake .4s;box-shadow:0 0 0 4px var(--bad);}
+.card.matched{opacity:0;transform:scale(.6);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.overlay{position:fixed;inset:0;background:rgba(35,38,60,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;width:min(92vw,420px);box-shadow:var(--shadow);text-align:center;}
+.modal h3{margin:0 0 12px;color:var(--ink);}
+.modal textarea{width:100%;height:150px;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;resize:vertical;font-family:inherit;background:#fbfcfe;}
+.modal textarea:focus{outline:none;border-color:var(--ok);}
+.modal .hint{color:var(--muted);font-size:12px;margin:8px 0;line-height:1.6;text-align:left;}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;}
+.win .big{font-size:42px;margin:6px 0;}
+.stars{font-size:30px;letter-spacing:4px;margin:6px 0;}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
+  background:#2b2b35;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;
+  opacity:0;pointer-events:none;transition:.3s;z-index:60;max-width:80vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.comboPop{position:fixed;left:50%;top:34%;transform:translateX(-50%) scale(.6);
+  font-size:34px;font-weight:800;color:var(--ok-d);opacity:0;pointer-events:none;z-index:55;
+  text-shadow:0 2px 12px rgba(14,157,118,.35);transition:.25s;}
+.comboPop.show{opacity:1;transform:translateX(-50%) scale(1);}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:45;box-shadow:inset 0 0 0 0 rgba(255,80,80,0);transition:box-shadow .18s;}
+#flash.show{box-shadow:inset 0 0 90px 24px rgba(255,80,80,.5);}
+.mode{display:flex;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap;}
+.mode label{cursor:pointer;display:inline-flex;gap:6px;align-items:center;}
+.card .ctext{position:relative;z-index:1;padding:0 14px;}
+.card .spk{position:absolute;top:6px;right:6px;z-index:2;width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.92);color:#666;display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.22);line-height:1;transition:.15s;}
+.card .spk:hover{transform:scale(1.12);}
+.card .spk:active{transform:scale(.9);}
+.card.hanzi .spk{color:var(--hanzi-d);}
+.card.pinyin .spk{color:var(--pinyin-d);}
+.set-row{display:flex;flex-direction:column;gap:6px;text-align:left;margin:12px 0;}
+.set-row label{font-size:13px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;}
+.set-row select,.set-row input[type=text]{padding:9px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fbfcfe;}
+.set-row select:focus,.set-row input[type=text]:focus{outline:none;border-color:var(--ok);}
+.set-row input[type=range]{width:100%;accent-color:var(--ok);}
+.set-note{font-size:11px;color:var(--muted);line-height:1.5;text-align:left;}
+.set-note b{color:var(--ink);}
+.status{display:inline-block;font-size:12px;color:var(--muted);margin-left:6px;padding:3px 10px;border-radius:999px;background:#eef0f5;}
+.status.ok{color:#0e9d76;background:#e6f7f0;}
+.status.warn{color:#c0392b;background:#fdecea;}
+.nickwrap{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);}
+.nick{width:120px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-family:inherit;background:#fbfcfe;}
+.nick:focus{outline:none;border-color:var(--ok);}
+.liveboard-panel{padding:14px 18px;margin-bottom:14px;}
+.liveboard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.lb-title{font-weight:800;color:var(--ink);font-size:15px;letter-spacing:.3px;}
+.liveboard{display:flex;gap:10px;}
+.lb-empty{color:var(--muted);font-size:13px;text-align:center;width:100%;padding:8px 0;}
+.lb-card{flex:1;border-radius:16px;padding:14px 8px;text-align:center;position:relative;box-shadow:var(--shadow-card);min-width:0;}
+.lb-1{background:linear-gradient(135deg,#ffe08a,#f7b733);color:#5a3b00;}
+.lb-2{background:linear-gradient(135deg,#eef2f7,#c7d0dd);color:#3a4252;}
+.lb-3{background:linear-gradient(135deg,#f3bd97,#d98a52);color:#4a2a12;}
+.lb-rank{font-size:28px;font-weight:900;line-height:1;}
+.lb-name{font-size:14px;font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-score{font-size:13px;opacity:.85;margin-top:2px;}
+.lb-card.lb-me{outline:3px solid var(--ok);outline-offset:-3px;}
+.lb-card.lb-me::after{content:'你';position:absolute;top:-9px;right:8px;background:var(--ok);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;align-self:stretch;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<h1>识字消消乐 · 分单元版</h1>
+<div class="sub">国际中文教学 · 生字 ↔ 拼音 配对消除（按课文单元）· 纯前端离线可用</div>
+
+<div class="panel liveboard-panel">
+  <div class="liveboard-head">
+    <span class="lb-title">🏆 实时擂台 · 当前前三名</span>
+    <span id="lbStatus" class="status">同步中…</span>
+  </div>
+  <div class="liveboard" id="liveboard">
+    <div class="lb-empty">还没有战绩，快来抢占榜首！</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="controls">
+    <span class="set-row" style="flex-direction:row;align-items:center;gap:8px;margin:0;">
+      <label style="margin:0;white-space:nowrap;">课文单元</label>
+      <select id="unitSel" style="padding:8px 10px;border:1px solid var(--line);border-radius:999px;font-size:14px;font-family:inherit;background:#fbfcfe;"></select>
+    </span>
+  </div>
+  <div class="controls">
+    <div class="levels" id="levels">
+      <button class="lv active" data-level="entry">入门(8对)</button>
+      <button class="lv" data-level="basic">基础(12对)</button>
+      <button class="lv" data-level="advanced">进阶(16对)</button>
+      <button class="lv" data-level="custom">自定义</button>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="startBtn">开始游戏</button>
+    <button class="btn" id="pauseBtn" disabled>暂停</button>
+    <button class="btn" id="resetBtn">重置</button>
+    <button class="btn" id="customBtn">词库管理</button>
+    <button class="btn" id="soundBtn">🔊 发音设置</button>
+    <button class="btn primary" id="testSoundBtn">🔊 测试发音</button>
+    <span id="soundStatus" class="status">就绪</span>
+    <button class="btn" id="pkBtn">双人对战</button>
+    <button class="btn" id="rankBtn">战绩榜</button>
+    <button class="btn" id="netBtn">🌐 联机对战</button>
+    <button class="btn" id="cloudBtn">☁️ 云端榜</button>
+    <span id="cloudDot" class="status">☁️ 连接中</span>
+    <span class="nickwrap">昵称：<input id="nickInput" class="nick" type="text" maxlength="12" placeholder="输入名字" /></span>
+  </div>
+  <div class="mode">
+    <label><input type="checkbox" id="timedMode" /> 限时挑战 60 秒（竞争性模式）</label>
+  </div>
+  <div class="stats" id="netHud" style="display:none;background:#eef6ff;border:1px solid #d6e8ff;border-radius:12px;padding:8px 12px;"></div>
+  <div class="stats">
+    <span>得分 <b id="score">0</b></span>
+    <span>最高 <b id="best">0</b></span>
+    <span>连击 <b id="combo">0</b></span>
+    <span>用时 <b id="time">0:00</b></span>
+    <span>尝试 <b id="attempts">0</b></span>
+    <span>剩余 <b id="left">0</b></span>
+  </div>
+  <div class="progress"><i id="progressBar"></i></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalWin">
+    <div class="win">
+      <div class="big" id="endTitle">🎉 通关啦！</div>
+      <div class="stars" id="stars">⭐⭐⭐</div>
+      <p id="winText"></p>
+      <button class="btn primary" id="winAgain">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="customOverlay">
+  <div class="modal">
+    <h3>自定义词库（本单元生字）</h3>
+    <div class="hint">每行一对，格式：<b>汉字,拼音</b>（或空格分隔）。例如：<br>猫,māo<br>狗 gǒu<br>可粘贴你自己的生字表 / 课文词，一贴即用，只用于当前选择的单元。</div>
+    <textarea id="customText" placeholder="猫,māo&#10;狗 gǒu&#10;兔,tù"></textarea>
+    <div class="row">
+      <button class="btn" id="customCancel">取消</button>
+      <button class="btn primary" id="customSave">保存并使用</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="soundOverlay">
+  <div class="modal">
+    <h3>🔊 发音设置</h3>
+    <div class="set-row">
+      <label>发音方式</label>
+      <select id="pMethod">
+        <option value="baidu">百度翻译 TTS（默认·真人普通话·进词预加载）</option>
+        <option value="youdao">有道真人发音（中文·兜底）</option>
+        <option value="browser">浏览器语音（离线·依赖本机中文嗓）</option>
+        <option value="custom">自定义 TTS 接口（接你自己的 API）</option>
+      </select>
+    </div>
+    <div class="set-row" id="tplRow" style="display:none;">
+      <label>自定义 TTS 地址模板</label>
+      <input type="text" id="pTpl" placeholder="https://你的接口?text={text}" />
+      <div class="set-note">用 <b>{text}</b> 占位要朗读的内容（程序会自动做 URL 编码）。可接 Edge TTS、讯飞、或自建服务。</div>
+    </div>
+    <div class="set-row">
+      <label><input type="checkbox" id="pAuto" /> 点卡片自动朗读（选中/配对时出声）</label>
+    </div>
+    <div class="set-row">
+      <label>语速 <span id="pRateV">正常</span></label>
+      <input type="range" id="pRate" min="1" max="7" step="1" value="3" />
+    </div>
+    <div class="set-row">
+      <label>音量 <span id="pVolV">1.0</span></label>
+      <input type="range" id="pVol" min="0" max="1" step="0.05" value="1" />
+    </div>
+    <div class="set-note" id="voiceInfo"></div>
+    <div class="row">
+      <button class="btn" id="soundClose">完成</button>
+      <button class="btn primary" id="soundTest">试听「你好」</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="pkOverlay">
+  <div class="modal">
+    <h3>双人对战 PK</h3>
+    <div class="set-row">
+      <label>玩家 1 名字</label>
+      <input type="text" id="pkP1" placeholder="如：小明" />
+    </div>
+    <div class="set-row">
+      <label>玩家 2 名字</label>
+      <input type="text" id="pkP2" placeholder="如：小红" />
+    </div>
+    <div class="set-row">
+      <label>难度</label>
+      <select id="pkLevel">
+        <option value="entry">入门(8对)</option>
+        <option value="basic">基础(12对)</option>
+        <option value="advanced">进阶(16对)</option>
+      </select>
+    </div>
+    <div class="set-row">
+      <label><input type="checkbox" id="pkTimed" /> 限时 60 秒（比谁消得多）</label>
+    </div>
+    <div class="set-note">两名玩家使用同一设备轮流上场，各自完成一局后比总分，结果自动存入战绩榜。</div>
+    <div class="row">
+      <button class="btn" id="pkCancel">取消</button>
+      <button class="btn primary" id="pkStart">开始对战</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="rankOverlay">
+  <div class="modal" style="width:min(92vw,460px)">
+    <h3>对战战绩榜</h3>
+    <div id="rankList"></div>
+    <div class="row">
+      <button class="btn" id="rankClear">清空</button>
+      <button class="btn primary" id="rankClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="netOverlay">
+  <div class="modal" style="width:min(92vw,440px)">
+    <h3>🌐 联机对战</h3>
+    <div class="set-row">
+      <label>你的昵称</label>
+      <input type="text" id="netName" placeholder="如：小明" />
+    </div>
+    <div class="set-row">
+      <label>房间号（留空 = 创建新房间）</label>
+      <input type="text" id="netRoom" placeholder="如：AB12C" style="text-transform:uppercase" />
+    </div>
+    <div class="set-row">
+      <label>难度</label>
+      <select id="netLevel">
+        <option value="entry">入门(8对)</option>
+        <option value="basic">基础(12对)</option>
+        <option value="advanced">进阶(16对)</option>
+      </select>
+    </div>
+    <div class="set-note">两台设备打开同一链接，一人「创建房间」拿到房间号，另一人输入相同房间号即可实时比拼（使用当前所选课文单元的生字）。进度实时同步、先消完者胜，战绩自动上传云端。</div>
+    <div class="row">
+      <button class="btn" id="netCancel">取消</button>
+      <button class="btn primary" id="netStart">开始联机</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cloudOverlay">
+  <div class="modal" style="width:min(92vw,460px)">
+    <h3>☁️ 云端战绩榜</h3>
+    <div id="cloudList" style="max-height:50vh;overflow:auto"></div>
+    <div class="row">
+      <button class="btn primary" id="cloudClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="nameOverlay">
+  <div class="modal">
+    <h3>先告诉我你是谁 👋</h3>
+    <p class="hint">开始游戏前请输入名字，这样你的成绩、排行榜和学情数据才知道归属谁。名字会自动记住，下次不用重输。</p>
+    <input id="nameInput" type="text" maxlength="12" placeholder="你的名字" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;" />
+    <div class="row">
+      <button class="btn primary" id="nameConfirm">开始游戏</button>
+    </div>
+  </div>
+</div>
+<div id="flash"></div>
+<div class="toast" id="toast"></div>
+<div class="comboPop" id="comboPop"></div>
+
+<script src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<script>
+// ===== 分单元生字词库（国际中文教学常见课文单元，规范拼音含声调）=====
+// 每个单元是一组生字（汉字 → 拼音），选单元后从该单元抽取指定对数进行配对消除
+const UNITS = {
+  u1:{ name:'单元一 · 数字', words:[
+    ['一','yī'],['二','èr'],['三','sān'],['四','sì'],['五','wǔ'],['六','liù'],
+    ['七','qī'],['八','bā'],['九','jiǔ'],['十','shí'],['百','bǎi'],['千','qiān']]},
+  u2:{ name:'单元二 · 人称', words:[
+    ['我','wǒ'],['你','nǐ'],['他','tā'],['她','tā'],['们','men'],['谁','shéi'],
+    ['自','zì'],['己','jǐ'],['咱','zán'],['您','nín'],['它','tā'],['俩','liǎ']]},
+  u3:{ name:'单元三 · 亲属', words:[
+    ['爸','bà'],['妈','mā'],['哥','gē'],['姐','jiě'],['弟','dì'],['妹','mèi'],
+    ['爷','yé'],['奶','nǎi'],['家','jiā'],['亲','qīn'],['叔','shū'],['姑','gū']]},
+  u4:{ name:'单元四 · 学校', words:[
+    ['学','xué'],['校','xiào'],['书','shū'],['笔','bǐ'],['字','zì'],['师','shī'],
+    ['生','shēng'],['教','jiào'],['室','shì'],['课','kè'],['班','bān'],['读','dú']]},
+  u5:{ name:'单元五 · 饮食', words:[
+    ['米','mǐ'],['面','miàn'],['饭','fàn'],['水','shuǐ'],['茶','chá'],['果','guǒ'],
+    ['苹','píng'],['香','xiāng'],['鸡','jī'],['蛋','dàn'],['肉','ròu'],['菜','cài']]},
+  u6:{ name:'单元六 · 颜色', words:[
+    ['红','hóng'],['黄','huáng'],['蓝','lán'],['白','bái'],['黑','hēi'],['绿','lǜ'],
+    ['青','qīng'],['紫','zǐ'],['粉','fěn'],['灰','huī'],['橙','chéng'],['棕','zōng']]},
+  u7:{ name:'单元七 · 动作', words:[
+    ['吃','chī'],['喝','hē'],['走','zǒu'],['跑','pǎo'],['看','kàn'],['听','tīng'],
+    ['说','shuō'],['写','xiě'],['读','dú'],['睡','shuì'],['起','qǐ'],['坐','zuò']]},
+  u8:{ name:'单元八 · 自然', words:[
+    ['天','tiān'],['地','dì'],['山','shān'],['水','shuǐ'],['火','huǒ'],['风','fēng'],
+    ['日','rì'],['月','yuè'],['星','xīng'],['云','yún'],['雨','yǔ'],['雪','xuě']]}
+};
+const LEVEL_COUNT = {entry:8, basic:12, advanced:16};
+let customWords = null;
+let currentUnit = 'u1';
+let currentLevel = 'entry';
+const GAME_TYPE = 'unit_match'; // 写入云端，便于教师端按「识字消消乐」筛选
+
+const FAIL_WORDS = ['差一点点~','再试试看!','不对哦 😯','别急，慢慢来','哎呀，差一点！','加油，你可以的！'];
+
+const state = {
+  cards:[], selected:null, score:0, attempts:0, matched:0, total:0,
+  combo:0, maxCombo:0, best:0,
+  playing:false, paused:false, lock:false,
+  startTs:0, timer:null, timed:false, timeLeft:0, timeTimer:null
+};
+
+const pk = { active:false, names:['',''], idx:0, scores:[0,0], times:[0,0], level:'entry', timed:false };
+
+const $ = s=>document.querySelector(s);
+const grid=$('#grid'), scoreEl=$('#score'), timeEl=$('#time'), attemptsEl=$('#attempts'), leftEl=$('#left'),
+      bestEl=$('#best'), comboEl=$('#combo'), progressBar=$('#progressBar');
+const startBtn=$('#startBtn'), pauseBtn=$('#pauseBtn'), resetBtn=$('#resetBtn'), customBtn=$('#customBtn');
+const overlay=$('#overlay'), customOverlay=$('#customOverlay'), toastEl=$('#toast'),
+      comboPop=$('#comboPop'), flash=$('#flash');
+
+// 轻量音效（Web Audio，无需音频文件）
+let actx;
+function beep(freq,dur=0.12,type='sine'){
+  unlockAudio();
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(.18,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+// ===== 发音引擎（只发中文汉语音）=====
+const P = {method:'baidu', tpl:'', autoSpeak:false, spd:3, vol:1};
+let voices=[], zhVoice=null, audioUnlocked=false;
+function loadPronounce(){ try{ const s=JSON.parse(localStorage.getItem('hum_pronounce')||'{}'); Object.assign(P,s); }catch(e){} }
+function savePronounce(){ try{ localStorage.setItem('hum_pronounce',JSON.stringify(P)); }catch(e){} }
+function setSoundStatus(txt,cls){ const el=document.getElementById('soundStatus'); if(el){ el.textContent=txt; el.className='status'+(cls?' '+cls:''); } }
+function loadVoices(){
+  if(!('speechSynthesis' in window)) return;
+  try{ voices = window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; }
+  pickVoice();
+}
+function pickVoice(){
+  const zh = voices.filter(v=>/^zh/i.test(v.lang)||/chinese|中文|普通话|国语|漢語/i.test(v.name));
+  if(!zh.length){ zhVoice=null; return; }
+  const hints=['Xiaoxiao','Yunxi','Yunyang','Yunjian','Xiaoyi','Xiaonan','Xiaoyu','Neural','Online','Natural','Ting','Mei','Huihui','Yaoyao','Kangkang','Xiaomeng','Yuchen'];
+  for(const h of hints){ const v=zh.find(x=>x.name.indexOf(h)>=0); if(v){ zhVoice=v; return; } }
+  zhVoice=zh[0];
+}
+function unlockAudio(){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+  }catch(e){}
+  if(!audioUnlocked){
+    try{
+      const t=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+      t.play().then(()=>{audioUnlocked=true;}).catch(()=>{});
+    }catch(e){}
+  }
+}
+function browserSpeak(text){
+  if(!('speechSynthesis' in window) || !text) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='zh-CN';
+    if(zhVoice) u.voice=zhVoice;
+    u.rate = P.spd<=3 ? 0.9 : (P.spd<=5 ? 1.0 : 1.1);
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+const audioCache = {};
+function baiduUrl(text){ return 'https://fanyi.baidu.com/gettts?lan=zh&text='+encodeURIComponent(text)+'&spd='+(P.spd||3)+'&source=web'; }
+function youdaoUrl(text){ return 'https://dict.youdao.com/dictvoice?audio='+encodeURIComponent(text)+'&le=zh&type=2'; }
+function srcFor(text, source){
+  if(source==='custom' && P.tpl) return P.tpl.replace(/\{text\}/g,encodeURIComponent(text)).replace(/\{q\}/g,encodeURIComponent(text)).replace(/\{word\}/g,encodeURIComponent(text));
+  if(source==='baidu') return baiduUrl(text);
+  return youdaoUrl(text);
+}
+function ensureAudio(text, source){
+  const spd = source==='baidu' ? (P.spd||3) : '';
+  const key=text+'@'+source+(spd?'@'+spd:'');
+  if(audioCache[key]) return audioCache[key];
+  const a=new Audio();
+  a.preload='auto';
+  a.referrerPolicy='no-referrer';
+  a.volume = Math.max(0,Math.min(1,parseFloat(P.vol)||1));
+  a.src=srcFor(text,source); a._failed=false; a._loading=true;
+  a.addEventListener('error',()=>{ a._failed=true; a._loading=false; });
+  a.addEventListener('canplay',()=>{ a._loading=false; });
+  a.load();
+  audioCache[key]=a;
+  return a;
+}
+function playSound(text){
+  if(!text) return;
+  unlockAudio();
+  const m=P.method;
+  if(m==='browser'){ browserSpeak(text); return; }
+  const primary = (m==='custom'&&P.tpl) ? 'custom' : (m==='baidu' ? 'baidu' : 'youdao');
+  const sec = (primary==='baidu') ? 'youdao' : 'baidu';
+  const a = ensureAudio(text, primary);
+  if(a && !a._failed){
+    try{
+      a.volume=Math.max(0,Math.min(1,parseFloat(P.vol)||1));
+      if(a.readyState<2 && !a._loading) a.load();
+      const pr=a.play();
+      if(pr&&pr.catch) pr.catch(()=>{
+        const b=ensureAudio(text,sec);
+        if(b&&!b._failed){ try{ b.volume=a.volume; if(b.readyState<2&&!b._loading)b.load(); const p2=b.play(); if(p2&&p2.catch)p2.catch(()=>browserSpeak(text)); }catch(e){ browserSpeak(text); } }
+        else browserSpeak(text);
+      });
+      return;
+    }catch(e){}
+  }
+  browserSpeak(text);
+}
+function speak(text){ playSound(text); }
+function hanziForCard(c){
+  if(c.type==='hanzi') return c.text;
+  const hz=state.cards.find(x=>x.wordId===c.wordId && x.type==='hanzi');
+  return hz?hz.text:c.text;
+}
+function speakCard(c){ speak(hanziForCard(c)); }
+function preloadDeck(){
+  if(P.method==='browser'){ setSoundStatus('🎙 离线嗓模式（需本机中文语音）',''); return; }
+  setSoundStatus('🔄 预加载中文发音中…','');
+  const set=new Set();
+  state.cards.forEach(c=>set.add(c.text));
+  set.forEach(t=>{
+    if(P.method==='custom'&&P.tpl){ ensureAudio(t,'custom'); }
+    else if(P.method==='baidu'){ ensureAudio(t,'baidu'); ensureAudio(t,'youdao'); }
+    else { ensureAudio(t,'youdao'); }
+  });
+  const name = P.method==='baidu' ? '百度真人普通话' : (P.method==='custom' ? '自定义接口' : '有道真人');
+  setSoundStatus('✅ 中文发音就绪（'+name+'）','ok');
+}
+
+function bestKey(){ return 'hum_best_'+currentUnit+'_'+(currentLevel==='custom'?'custom':currentLevel); }
+function loadBest(){ state.best = parseInt(localStorage.getItem(bestKey())||'0',10)||0; bestEl.textContent=state.best; }
+function saveBest(){ if(state.score>state.best){ state.best=state.score; localStorage.setItem(bestKey(),String(state.best)); bestEl.textContent=state.best; } }
+
+// 当前词池：所选单元的全部生字（自定义模式则替换为用户词库）
+function currentPool(){
+  if(currentLevel==='custom') return customWords || UNITS[currentUnit].words.slice(0,8);
+  return UNITS[currentUnit].words;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function getWords(){
+  const pool=currentPool();
+  if(currentLevel==='custom') return pool.slice(0, Math.min(8, pool.length));
+  const n=Math.min(LEVEL_COUNT[currentLevel], pool.length);
+  return shuffle(pool.slice()).slice(0,n);
+}
+function buildDeck(){
+  const words=getWords();
+  const cards=[];
+  words.forEach((w,wi)=>{
+    cards.push({id:wi*2, wordId:wi, type:'hanzi', text:w[0]});
+    cards.push({id:wi*2+1, wordId:wi, type:'pinyin', text:w[1]});
+  });
+  shuffle(cards);
+  return cards;
+}
+
+function render(){
+  grid.innerHTML='';
+  state.cards.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='card '+c.type+(c.matched?' matched':'');
+    d.dataset.id=c.id;
+    const t=document.createElement('span'); t.className='ctext'; t.textContent=c.text;
+    const spk=document.createElement('span'); spk.className='spk'; spk.textContent='🔊'; spk.title='朗读';
+    spk.addEventListener('click',ev=>{ ev.stopPropagation(); speakCard(c); });
+    d.appendChild(t); d.appendChild(spk);
+    if(!c.matched) d.addEventListener('click',()=>onCard(c.id));
+    grid.appendChild(d);
+  });
+  leftEl.textContent = state.total - state.matched;
+  progressBar.style.width = state.total ? (state.matched/state.total*100)+'%' : '0%';
+}
+
+function showCombo(n){
+  comboPop.textContent='🔥 连击 x'+n;
+  comboPop.classList.add('show');
+  clearTimeout(comboPop._t);
+  comboPop._t=setTimeout(()=>comboPop.classList.remove('show'),650);
+}
+function failFeedback(){
+  flash.classList.add('show'); setTimeout(()=>flash.classList.remove('show'),200);
+  toastMsg(FAIL_WORDS[Math.floor(Math.random()*FAIL_WORDS.length)]);
+  beep(200,.18,'square');
+  vibrate([60,40,60]);
+}
+
+function onCard(id){
+  if(!state.playing||state.paused||state.lock) return;
+  const card=state.cards.find(c=>c.id===id);
+  if(!card||card.matched) return;
+  const el=grid.querySelector(`[data-id="${id}"]`);
+  if(state.selected===id){ el.classList.remove('selected'); state.selected=null; return; }
+  if(state.selected===null){
+    state.selected=id; el.classList.add('selected');
+    if(P.autoSpeak) speakCard(card);
+    return;
+  }
+  const first=state.cards.find(c=>c.id===state.selected);
+  const firstEl=grid.querySelector(`[data-id="${state.selected}"]`);
+  state.attempts++; attemptsEl.textContent=state.attempts;
+  const match = first.type!==card.type && first.wordId===card.wordId;
+  if(match){
+    first.matched=card.matched=true;
+    firstEl.classList.remove('selected'); firstEl.classList.add('matched');
+    el.classList.add('matched');
+    state.combo++; state.maxCombo=Math.max(state.maxCombo,state.combo);
+    const gain = 10 + (state.combo-1)*5;
+    state.score+=gain; scoreEl.textContent=state.score; comboEl.textContent=state.combo;
+    state.matched++; leftEl.textContent=state.total-state.matched;
+    progressBar.style.width=(state.matched/state.total*100)+'%';
+    saveBest();
+    if(P.autoSpeak){ const hz=first.type==='hanzi'?first:card; speak(hz.text); }
+    if(state.combo>=2) showCombo(state.combo);
+    beep(880,.10); setTimeout(()=>beep(1175,.12),80);
+    const hzC = first.type==='hanzi'?first:card;
+    const pyC = first.type==='pinyin'?first:card;
+    logAttempt(hzC.text, pyC.text, true);
+    if(net.active){ netSync(); }
+    state.selected=null;
+    if(state.matched===state.total){ win(); }
+  }else{
+    state.combo=0; comboEl.textContent='0';
+    state.lock=true;
+    firstEl.classList.remove('selected'); firstEl.classList.add('wrong');
+    el.classList.add('wrong');
+    failFeedback();
+    const hz0=state.cards.find(c=>c.wordId===first.wordId && c.type==='hanzi');
+    const py0=state.cards.find(c=>c.wordId===first.wordId && c.type==='pinyin');
+    logAttempt(hz0?hz0.text:first.text, py0?py0.text:'', false);
+    if(net.active){ netSync(); }
+    setTimeout(()=>{
+      firstEl.classList.remove('wrong'); el.classList.remove('wrong');
+      state.lock=false; state.selected=null;
+    },500);
+  }
+}
+
+function startTimer(){
+  state.startTs=Date.now();
+  state.timer=setInterval(()=>{
+    if(state.paused) return;
+    const s=Math.floor((Date.now()-state.startTs)/1000);
+    timeEl.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  },250);
+}
+function startTimed(){
+  state.timeLeft=60;
+  timeEl.textContent='1:00';
+  state.timeTimer=setInterval(()=>{
+    if(state.paused) return;
+    state.timeLeft--;
+    const s=state.timeLeft;
+    timeEl.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    if(s<=0){ clearInterval(state.timeTimer); state.timeTimer=null; gameOver(); }
+  },1000);
+}
+function stopTimer(){ clearInterval(state.timer); state.timer=null; clearInterval(state.timeTimer); state.timeTimer=null; }
+
+function startGame(){
+  if(currentLevel==='custom' && !customWords){ toastMsg('请先到「词库管理」设置本单元自定义词库'); return; }
+  if(!NICK.trim()){ openNameGate(); return; }
+  stopTimer();
+  setupRound(buildDeck());
+}
+function setupRound(cards){
+  state.cards=cards;
+  state.selected=null; state.score=0; state.attempts=0; state.matched=0; state.total=cards.length/2;
+  state.combo=0; state.maxCombo=0;
+  state.playing=true; state.paused=false; state.lock=false;
+  loadBest();
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0'; leftEl.textContent=state.total;
+  pauseBtn.disabled=false; pauseBtn.textContent='暂停'; grid.style.opacity='1';
+  render();
+  preloadDeck();
+  state.timed = $('#timedMode').checked;
+  if(state.timed) startTimed(); else { startTimer(); timeEl.textContent='0:00'; }
+}
+
+function togglePause(){
+  if(!state.playing) return;
+  state.paused=!state.paused;
+  pauseBtn.textContent=state.paused?'继续':'暂停';
+  grid.style.opacity=state.paused?'.6':'1';
+}
+
+function resetGame(){
+  stopTimer();
+  pk.active=false;
+  netLeave();
+  overlay.classList.remove('show');
+  state.playing=false; state.paused=false; state.selected=null;
+  state.cards=[]; state.score=0; state.attempts=0; state.matched=0; state.total=0; state.combo=0; state.maxCombo=0;
+  scoreEl.textContent='0'; attemptsEl.textContent='0'; comboEl.textContent='0'; leftEl.textContent='0'; timeEl.textContent='0:00';
+  progressBar.style.width='0%';
+  pauseBtn.disabled=true; pauseBtn.textContent='暂停'; grid.style.opacity='1';
+  loadBest();
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px 0;">选择课文单元与难度后点击「开始游戏」</div>';
+}
+
+function starRating(){
+  const ratio = state.attempts / Math.max(1,state.total);
+  if(ratio<=1.35) return 3;
+  if(ratio<=2.1) return 2;
+  return 1;
+}
+function starStr(n){ return '⭐'.repeat(n)+'☆'.repeat(3-n); }
+
+function endScreen(title,sub){
+  stopTimer(); state.playing=false;
+  $('#endTitle').textContent=title;
+  $('#stars').textContent=starStr(starRating());
+  $('#winText').innerHTML=sub;
+  overlay.classList.add('show');
+}
+function win(){
+  if(net.active){ netFinish(); return; }
+  if(pk.active){ pkEnd(); return; }
+  beep(660,.12); setTimeout(()=>beep(880,.12),120); setTimeout(()=>beep(1175,.2),240);
+  vibrate([40,30,40,30,120]);
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  cloudSaveScore({player:(NICK||'匿名学员'),mode:'single',score:state.score,correct:state.matched,wrong:state.attempts-state.matched,duration:s,game_type:GAME_TYPE});
+  const sub=`得分 <b>${state.score}</b> · 最高 <b>${state.best}</b> · 用时 <b>${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}</b><br>尝试 <b>${state.attempts}</b> 次 · 最大连击 <b>${state.maxCombo}</b><br>本单元生字都记住啦，厉害！`;
+  endScreen('🎉 通关啦！',sub);
+}
+function gameOver(){
+  if(net.active){ netFinish(); return; }
+  if(pk.active){ pkEnd(); return; }
+  beep(330,.3,'sawtooth');
+  const s=Math.floor((Date.now()-state.startTs)/1000);
+  cloudSaveScore({player:(NICK||'匿名学员'),mode:'single',score:state.score,correct:state.matched,wrong:state.attempts-state.matched,duration:s,game_type:GAME_TYPE});
+  const sub=`时间到！本次得分 <b>${state.score}</b> · 最高 <b>${state.best}</b><br>已消除 <b>${state.matched}/${state.total}</b> 对 · 最大连击 <b>${state.maxCombo}</b><br>再来一局挑战更高分！`;
+  endScreen('⏰ 时间到！',sub);
+}
+
+function toastMsg(msg){ toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),1800); }
+
+// ===== 事件绑定 =====
+$('#levels').addEventListener('click',e=>{
+  const b=e.target.closest('.lv'); if(!b) return;
+  [...$('#levels').children].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); currentLevel=b.dataset.level; loadBest();
+});
+// 单元选择：切换课文单元后刷新最高分并预加载该单元中文发音
+const unitSel=$('#unitSel');
+function fillUnitOptions(){
+  if(!unitSel) return;
+  unitSel.innerHTML=Object.keys(UNITS).map(k=>`<option value="${k}">${UNITS[k].name}</option>`).join('');
+}
+fillUnitOptions();
+unitSel.addEventListener('change',()=>{
+  currentUnit=unitSel.value; loadBest();
+  if(P.method!=='browser') preloadPool();
+});
+startBtn.addEventListener('click',startGame);
+pauseBtn.addEventListener('click',togglePause);
+resetBtn.addEventListener('click',resetGame);
+customBtn.addEventListener('click',()=>{ customOverlay.classList.add('show'); });
+$('#customCancel').addEventListener('click',()=>customOverlay.classList.remove('show'));
+$('#customSave').addEventListener('click',()=>{
+  const raw=$('#customText').value.trim();
+  if(!raw){ toastMsg('词库为空'); return; }
+  const lines=raw.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+  const arr=[];
+  lines.forEach(l=>{
+    let m=l.split(/[,，\t]/);
+    let hz=m[0], py=m[1];
+    if(py===undefined){ const sp=l.split(/\s+/); hz=sp[0]; py=sp[1]; }
+    if(hz&&py) arr.push([hz, py.trim()]);
+  });
+  if(arr.length<1){ toastMsg('未解析到有效词对'); return; }
+  customWords=arr; customOverlay.classList.remove('show');
+  state.cards=buildDeck(); preloadDeck();
+  toastMsg(`已导入 ${arr.length} 对词，发音已预加载`);
+});
+$('#winAgain').addEventListener('click',()=>{
+  overlay.classList.remove('show');
+  if(netJustEnded){ netJustEnded=false; resetGame(); return; }
+  startGame();
+});
+
+// ===== 发音设置面板 =====
+const soundOverlay=$('#soundOverlay');
+$('#soundBtn').addEventListener('click',()=>{ fillSoundUI(); soundOverlay.classList.add('show'); });
+function fillSoundUI(){
+  $('#pMethod').value=P.method;
+  $('#pTpl').value=P.tpl;
+  $('#tplRow').style.display = P.method==='custom' ? 'block' : 'none';
+  $('#pAuto').checked=P.autoSpeak;
+  const rateLabels=['很慢','慢','正常','较快','快','很快','极快'];
+  $('#pRate').value=P.spd; $('#pRateV').textContent=rateLabels[(P.spd||3)-1]||'正常';
+  $('#pVol').value=P.vol; $('#pVolV').textContent=parseFloat(P.vol).toFixed(1);
+  $('#voiceInfo').innerHTML = ('speechSynthesis' in window)
+    ? ('默认<b>百度翻译 TTS 真人普通话</b>（lan=zh 锁死普通话）+ 有道真人女声兜底：进词即预加载，点卡秒播。语速走百度原生 spd(1~7)、音量可调；联网失败/离线回退本机中文嗓「'+(zhVoice?zhVoice.name:'系统默认中文嗓')+'」。')
+    : '⚠️ 当前浏览器不支持语音合成；默认走百度在线真人发音，请用 Chrome/Edge 打开并确保联网。';
+}
+$('#pMethod').addEventListener('change',e=>{ P.method=e.target.value; $('#tplRow').style.display=P.method==='custom'?'block':'none'; for(const k in audioCache) delete audioCache[k]; if(state.cards.length) preloadDeck(); else preloadPool(); });
+$('#pRate').addEventListener('input',e=>{ P.spd=parseInt(e.target.value)||3; const labels=['很慢','慢','正常','较快','快','很快','极快']; $('#pRateV').textContent=labels[P.spd-1]||'正常'; });
+$('#pRate').addEventListener('change',e=>{
+  for(const k in audioCache) delete audioCache[k];
+  if(state.cards.length) preloadDeck();
+  else preloadPool();
+  setSoundStatus('✅ 已按新语速预加载','ok');
+});
+$('#pVol').addEventListener('input',e=>{ P.vol=parseFloat(e.target.value); $('#pVolV').textContent=P.vol.toFixed(1); });
+$('#pAuto').addEventListener('change',e=>{ P.autoSpeak=e.target.checked; });
+$('#pTpl').addEventListener('input',e=>{ P.tpl=e.target.value.trim(); });
+$('#soundTest').addEventListener('click',()=>{ speak('你好'); });
+$('#testSoundBtn').addEventListener('click',()=>{ unlockAudio(); speak('你好'); setSoundStatus('🔊 已播放「你好」，没听到？请看说明','warn'); });
+$('#soundClose').addEventListener('click',()=>{ savePronounce(); soundOverlay.classList.remove('show'); });
+
+// ===== 双人对战 PK + 本地战绩榜（纯前端，数据存 localStorage）=====
+const pkOverlay=$('#pkOverlay'), rankOverlay=$('#rankOverlay'), winAgainBtn=$('#winAgain');
+function startPk(){
+  const p1=$('#pkP1').value.trim()||'玩家1';
+  const p2=$('#pkP2').value.trim()||'玩家2';
+  pk.names=[p1,p2]; pk.scores=[0,0]; pk.times=[0,0]; pk.idx=0; pk.active=true;
+  pk.level=$('#pkLevel').value; pk.timed=$('#pkTimed').checked;
+  currentLevel=pk.level; $('#timedMode').checked=pk.timed;
+  [...$('#levels').children].forEach(b=>b.classList.toggle('active', b.dataset.level===pk.level));
+  pkOverlay.classList.remove('show');
+  toastMsg(p1+' 先来，加油！');
+  startGame();
+}
+function pkEnd(){
+  const i=pk.idx;
+  pk.scores[i]=state.score;
+  pk.times[i]=Math.floor((Date.now()-state.startTs)/1000);
+  stopTimer(); state.playing=false;
+  if(i===0){
+    pk.idx=1;
+    $('#endTitle').textContent=pk.names[0]+' 完成！';
+    $('#stars').textContent='⭐⭐⭐';
+    $('#winText').innerHTML=`${pk.names[0]} 本局 <b>${state.score}</b> 分<br>${pk.names[1]}，准备好了吗？`;
+    overlay.classList.add('show');
+    winAgainBtn.textContent=pk.names[1]+' 开始 →';
+  }else{
+    pk.active=false;
+    const [a,b]=pk.scores;
+    const winner = a===b ? '平局' : (a>b?pk.names[0]:pk.names[1]);
+    savePkHistory({p1:pk.names[0], p2:pk.names[1], s1:a, s2:b, winner, date:new Date().toLocaleDateString()});
+    $('#endTitle').textContent = winner==='平局' ? '平局！' : (winner+' 获胜！');
+    $('#stars').textContent='🏆';
+    $('#winText').innerHTML=`${pk.names[0]}: <b>${a}</b> 分　|　${pk.names[1]}: <b>${b}</b> 分<br>${winner==='平局'?'不分胜负，再战一局？':'🎉 恭喜 '+winner}`;
+    overlay.classList.add('show');
+    winAgainBtn.textContent='再玩一次';
+  }
+}
+function savePkHistory(rec){
+  try{ const h=JSON.parse(localStorage.getItem('hum_pk_history')||'[]'); h.unshift(rec); localStorage.setItem('hum_pk_history',JSON.stringify(h.slice(0,20))); }catch(e){}
+}
+function viewHistory(){
+  const list=document.getElementById('rankList'); if(!list) return;
+  let h=[]; try{ h=JSON.parse(localStorage.getItem('hum_pk_history')||'[]'); }catch(e){}
+  if(!h.length){ list.innerHTML='<div style="color:var(--muted);padding:18px 0;">还没有对战记录，去「双人对战」来一局吧！</div>'; return; }
+  list.innerHTML=h.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;font-size:14px;">
+    <span><b style="color:var(--ink)">${r.p1}</b> ${r.s1} : ${r.s2} <b style="color:var(--ink)">${r.p2}</b></span>
+    <span style="color:${r.winner==='平局'?'var(--muted)':'var(--ok-d)'};font-weight:700;">${r.winner}</span>
+    <span style="color:var(--muted);font-size:12px;">${r.date}</span>
+  </div>`).join('');
+}
+$('#pkBtn').addEventListener('click',()=>{ pkOverlay.classList.add('show'); });
+$('#pkStart').addEventListener('click',startPk);
+$('#pkCancel').addEventListener('click',()=>pkOverlay.classList.remove('show'));
+$('#rankBtn').addEventListener('click',()=>{ viewHistory(); rankOverlay.classList.add('show'); });
+$('#rankClose').addEventListener('click',()=>rankOverlay.classList.remove('show'));
+$('#rankClear').addEventListener('click',()=>{ localStorage.removeItem('hum_pk_history'); viewHistory(); toastMsg('战绩已清空'); });
+
+// ===== CloudBase 云端：实时联机对战 + 战绩沉淀 + 学情数据 =====
+const ENV_ID=window.ENV_ID || '__ENV_ID__'; // ← 来自站点根 config.js（占位兜底）
+let tcb=null, db=null, NICK=localStorage.getItem('hpm_nick')||'';
+const cloudDot=document.getElementById('cloudDot');
+let cloudReady=false; let cloudPromise=null;
+if(cloudDot){ cloudDot.textContent='☁️ 连接中…'; cloudDot.className='status'; }
+function initCloud(){
+  if(cloudPromise) return cloudPromise;
+  cloudPromise=(async()=>{
+    try{
+      if(!window.cloudbase) throw new Error('CloudBase SDK 未加载（请确认 lib/cloudbase.full.js 存在）');
+      tcb=window.cloudbase.init({ env: ENV_ID });
+      await tcb.auth().signInAnonymously();
+      db=tcb.database();
+      cloudReady=true;
+      if(cloudDot){ cloudDot.textContent='☁️ 云端已连'; cloudDot.className='status ok'; }
+    }catch(e){
+      cloudReady=false;
+      if(cloudDot){ cloudDot.textContent='☁️ 云端不可用'; cloudDot.className='status warn'; }
+      console.warn('cloudbase init',e);
+    }
+    return cloudReady;
+  })();
+  return cloudPromise;
+}
+const netOverlay=$('#netOverlay'), cloudOverlay=$('#cloudOverlay');
+
+const nickInput=document.getElementById('nickInput');
+const nameOverlay=document.getElementById('nameOverlay');
+const nameInput=document.getElementById('nameInput');
+const nameConfirm=document.getElementById('nameConfirm');
+function syncNick(v){ NICK=(v||'').trim().slice(0,12); localStorage.setItem('hpm_nick',NICK); if(nickInput) nickInput.value=NICK; }
+if(nickInput){ nickInput.value=NICK; nickInput.addEventListener('input',()=>syncNick(nickInput.value)); }
+function openNameGate(){ if(nameInput) nameInput.value=NICK; if(nameOverlay) nameOverlay.classList.add('show'); if(nameInput) setTimeout(()=>nameInput.focus(),50); }
+if(nameConfirm){
+  nameConfirm.addEventListener('click',()=>{
+    const v=(nameInput.value||'').trim();
+    if(!v){ toastMsg('请先输入名字再开始'); if(nameInput) nameInput.focus(); return; }
+    syncNick(v);
+    if(nameOverlay) nameOverlay.classList.remove('show');
+    startGame();
+  });
+  if(nameInput) nameInput.addEventListener('keydown',e=>{ if(e.key==='Enter') nameConfirm.click(); });
+}
+
+// 联机对战状态
+const net={active:false,roomCode:'',name:'',isHost:false,opponent:null,opScore:0,opMatched:0,started:false,deck:null,myKey:'',opponentKey:'',watcher:null,pollTimer:null,_joinedToast:false,_decided:false};
+let netJustEnded=false;
+function genRoomCode(){ return Math.random().toString(36).slice(2,7).toUpperCase(); }
+function cleanupNet(){
+  try{ if(net.watcher) net.watcher.close(); }catch(e){}
+  net.watcher=null;
+  if(net.pollTimer){ clearInterval(net.pollTimer); net.pollTimer=null; }
+  const h=document.getElementById('netHud'); if(h) h.style.display='none';
+}
+function netLeave(){
+  cleanupNet();
+  net.active=false; net.opponent=null; net.opScore=0; net.opMatched=0;
+  net._joinedToast=false; net._decided=false;
+}
+function renderNetHud(){
+  const h=document.getElementById('netHud'); if(!h) return;
+  h.innerHTML=`<span>你 <b>${net.name||'-'}</b>: <b>${state.score}</b></span>`+
+    `<span>对手 <b>${net.opponent||'等待加入…'}</b>: <b>${net.opScore}</b></span>`+
+    `<span style="color:var(--muted);font-size:12px;">房间 ${net.roomCode}</span>`;
+}
+function netSync(){
+  if(net.active && tcb){
+    const upd={}; upd[net.myKey+'score']=state.score; upd[net.myKey+'matched']=state.matched;
+    db.collection('rooms').doc(net.roomCode).update(upd).catch(()=>{});
+  }
+  renderNetHud();
+}
+function watchRoom(){
+  if(!tcb) return;
+  try{
+    net.watcher=db.collection('rooms').doc(net.roomCode).watch({
+      onChange:(snap)=>{ const d=snap.docs&&snap.docs[0]; if(d) applyRoomDoc(d); },
+      onError:()=>{}
+    });
+  }catch(e){}
+}
+function startRoomPoll(){
+  net.pollTimer=setInterval(()=>{
+    if(tcb && net.active){ db.collection('rooms').doc(net.roomCode).get().then(({data})=>{ const d=data&&data[0]; if(d) applyRoomDoc(d); }).catch(()=>{}); }
+  }, 1500);
+}
+async function openNet(){
+  const name=$('#netName').value.trim()||'玩家';
+  if(!tcb || !cloudReady){ toastMsg('云端未连接或不可达，无法联机（请确认已填写 CloudBase 环境 ENV_ID、已开启匿名登录；或用电脑/手机浏览器打开）'); netOverlay.classList.remove('show'); return; }
+  let room=$('#netRoom').value.trim().toUpperCase();
+  net.isHost=!room; if(!room) room=genRoomCode();
+  net.name=name; net.roomCode=room; net._joinedToast=false; net._decided=false;
+  syncNick(name);
+  netOverlay.classList.remove('show');
+  currentLevel=$('#netLevel').value; $('#timedMode').checked=false;
+  [...$('#levels').children].forEach(b=>b.classList.toggle('active', b.dataset.level===currentLevel));
+  try{
+    const uid = (tcb.auth() && tcb.auth().currentUser) ? tcb.auth().currentUser.uid : 'u';
+    if(net.isHost){
+      net.myKey='p1'; net.opponentKey='p2';
+      const deck=buildDeck(); net.deck=deck;
+      await db.collection('rooms').doc(room).set({
+        p1:name, p2:null, players:[name,null],
+        p1score:0,p1matched:0,p2score:0,p2matched:0,
+        p1finished:false,p2finished:false,
+        deck:deck, host:uid, ts:Date.now(), status:'waiting'
+      });
+      watchRoom(); startRoomPoll();
+      beginNetRound(deck);
+      toastMsg('房间 '+room+' 已创建，把房间号发给对手');
+    }else{
+      const { data } = await db.collection('rooms').doc(room).get();
+      const doc = data && data[0];
+      if(!doc){ toastMsg('房间 '+room+' 不存在，请检查房间号'); return; }
+      net.myKey='p2'; net.opponentKey='p1';
+      net.deck=doc.deck; net.opponent=doc.p1||'对手';
+      const players=[doc.p1||'玩家1', name];
+      await db.collection('rooms').doc(room).update({ p2:name, players:players, p2finished:false });
+      watchRoom(); startRoomPoll();
+      beginNetRound(doc.deck);
+      toastMsg('已加入房间 '+room);
+    }
+  }catch(e){ toastMsg('联机失败：'+(e&&e.message?e.message:e)); }
+}
+function beginNetRound(deck){
+  setupRound(deck);
+  net.active=true; net.opScore=0; net.opMatched=0; netJustEnded=false;
+  const h=document.getElementById('netHud'); if(h) h.style.display='flex';
+  renderNetHud();
+  toastMsg('对战开始！');
+}
+function applyRoomDoc(doc){
+  if(!doc) return;
+  net.opponent = doc[net.opponentKey] || net.opponent;
+  net.opScore = doc[net.opponentKey+'score']||0;
+  net.opMatched = doc[net.opponentKey+'matched']||0;
+  renderNetHud();
+  if(net.isHost && doc.p2 && !net._joinedToast){ net._joinedToast=true; toastMsg('对手 '+doc.p2+' 已加入'); }
+  if(doc.p1finished && doc.p2finished && !net._decided){
+    net._decided=true;
+    const meScore = doc[net.myKey+'score']||0;
+    const opScore = doc[net.opponentKey+'score']||0;
+    const winner = meScore===opScore ? '平局' : (meScore>opScore ? net.name : doc[net.opponentKey]);
+    showNetResult(winner, meScore, opScore, doc[net.opponentKey]);
+  }
+}
+function showNetResult(winner, me, op, opName){
+  net.active=false; stopTimer();
+  const t = winner==='平局' ? '平局！' : ('🎉 '+(winner===net.name?'你获胜！':opName+' 获胜'));
+  $('#endTitle').textContent='对战结束';
+  $('#stars').textContent='🏆';
+  $('#winText').innerHTML=`你 <b>${me}</b> : <b>${op}</b> ${opName}<br>${t}`;
+  overlay.classList.add('show');
+  winAgainBtn.textContent='返回';
+  netJustEnded=true;
+  cleanupNet();
+}
+function netFinish(){
+  stopTimer(); state.playing=false; net.active=false;
+  const finalScore=state.score;
+  const upd={}; upd[net.myKey+'score']=finalScore; upd[net.myKey+'matched']=state.matched; upd[net.myKey+'finished']=true;
+  if(tcb) db.collection('rooms').doc(net.roomCode).update(upd).catch(()=>{});
+  cloudSaveScore({player:net.name,mode:'online',score:finalScore,correct:state.matched,wrong:state.attempts-state.matched,duration:Math.floor((Date.now()-state.startTs)/1000),room:net.roomCode,game_type:GAME_TYPE});
+  $('#endTitle').textContent='🏁 你完成啦！';
+  $('#stars').textContent='🏆';
+  $('#winText').innerHTML=`你得分 <b>${finalScore}</b> · 对手 <b>${net.opScore}</b><br>成绩已上传云端，等待对手…`;
+  overlay.classList.add('show');
+  winAgainBtn.textContent='返回';
+  netJustEnded=true;
+  cleanupNet();
+  setTimeout(()=>{ if(tcb){ db.collection('rooms').doc(net.roomCode).get().then(({data})=>{ const d=data&&data[0]; if(d && d[net.opponentKey+'finished']) applyRoomDoc(d); }).catch(()=>{}); } }, 700);
+}
+async function cloudSaveScore(rec){
+  if(!tcb) return;
+  try{ rec.created_at=new Date().toISOString(); await db.collection('scores').add(rec); setTimeout(refreshLiveboard,500); }catch(e){ console.warn('save score',e); }
+}
+async function logAttempt(hanzi,pinyin,correct){
+  if(!tcb) return;
+  try{ await db.collection('attempts').add({player:net.active?net.name:(NICK||'匿名学员'),hanzi,pinyin:typeof pinyin==='string'?pinyin:'',correct,game_type:GAME_TYPE,created_at:new Date().toISOString()}); }catch(e){}
+}
+async function viewCloudRank(){
+  if(!tcb){ toastMsg('云端未连接'); return; }
+  const list=document.getElementById('cloudList'); if(!list) return;
+  try{
+    const { data } = await db.collection('scores').orderBy('score','desc').limit(20).get();
+    if(!data||!data.length){ list.innerHTML='<div style="color:var(--muted);padding:16px 0;">还没有云端战绩，去玩一局上传吧！</div>'; }
+    else{
+      list.innerHTML=data.map((r,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:7px;font-size:14px;">
+        <span>#${i+1} <b style="color:var(--ink)">${r.player}</b></span>
+        <span style="color:var(--ok-d);font-weight:700;">${r.score} 分</span>
+        <span style="color:var(--muted);font-size:12px;">${r.mode==='online'?'联机':'单人'}</span>
+      </div>`).join('');
+    }
+    cloudOverlay.classList.add('show');
+  }catch(e){ list.innerHTML='<div style="color:var(--bad)">读取失败：'+(e&&e.message?e.message:e)+'</div>'; }
+}
+const liveboard=document.getElementById('liveboard'), lbStatus=document.getElementById('lbStatus');
+async function refreshLiveboard(){
+  if(!tcb) return;
+  try{
+    const { data } = await db.collection('scores').orderBy('score','desc').limit(3).get();
+    if(lbStatus){ lbStatus.textContent='已同步'; lbStatus.className='status ok'; }
+    renderLiveboard(data||[]);
+  }catch(e){ if(lbStatus){ lbStatus.textContent='同步失败'; lbStatus.className='status warn'; } }
+}
+function renderLiveboard(rows){
+  if(!liveboard) return;
+  if(!rows.length){ liveboard.innerHTML='<div class="lb-empty">还没有战绩，快来抢占榜首！</div>'; return; }
+  const medals=['🥇','🥈','🥉'];
+  const cls=['lb-1','lb-2','lb-3'];
+  liveboard.innerHTML=rows.map((r,i)=>{
+    const me=(NICK && r.player===NICK)?' lb-me':'';
+    return `<div class="lb-card ${cls[i]}${me}">
+      <div class="lb-rank">${medals[i]}</div>
+      <div class="lb-name">${r.player}</div>
+      <div class="lb-score">${r.score} 分</div>
+    </div>`;
+  }).join('');
+  if(lbStatus){ lbStatus.textContent='已同步'; lbStatus.className='status ok'; }
+}
+function setupLiveboardRealtime(){
+  if(!tcb) return;
+  try{ db.collection('scores').watch({ onChange:()=>refreshLiveboard(), onError:()=>{} }); }catch(e){}
+}
+
+// 首屏预加载：拉取当前所选单元的中文发音
+function preloadPool(){
+  if(P.method==='browser'){ setSoundStatus('🎙 离线嗓模式（需本机中文语音）',''); return; }
+  const src = P.method==='custom'&&P.tpl ? 'custom' : (P.method==='baidu'?'baidu':'youdao');
+  const pool=currentPool();
+  pool.forEach(w=>{
+    ensureAudio(w[0],src); ensureAudio(w[1],src);
+    if(src==='baidu'){ ensureAudio(w[0],'youdao'); ensureAudio(w[1],'youdao'); }
+  });
+  setSoundStatus('✅ 中文发音已预加载（百度真人普通话）','ok');
+}
+
+// 按钮接线
+$('#netBtn').addEventListener('click',()=>{ if(NICK) $('#netName').value=NICK; netOverlay.classList.add('show'); });
+$('#netStart').addEventListener('click',openNet);
+$('#netCancel').addEventListener('click',()=>netOverlay.classList.remove('show'));
+$('#cloudBtn').addEventListener('click',viewCloudRank);
+$('#cloudClose').addEventListener('click',()=>cloudOverlay.classList.remove('show'));
+
+// 初始
+loadPronounce();
+loadVoices();
+if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged=loadVoices; }
+unitSel.value=currentUnit;
+resetGame();
+initCloud().then((ok)=>{ if(ok){ refreshLiveboard(); setupLiveboardRealtime(); setInterval(refreshLiveboard,8000); } });
+if(P.method!=='browser'){
+  preloadPool();
+}else{
+  setTimeout(()=>{
+    if(!zhVoice){
+      P.method='baidu'; savePronounce(); preloadPool();
+      setSoundStatus('✅ 已自动切回百度真人发音（本机无中文语音）','ok');
+    } else setSoundStatus('🎙 离线嗓模式（本机中文嗓：'+(zhVoice.name)+'）','');
+  },300);
+}
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

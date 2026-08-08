@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>智能汉字词卡 · AI 词卡生成器</title>
+<script src="../config.js"></script>
+<style>
+  :root{
+    --primary:#6d5dfc; --primary-d:#5a4fe0; --primary-l:#a99cff;
+    --secondary:#1fb6c1; --secondary-d:#159aa3; --accent:#ff8a65;
+    --bg:#F7F8FC; --card:#fff; --ink:#1F2937; --muted:#6B7280; --line:#E5E7EB;
+    --primary-soft:rgba(109,93,252,.10); --accent-soft:rgba(255,138,101,.14);
+    --ok:#15803d; --ok-bg:#dcfce7; --warn:#b45309; --warn-bg:#fef3c7; --bad:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:linear-gradient(165deg,#fff4ec,#eafaf6,#eef1ff); color:var(--ink); line-height:1.7; -webkit-font-smoothing:antialiased; padding:18px 16px 40px}
+  .wrap{max-width:1080px; margin:0 auto}
+  h1{font-size:24px;font-weight:800}
+  h1 .hl{color:var(--primary-d)}
+  .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .pill{display:inline-block;font-size:12px;font-weight:700;color:var(--primary-d);background:var(--primary-soft);
+    border-radius:999px;padding:3px 12px;margin-bottom:10px}
+  .back-btn{display:inline-block;font-size:14px;font-weight:700;color:var(--primary-d);text-decoration:none;
+    background:var(--primary-soft);border:1.5px solid var(--primary);border-radius:999px;padding:6px 16px;margin-bottom:14px}
+  .back-btn:hover{background:var(--primary);color:#fff}
+  .to-top{position:fixed;right:18px;bottom:22px;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;
+    border:none;display:none;align-items:center;justify-content:center;font-size:22px;cursor:pointer;
+    box-shadow:0 8px 20px rgba(109,93,252,.4);z-index:9000}
+  .to-top.show{display:flex}
+
+  /* 生成区 */
+  .gen{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:18px 0;
+    background:linear-gradient(135deg,#fff 0%, #f0edff 100%);box-shadow:0 8px 24px rgba(109,93,252,.10)}
+  .gen .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .gen input[type=text]{flex:1;min-width:160px;padding:13px 16px;font-size:18px;border:2px solid var(--line);
+    border-radius:12px;font-family:inherit;outline:none;transition:.15s}
+  .gen input[type=text]:focus{border-color:var(--primary)}
+  .btn{border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;border-radius:12px;
+    padding:12px 20px;transition:.18s;white-space:nowrap}
+  .btn.primary{background:var(--primary);color:#fff;box-shadow:0 6px 16px rgba(79,70,229,.3)}
+  .btn.primary:hover{background:var(--primary-d)}
+  .btn.primary:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+  .btn.ghost{background:#fff;color:var(--primary-d);border:1.5px solid var(--primary)}
+  .btn.ghost:hover{background:var(--primary-soft)}
+  .btn.sm{padding:8px 13px;font-size:13px;border-radius:10px}
+  .hint{color:var(--muted);font-size:13px;margin-top:10px}
+  .raw{margin-top:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;
+    font-size:13px;color:#92400e;white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto}
+  .raw b{color:#b45309}
+
+  /* 预览词卡 */
+  .preview{margin-top:18px;display:none}
+  .preview.show{display:block;animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .cardbig{display:flex;flex-direction:column;gap:16px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;align-items:center;width:min(360px,92vw)}
+  .cardbig .imgbox{width:180px;height:180px;border-radius:14px;background:#f3f4f6;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line);cursor:zoom-in}
+  .cardbig .imgbox img{width:100%;height:100%;object-fit:contain}
+  .cardbig .imgbox .ph{font-size:34px;color:#cbd5e1}
+  .audioRow{display:flex;flex-direction:column;gap:12px;align-items:stretch;margin-top:14px}
+  .audioRow .audioBtn{width:100%;height:46px;font-size:15px}
+  /* Element UI 风格发音按钮（图标 + 文字） */
+  .audioBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 15px;border-radius:19px;
+    border:1px solid transparent;background:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;line-height:1;white-space:nowrap;transition:.15s}
+  .audioBtn svg{width:18px;height:18px;display:block;flex:none}
+  .audioBtn span{flex:none}
+  .audioBtn.char{background:#ecf5ff;border-color:#b3d8ff;color:#409EFF}
+  .audioBtn.char:hover{background:#409EFF;border-color:#409EFF;color:#fff}
+  .audioBtn.sentence{background:#f0f9eb;border-color:#c2e7b0;color:#67C23A}
+  .audioBtn.sentence:hover{background:#67C23A;border-color:#67C23A;color:#fff}
+  .preview .actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+
+  /* 共享词表 */
+  .listsec{margin-top:8px}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:12px 14px;margin-bottom:14px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:6px 14px;
+    font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .spacer{flex:1}
+  .selall{font-size:13px;color:var(--primary-d);font-weight:700;cursor:pointer;user-select:none}
+  .bulk{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:#f1f5f9;border:1px solid var(--line);border-radius:999px;padding:3px}
+  .seg-btn{border:none;background:transparent;color:#475569;font-family:inherit;font-weight:700;font-size:13px;
+    padding:7px 14px;border-radius:999px;cursor:pointer;transition:.15s}
+  .seg-btn:hover{color:#111}
+  .seg-btn.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.3)}
+  .bulk .btn.sm.learn{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+  .bulk .btn.sm.review{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+  .bulk .btn.sm.none{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
+  .bulk .btn.sm.del{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+  .count{font-size:13px;color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:12px}
+  .item{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.15s;cursor:pointer}
+  .item:hover{box-shadow:0 8px 20px rgba(79,70,229,.14);transform:translateY(-2px)}
+  .item .mini{position:relative;width:100%;aspect-ratio:1/1;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in}
+  .item .mini .pic{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .item .mini .pic img{width:100%;height:100%;object-fit:contain}
+  .item .mini .ph{font-size:30px;color:#cbd5e1}
+  .item .chk{position:absolute;top:8px;right:8px;width:22px;height:22px;accent-color:var(--primary);cursor:pointer;z-index:2}
+  .item .dot{position:absolute;top:11px;left:11px;width:12px;height:12px;border-radius:50%;z-index:2}
+  .item .dot.learning{background:#16a34a}
+  .item .dot.review{background:#1d4ed8}
+  .item .dot.none{background:#9ca3af}
+  .item .snds{display:flex;flex-direction:column;gap:8px;padding:10px;background:#fff;border-top:1px solid var(--line)}
+  .item .snds .audioBtn{width:100%;justify-content:center}
+
+  .empty{text-align:center;color:var(--muted);padding:40px 0;font-size:14px}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1F2937;color:#fff;
+    padding:11px 20px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:9999;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:560px){
+    body{padding:14px 12px 40px}
+    h1{font-size:20px}
+    .gen{padding:16px}
+    .gen input[type=text]{min-width:120px;font-size:16px}
+    .cardbig .imgbox{width:140px;height:140px}
+    .audioBtn{height:44px;font-size:15px;padding:0 14px;gap:6px;white-space:nowrap}
+    .audioBtn svg{width:18px;height:18px}
+    .toolbar{padding:10px 12px;gap:8px}
+    .tab{padding:6px 11px;font-size:12px}
+    .seg-btn{padding:6px 11px;font-size:12px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:10px}
+    .item .snds{padding:10px 10px 12px;gap:12px;flex-direction:column}
+    .item .snds .audioBtn{width:100%}
+    /* 轮播：箭头移到屏幕左下/右下角，绝不压住居中的发音行 */
+    .carousel{flex-direction:column;justify-content:center;gap:0}
+    .carCard{width:92vw;margin-bottom:84px;max-height:86vh;overflow:auto}
+    .carImg{height:38vh}
+    .carNav{position:fixed;top:auto;bottom:24px;transform:none;width:50px;height:50px;font-size:28px;z-index:6}
+    .carNav.prev{left:18px;right:auto}
+    .carNav.next{right:18px;left:auto}
+    /* 手机端：发音键竖排占满整行、拉开间距，避免误点 */
+    .carAudio, .detAudio{flex-direction:column;gap:12px;align-items:stretch}
+    .carAudio .audioBtn, .detAudio .audioBtn{width:100%;height:46px;font-size:15px}
+    .carAudio{margin-bottom:10px}
+    .carClose{top:14px;right:14px;font-size:20px;padding:6px 12px}
+    .lightbox{padding:14px}
+  }
+
+  /* 图片全貌灯箱 */
+  .imgbox, .mini img{cursor:zoom-in}
+  .mini{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;background:rgba(15,23,42,.92);display:none;align-items:center;justify-content:center;z-index:10000;padding:24px;cursor:zoom-out}
+  .lightbox.show{display:flex;animation:fade .2s ease}
+  .lightbox img{max-width:96vw;max-height:92vh;object-fit:contain;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+  .lbclose{position:fixed;top:18px;right:22px;color:#fff;font-size:15px;font-weight:700;background:rgba(255,255,255,.15);padding:8px 16px;border-radius:999px;cursor:pointer}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  /* 双发音按钮行 */
+  /* 学习/复习轮播 */
+  .carousel{position:fixed;inset:0;background:linear-gradient(135deg,#1e1b4b 0%,#0e7490 100%);display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:row;gap:16px;padding:0 16px}
+  .carousel.show{display:flex;animation:fade .2s ease}
+  .carCard{background:#fff;border-radius:22px;padding:26px;max-width:420px;width:min(420px,calc(100vw - 160px));text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);flex:none;max-height:90vh;overflow:auto}
+  .carImg{width:100%;height:min(64vh,500px);border-radius:16px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:16px;cursor:zoom-in}
+  .carImg img{width:100%;height:100%;object-fit:contain}
+  .carAudio{margin-top:14px;display:flex;flex-direction:column;gap:12px;align-items:stretch}
+  .carAudio .audioBtn{width:100%;height:46px;font-size:15px}
+  .carNav{position:absolute;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;z-index:6}
+  .carNav:hover{background:rgba(255,255,255,.32)}
+  .carNav.prev{left:18px}
+  .carNav.next{right:18px}
+  .carClose{position:fixed;top:18px;right:22px;color:#fff;font-size:22px;font-weight:700;background:rgba(255,255,255,.18);padding:6px 14px;border-radius:999px;cursor:pointer;line-height:1;z-index:6}
+
+  /* 卡片详情弹窗（含发音图标，点开即见） */
+  .detail{position:fixed;inset:0;background:rgba(15,23,42,.9);display:none;align-items:center;justify-content:center;z-index:9999;padding:24px;cursor:zoom-out}
+  .detail.show{display:flex;animation:fade .2s ease}
+  .detCard{background:#fff;border-radius:22px;padding:22px;width:min(420px,92vw);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:88vh;overflow:auto}
+  .detImg{width:100%;height:min(44vh,360px);border-radius:16px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px;cursor:zoom-in}
+  .detImg img{width:100%;height:100%;object-fit:contain}
+  .detMeta{font-size:14px;color:var(--muted);margin-bottom:14px;font-weight:700}
+  .detAudio{display:flex;flex-direction:column;gap:12px;align-items:stretch;padding-bottom:6px}
+  .detAudio .audioBtn{width:100%;height:46px;font-size:15px}
+  .detClose{position:fixed;top:18px;right:22px;color:#fff;font-size:22px;font-weight:700;background:rgba(255,255,255,.18);padding:6px 14px;border-radius:999px;cursor:pointer;line-height:1;z-index:6}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<div class="wrap">
+  <span class="pill">留学生专属 · AI 智能词卡</span>
+  <h1>智能<span class="hl">汉字词卡</span>生成器</h1>
+  <p class="sub">输入一个汉字，AI 自动生成带图片与发音的词卡；不断新建，组成全班共享的汉字表，勾选即可标记为「学习」或「复习」。</p>
+
+  <!-- 生成区 -->
+  <section class="gen">
+    <div class="row">
+      <input type="text" id="wordInput" maxlength="8" placeholder="输入汉字，如：读 / 书 / 好" autocomplete="off" />
+      <button class="btn primary" id="genBtn">✨ 生成词卡</button>
+    </div>
+    <p class="hint">提示：可输入单字或词语；优先调用 Coze 工作流产出图片与发音，若工作流无结构化输出，会自动改走智能体对话输出。</p>
+
+    <div class="preview" id="preview">
+      <div class="cardbig">
+        <div class="imgbox" id="pvImg"><span class="ph">🖼️</span></div>
+        <div class="audioRow" id="pvAudioRow"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary sm" id="addBtn">＋ 加入班级汉字表</button>
+        <button class="btn ghost sm" id="regenBtn">↺ 重新生成</button>
+        <button class="btn ghost sm" id="clearBtn">清空预览</button>
+      </div>
+      <div class="raw" id="pvRaw" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- 共享词表 -->
+  <section class="listsec">
+    <div class="toolbar">
+      <div class="tabs">
+        <button class="tab active" data-filter="all">全部</button>
+        <button class="tab" data-filter="none">未标记</button>
+        <button class="tab" data-filter="learning">学习中</button>
+        <button class="tab" data-filter="review">复习中</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="count" id="count">0 张</span>
+      <div class="seg" id="studySeg">
+        <button class="seg-btn active" id="studyLearnBtn" data-ph="learning">📖 学习模式</button>
+        <button class="seg-btn" id="studyReviewBtn" data-ph="review">🔄 复习模式</button>
+      </div>
+      <span class="selall" id="selAll">全选当前</span>
+    </div>
+    <div class="toolbar" style="margin-top:-6px">
+      <span class="count">已选 <b id="selCount">0</b> 张：</span>
+      <div class="bulk">
+        <button class="btn sm learn" id="bulkLearn">📘 标记为学习</button>
+        <button class="btn sm review" id="bulkReview">🔁 标记为复习</button>
+        <button class="btn sm none" id="bulkNone">↺ 取消标记</button>
+        <button class="btn sm del" id="bulkDel">🗑 删除选中</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn ghost sm" id="refreshBtn">🔄 刷新</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">班级汉字表还是空的，去上方生成第一张词卡吧～</div>
+  </section>
+  <button class="to-top" id="toTopBtn" title="回到顶端">↑</button>
+</div>
+
+<!-- 图片全貌灯箱 -->
+<div class="lightbox" id="lightbox">
+  <div class="lbclose" id="lbClose">✕ 关闭</div>
+  <img id="lightboxImg" alt="汉字图" />
+</div>
+
+<!-- 学习/复习轮播 -->
+<div class="carousel" id="carousel">
+  <div class="carClose" id="carClose">✕</div>
+  <button class="carNav prev" id="carPrev">‹</button>
+  <div class="carCard">
+    <div class="carImg" id="carImg"></div>
+    <div class="carAudio" id="carAudio"></div>
+  </div>
+  <button class="carNav next" id="carNext">›</button>
+</div>
+
+<!-- 卡片详情弹窗（点开即含听汉字 / 听句子图标） -->
+<div class="detail" id="detail">
+  <div class="detClose" id="detClose">✕</div>
+  <div class="detCard">
+    <div class="detImg" id="detImg"></div>
+    <div class="detMeta" id="detMeta"></div>
+    <div class="detAudio" id="detAudio"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<script>
+/* ===== CloudBase 初始化（复用站点 ENV_ID / ACCESS_KEY） ===== */
+const ENV_ID = window.ENV_ID || '__ENV_ID__';
+const ACCESS_KEY = window.ACCESS_KEY || '__ACCESS_KEY__';
+let tcb=null, cloudReady=false;
+async function initCloud(){
+  if(cloudReady) return true;
+  if(!window.cloudbase) throw new Error('CloudBase SDK 未加载');
+  tcb=window.cloudbase.init({ env:ENV_ID, region:'ap-shanghai', accessKey:ACCESS_KEY, auth:{detectSessionInUrl:true} });
+  const auth=(typeof tcb.auth==='function')?tcb.auth():tcb.auth;
+  await auth.signInAnonymously();
+  cloudReady=true;
+  return true;
+}
+async function callApi(action, data){
+  if(!cloudReady) await initCloud();
+  const res=await tcb.callFunction({ name:'hanziApi', data:Object.assign({action}, data||{}) });
+  if(res && res.result) return res.result;
+  throw new Error((res&&res.error&&(res.error.message||res.error))||'云函数调用失败');
+}
+
+/* ===== 通用提示 / 发音 ===== */
+const toastEl=document.getElementById('toast');
+let toastT;
+function toast(msg){ toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('show'),2200); }
+function speak(text, url){
+  if(url){
+    const a=new Audio(); a.referrerPolicy='no-referrer'; a.crossOrigin='anonymous';
+    a.src=url; a.volume=1;
+    const p=a.play();
+    if(p&&p.catch){ p.catch(()=>{ if(!browserSpeak(text)) toastNoTTS(); }); }
+    return;
+  }
+  if(!browserSpeak(text)) toastNoTTS();
+}
+function browserSpeak(text){
+  if(!('speechSynthesis' in window)||!text) return false;
+  try{ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='zh-CN'; window.speechSynthesis.speak(u); return true; }catch(e){ return false; }
+}
+function toastNoTTS(){ toast('该词卡没有发音音频（Coze 工作流未返回汉字发音 link 字段），且当前设备浏览器不支持语音合成。请在 Coze 工作流「结束」节点增加输出字段 link（汉字发音 mp3）。'); }
+/* 自动识别汉字/句子发音 URL：兼容 link / charAudio / wordAudio / pronunciation 等重命名 */
+function isUrl(v){ return typeof v==='string' && /^https?:\/\//.test(v); }
+function pickCharAudio(c){
+  if(!c||typeof c!=='object') return '';
+  const direct=c.link||c.charAudio||c.wordAudio||c.char_audio||c.word_audio||c.pronunciation||c.voice2||c.charVoice||c.wordVoice;
+  if(isUrl(direct)) return direct;
+  for(const k in c){ const v=c[k]; if(isUrl(v)){ const key=k.toLowerCase();
+    if(key.indexOf('link')>=0 || ((key.indexOf('char')>=0||key.indexOf('word')>=0||key.indexOf('汉字')>=0) && (key.indexOf('audio')>=0||key.indexOf('mp3')>=0||key.indexOf('voice')>=0))) return v; } }
+  return '';
+}
+function pickSentenceAudio(c){
+  if(!c||typeof c!=='object') return '';
+  const direct=c.audio||c.sentenceAudio||c.sentence_audio||c.sentenceVoice;
+  if(isUrl(direct)) return direct;
+  for(const k in c){ const v=c[k]; if(isUrl(v)){ const key=k.toLowerCase();
+    if((key.indexOf('sentence')>=0||key.indexOf('句子')>=0) && (key.indexOf('audio')>=0||key.indexOf('mp3')>=0||key.indexOf('voice')>=0)) return v; } }
+  return '';
+}
+const ICON_SPEAKER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11,5 6,9 3,9 3,15 6,15 11,19" fill="currentColor" stroke="none"/><path d="M14 9a4 4 0 0 1 0 6"/><path d="M16.5 6.5a8 8 0 0 1 0 11"/></svg>';
+const ICON_PLAY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>';
+function mkAudioBtn(variant, url, tts, title){
+  const b=document.createElement('button');
+  const isSentence = variant==='sentence';
+  b.className='audioBtn '+(isSentence?'sentence':'char');
+  const label = isSentence?'听句子':'听汉字';
+  b.innerHTML = (isSentence?ICON_PLAY:ICON_SPEAKER) + '<span>'+label+'</span>';
+  b.title = title || (isSentence?'听句子发音':'听汉字发音');
+  b.onclick=(e)=>{ if(e) e.stopPropagation(); speak(tts||'', url); };
+  return b;
+}
+
+/* ===== 生成词卡 ===== */
+const wordInput=document.getElementById('wordInput');
+const genBtn=document.getElementById('genBtn');
+const preview=document.getElementById('preview');
+let current=null;
+async function generate(){
+  const word=wordInput.value.trim();
+  if(!word){ toast('请先输入汉字'); return; }
+  genBtn.disabled=true; genBtn.innerHTML='<span class="loading"></span>生成中…';
+  try{
+    const r=await callApi('generate',{word});
+    if(!r.ok) throw new Error(r.error||'生成失败');
+    current=r.card;
+    renderPreview(current);
+  }catch(e){ toast('生成失败：'+(e.message||e)); }
+  finally{ genBtn.disabled=false; genBtn.textContent='✨ 生成词卡'; }
+}
+function renderPreview(c){
+  preview.classList.add('show');
+  const img=document.getElementById('pvImg');
+  if(c.image){ img.innerHTML='<img src="'+c.image+'" referrerpolicy="no-referrer" alt="'+(c.word||'')+'" onerror="this.parentNode.innerHTML=\'<span class=\\\'ph\\\'>🖼️</span>\'">'; }
+  else{ img.innerHTML='<span class="ph">🖼️</span>'; }
+  document.getElementById('pvImg').onclick = c.image ? (()=>openLightbox(c.image)) : null;
+  const audioRow=document.getElementById('pvAudioRow'); audioRow.innerHTML='';
+  audioRow.appendChild(mkAudioBtn('char', pickCharAudio(c), c.word, '听汉字发音'));
+  audioRow.appendChild(mkAudioBtn('sentence', pickSentenceAudio(c), c.sentence, '听句子发音'));
+  const raw=document.getElementById('pvRaw');
+  if(c.rawText && (!c.pinyin && !c.phrase && !c.sentence && !c.image && !c.audio)){
+    raw.style.display='block';
+    raw.textContent='智能体原始输出（未能解析为结构化字段，已原样展示）：\n'+c.rawText;
+  } else { raw.style.display='none'; raw.textContent=''; }
+}
+document.getElementById('genBtn').onclick=generate;
+wordInput.addEventListener('keydown',e=>{ if(e.key==='Enter') generate(); });
+document.getElementById('regenBtn').onclick=generate;
+document.getElementById('clearBtn').onclick=()=>{ preview.classList.remove('show'); current=null; wordInput.value=''; };
+document.getElementById('addBtn').onclick=async()=>{
+  if(!current){ toast('请先生成词卡'); return; }
+  const btn=document.getElementById('addBtn'); btn.disabled=true;
+  try{
+    const r=await callApi('add',{card:current});
+    if(!r.ok) throw new Error(r.error||'保存失败');
+    toast(r.updated?('已更新「'+current.word+'」'):('已加入「'+current.word+'」到班级汉字表'));
+    preview.classList.remove('show'); current=null; wordInput.value='';
+    await loadList();
+  }catch(e){ toast('保存失败：'+(e.message||e)); }
+  finally{ btn.disabled=false; }
+};
+
+/* ===== 共享词表 ===== */
+let allCards=[]; let filter='all';
+const grid=document.getElementById('grid');
+const emptyEl=document.getElementById('empty');
+async function loadList(){
+  try{
+    const r=await callApi('list',{});
+    if(!r.ok) throw new Error(r.error||'读取失败');
+    allCards=r.cards||[];
+    renderGrid();
+  }catch(e){ toast('读取班级汉字表失败：'+(e.message||e)); }
+}
+function phaseLabel(p){ return p==='learning'?'学习中':(p==='review'?'复习中':'未标记'); }
+function renderGrid(){
+  const list=allCards.filter(c=> filter==='all' || (c.phase||'none')===filter );
+  document.getElementById('count').textContent=allCards.length+' 张';
+  if(!list.length){ grid.innerHTML=''; emptyEl.style.display='block'; emptyEl.textContent= allCards.length? '当前筛选下没有卡片':'班级汉字表还是空的，去上方生成第一张词卡吧～'; updateSelCount(); return; }
+  emptyEl.style.display='none';
+  grid.innerHTML=list.map(c=>{
+    const ph=(c.phase||'none');
+    return `<div class="item" data-id="${c._id}">
+      <div class="mini" data-id="${c._id}">
+        <div class="pic">${c.image?('<img src="'+c.image+'" referrerpolicy="no-referrer" alt="'+c.word+'" onerror="this.parentNode.innerHTML=\'<span class=\\\'ph\\\'>🈶</span>\'">'):'<span class="ph">🈶</span>'}</div>
+        ${ph!=='none'?'<span class="dot '+ph+'" title="'+phaseLabel(ph)+'"></span>':''}
+        <input type="checkbox" class="chk" data-id="${c._id}">
+      </div>
+      <div class="snds">
+          <button class="audioBtn char" data-snd="${c._id}" data-type="word" title="听汉字发音">${ICON_SPEAKER}<span>听汉字</span></button>
+          <button class="audioBtn sentence" data-snd="${c._id}" data-type="sentence" title="听句子发音">${ICON_PLAY}<span>听句子</span></button>
+      </div>
+    </div>`;
+  }).join('');
+  // 卡片点击 → 详情弹窗（含发音图标）；图片缩放走灯箱；勾选 / 发音不触发弹窗
+  grid.querySelectorAll('.item').forEach(el=>{
+    el.addEventListener('click',()=>{ const c=allCards.find(x=>x._id===el.getAttribute('data-id')); if(c) openDetail(c); });
+  });
+  grid.querySelectorAll('.chk').forEach(chk=>{
+    chk.addEventListener('change',updateSelCount);
+    chk.addEventListener('click',e=>e.stopPropagation());
+  });
+  grid.querySelectorAll('.audioBtn[data-snd]').forEach(el=>{
+    el.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const c=allCards.find(x=>x._id===el.getAttribute('data-snd')); if(!c) return;
+      if(el.getAttribute('data-type')==='sentence') speak(c.sentence, pickSentenceAudio(c));
+      else speak(c.word, pickCharAudio(c));
+    });
+  });
+  updateSelCount();
+}
+function selectedIds(){ return [...grid.querySelectorAll('.chk:checked')].map(c=>c.getAttribute('data-id')); }
+function updateSelCount(){ document.getElementById('selCount').textContent=selectedIds().length; }
+function selectTab(f){
+  filter=f;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.getAttribute('data-filter')===f));
+  renderGrid();
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>selectTab(t.getAttribute('data-filter'))));
+document.getElementById('selAll').onclick=()=>{
+  const items=grid.querySelectorAll('.chk'); const allChecked=[...items].every(c=>c.checked);
+  items.forEach(c=>c.checked=!allChecked); updateSelCount();
+};
+document.getElementById('refreshBtn').onclick=loadList;
+async function bulkSet(phase){
+  const ids=selectedIds(); if(!ids.length){ toast('请先勾选卡片'); return; }
+  try{ const r=await callApi('setPhase',{ids,phase}); if(!r.ok) throw new Error(r.error||'操作失败'); toast('已标记 '+ids.length+' 张卡片'); await loadList(); }
+  catch(e){ toast('操作失败：'+(e.message||e)); }
+}
+document.getElementById('bulkLearn').onclick=()=>bulkSet('learning');
+document.getElementById('bulkReview').onclick=()=>bulkSet('review');
+document.getElementById('bulkNone').onclick=()=>bulkSet('none');
+document.getElementById('bulkDel').onclick=async()=>{
+  const ids=selectedIds(); if(!ids.length){ toast('请先勾选卡片'); return; }
+  if(!confirm('确定删除选中的 '+ids.length+' 张卡片？此操作全班可见，不可恢复。')) return;
+  try{ const r=await callApi('remove',{ids}); if(!r.ok) throw new Error(r.error||'删除失败'); toast('已删除 '+ids.length+' 张'); await loadList(); }
+  catch(e){ toast('删除失败：'+(e.message||e)); }
+};
+
+/* ===== 图片全貌灯箱 ===== */
+const lightbox=document.getElementById('lightbox');
+function openLightbox(src){ if(!src) return; document.getElementById('lightboxImg').src=src; lightbox.classList.add('show'); }
+lightbox.addEventListener('click',()=>lightbox.classList.remove('show'));
+document.getElementById('lbClose').addEventListener('click',e=>{ e.stopPropagation(); lightbox.classList.remove('show'); });
+
+/* ===== 卡片详情弹窗（点开即含听汉字 / 听句子图标） ===== */
+const detail=document.getElementById('detail');
+function openDetail(c){
+  if(!c) return;
+  const img=document.getElementById('detImg');
+  if(c.image){
+    img.innerHTML=''; const im=document.createElement('img'); im.src=c.image; im.alt=c.word; im.referrerPolicy='no-referrer';
+    im.onerror=()=>{ img.innerHTML='<span style="font-size:40px">🖼️</span>'; }; img.appendChild(im);
+  } else { img.innerHTML='<span style="font-size:40px">🖼️</span>'; }
+  img.onclick=(e)=>{ e.stopPropagation(); openLightbox(c.image); };
+  const ph=(c.phase||'none');
+  document.getElementById('detMeta').textContent = (c.word||'') + (ph!=='none' ? ' · '+phaseLabel(ph) : '');
+  const ar=document.getElementById('detAudio'); ar.innerHTML='';
+  ar.appendChild(mkAudioBtn('char', pickCharAudio(c), c.word));
+  ar.appendChild(mkAudioBtn('sentence', pickSentenceAudio(c), c.sentence));
+  detail.classList.add('show');
+}
+detail.addEventListener('click',()=>detail.classList.remove('show'));
+document.getElementById('detClose').addEventListener('click',e=>{ e.stopPropagation(); detail.classList.remove('show'); });
+
+/* ===== 学习/复习轮播 ===== */
+const carousel=document.getElementById('carousel');
+let studyList=[], studyIdx=0;
+function openStudyByPhase(ph){
+  studyList=allCards.filter(c=> (c.phase||'none')===ph );
+  if(!studyList.length){
+    toast(ph==='review' ? '复习列表还是空的，先勾选几张卡 → 标记为复习' : '学习列表还是空的，先勾选几张卡 → 标记为学习');
+    return;
+  }
+  studyIdx=0; carousel.classList.add('show'); renderCarousel();
+}
+function renderCarousel(){
+  const c=studyList[studyIdx]; if(!c) return;
+  const img=document.getElementById('carImg');
+  if(c.image){ img.innerHTML=''; const im=document.createElement('img'); im.src=c.image; im.alt=c.word; im.referrerPolicy='no-referrer'; im.onerror=()=>{ img.innerHTML='<span style="font-size:40px">🖼️</span>'; }; img.appendChild(im); }
+  else { img.innerHTML='<span style="font-size:40px">🖼️</span>'; }
+  img.onclick=()=>openLightbox(c.image);
+  const ar=document.getElementById('carAudio'); ar.innerHTML='';
+  ar.appendChild(mkAudioBtn('char', pickCharAudio(c), c.word));
+  ar.appendChild(mkAudioBtn('sentence', pickSentenceAudio(c), c.sentence));
+}
+function carStep(d){ if(!studyList.length) return; studyIdx=(studyIdx+d+studyList.length)%studyList.length; renderCarousel(); }
+document.getElementById('carPrev').onclick=()=>carStep(-1);
+document.getElementById('carNext').onclick=()=>carStep(1);
+document.getElementById('carClose').onclick=()=>carousel.classList.remove('show');
+document.getElementById('studyLearnBtn').onclick=()=>{ selectTab('learning'); openStudyByPhase('learning'); };
+document.getElementById('studyReviewBtn').onclick=()=>{ selectTab('review'); openStudyByPhase('review'); };
+document.addEventListener('keydown',e=>{
+  if(lightbox.classList.contains('show')){ if(e.key==='Escape'||e.key==='Enter') lightbox.classList.remove('show'); return; }
+  if(!carousel.classList.contains('show')) return;
+  if(e.key==='ArrowLeft') carStep(-1);
+  if(e.key==='ArrowRight') carStep(1);
+  if(e.key==='Escape') carousel.classList.remove('show');
+});
+
+/* ===== 返回作品集 / 回到顶端 ===== */
+function goWorks(){
+  const back=location.origin+'/works.html';
+  try{ if(window.top&&window.top!==window) window.top.location.href=back; else window.location.href=back; }
+  catch(e){ window.location.href=back; }
+}
+  // 顶部「返回上一级 / 结束」常驻栏见全局 gtbBack()/gtbEnd()（文件末尾脚本）
+(function(){
+  const t=document.getElementById('toTopBtn'); if(!t) return;
+  function sync(){ const el=document.documentElement; const max=el.scrollHeight-el.clientHeight; t.classList.toggle('show', max>320 && (window.scrollY||el.scrollTop)>300); }
+  window.addEventListener('scroll',sync,{passive:true}); window.addEventListener('resize',sync); sync();
+  t.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+})();
+
+/* ===== 启动 ===== */
+(async()=>{
+  try{ await initCloud(); await loadList(); }
+  catch(e){ toast('云端连接失败：'+(e.message||e)+'（请检查网络或用 Chrome 打开）'); }
+})();
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

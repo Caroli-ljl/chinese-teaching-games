@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>汉字拼图 - 中文学习小游戏</title>
+<!-- CloudBase SDK：defer 异步加载，绝不阻塞游戏交互；游戏自身脚本同步绑定，加载即可点击 -->
+<script defer src="lib/cloudbase.full.js"></script>
+<script src="../content.js?v=4"></script>
+<style>
+  :root{
+    --primary:#6d5dfc; --primary-d:#5a4fe0; --primary-l:#ece9ff;
+    --bg:#f5f7fa; --card:#ffffff; --text:#303133; --sub:#909399;
+    --border:#e4e7ed; --green:#67c23a; --green-l:#f0f9eb; --red:#f56c6c; --gold:#e6a23c;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:linear-gradient(165deg,#fff4ec,#eafaf6,#eef1ff);color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans",-apple-system,system-ui,sans-serif;}
+  .pinyin{font-family:"Noto Sans","Segoe UI",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+  #app{max-width:640px;margin:0 auto;padding:16px 14px 40px;min-height:100vh}
+  .screen{display:none;animation:fade .25s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .brand{font-size:30px;font-weight:800;text-align:center;margin-top:8px;color:var(--primary)}
+  .intro{text-align:center;color:var(--sub);margin:6px 0 18px;font-size:15px}
+  .diff-row{display:flex;gap:10px;margin:0 0 16px}
+  .diff-btn{flex:1;border:2px solid var(--primary);background:var(--card);color:var(--primary);
+    border-radius:14px;padding:18px 6px;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+  .diff-btn:active{transform:scale(.96)}
+  .diff-btn small{display:block;font-weight:400;font-size:12px;color:var(--sub);margin-top:4px}
+  .best{background:var(--primary-l);border:1px solid #c6e2ff;border-radius:12px;padding:10px 14px;
+    font-size:14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:14px}
+  .best b{color:var(--primary-d)}
+  .info-card{background:#fffbe6;border:1px solid #ffe58f;border-radius:12px;padding:12px 14px;
+    font-size:13px;color:#7a6a00;line-height:1.7;margin-bottom:12px}
+  .info-card a{color:var(--primary-d)}
+  .tags{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+  .tags span{background:var(--primary-l);color:var(--primary-d);border-radius:20px;padding:4px 12px;font-size:12px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:active{transform:scale(.97)}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.green{background:var(--green);color:#fff}
+  .btn.btn-ghost{background:#fff;border:2px solid var(--border);color:var(--text)}
+  .btn.green.btn-ghost,.btn.green-border{border:2px solid var(--green);color:var(--green);background:#fff}
+  h2{font-size:22px;margin:4px 0 4px}
+  .sub{color:var(--sub);font-size:14px;margin:0 0 14px}
+  .back{background:none;border:none;color:var(--primary);font-size:15px;cursor:pointer;padding:4px 0;margin-bottom:8px}
+  textarea,input[type=text],input:not([type]){width:100%;border:1px solid var(--border);border-radius:10px;
+    padding:12px;font-size:15px;font-family:inherit;margin-bottom:10px;outline:none}
+  textarea:focus,input:focus{border-color:var(--primary)}
+  textarea{min-height:90px;resize:vertical}
+  .preview{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .pv{background:var(--primary-l);border-radius:10px;padding:8px 10px;font-size:14px}
+  .pv b{color:var(--primary-d)}
+  .pv.warn{background:#fef0f0;color:var(--red)}
+  .lib-list{display:flex;flex-direction:column;gap:10px}
+  .lib-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer}
+  .lib-item:hover{border-color:var(--primary)}
+  .lib-item .ln{font-weight:700}
+  .lib-item .lm{color:var(--sub);font-size:12px;margin:4px 0}
+  .lib-item .lc{color:var(--primary-d);font-size:13px}
+  .lib-item .del{float:right;color:var(--red);font-size:12px;background:none;border:none;cursor:pointer}
+  .char-grid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .char-check{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:8px 10px;font-size:15px;cursor:pointer}
+  .char-check input{accent-color:var(--primary)}
+  /* game */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .topbar .back{margin:0}
+  .qinfo{font-weight:700;font-size:15px}
+  .hint-btn{background:#fff7e6;border:1px solid #ffd591;color:var(--gold);border-radius:10px;
+    padding:8px 12px;font-size:13px;cursor:pointer;font-weight:600}
+  .progress{height:8px;background:#ebeef5;border-radius:6px;overflow:hidden;margin-bottom:10px}
+  #progBar{height:100%;width:0;background:var(--primary);transition:.3s}
+  .combo{text-align:center;height:26px;font-size:18px;font-weight:800;color:var(--gold);margin:4px 0}
+  .hint-area{text-align:center;background:#fff;border:1px solid var(--border);border-radius:14px;
+    padding:14px;margin-bottom:14px}
+  .hint-pinyin{font-size:26px;font-weight:800;color:var(--primary)}
+  .hint-meaning{color:var(--sub);font-size:14px;margin-top:2px}
+  .speak{margin-top:8px;background:var(--primary-l);border:none;color:var(--primary-d);border-radius:20px;
+    padding:6px 16px;font-size:14px;cursor:pointer}
+  .assembly{display:flex;justify-content:center;align-items:center;gap:14px;margin:18px 0;min-height:120px}
+  .slot{width:92px;height:92px;border:2px dashed var(--border);border-radius:14px;display:flex;
+    align-items:center;justify-content:center;font-size:48px;color:var(--text);background:#fafafa;transition:.15s}
+  .slot.tb{width:92px;height:92px}
+  .assembly.tb{flex-direction:column}
+  .slot.hot{border-color:var(--primary);transform:scale(1.06);background:var(--primary-l)}
+  .slot.right{border:2px solid var(--green);background:var(--green-l);animation:pulse .4s}
+  .slot.wrong{border:2px solid var(--red);background:#fef0f0;animation:shake .4s}
+  .plus{font-size:30px;color:var(--sub);font-weight:800}
+  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .pool{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px 0 6px}
+  .part{border:2px solid var(--primary);background:#fff;color:var(--primary-d);border-radius:14px;
+    width:84px;height:84px;display:flex;align-items:center;justify-content:center;font-size:44px;
+    cursor:grab;touch-action:none;user-select:none;transition:.12s}
+  .part:active{cursor:grabbing}
+  .part.used{opacity:.35;pointer-events:none}
+  .part.dragging{opacity:.3}
+  .drag-ghost{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%) scale(1.1);
+    border:2px solid #8e7bff;background:#f3efff;color:#5b3fd6;border-radius:14px;width:84px;height:84px;
+    display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+  .feedback{text-align:center;min-height:24px;font-size:15px;font-weight:600;margin:10px 0}
+  .feedback.ok{color:var(--green)} .feedback.warn{color:var(--gold)} .feedback.err{color:var(--red)}
+  .meaning-tag{display:inline-block;background:var(--green-l);border-left:3px solid var(--green);
+    color:#387d1f;border-radius:8px;padding:6px 12px;font-size:14px;margin-top:6px}
+  .next-btn{display:block;width:100%;margin-top:14px;background:var(--primary);color:#fff;border:none;
+    border-radius:12px;padding:14px;font-size:16px;font-weight:700;cursor:pointer}
+  /* result */
+  .result-emoji{font-size:54px;text-align:center;margin:6px 0}
+  .badge{display:block;text-align:center;font-size:20px;font-weight:800;margin:6px 0 14px}
+  .badge.S{color:#f56c6c}.badge.A{color:var(--primary)}.badge.B{color:var(--gold)}.badge.C{color:var(--sub)}
+  .ring{width:140px;height:140px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:30px;font-weight:800;color:var(--primary)}
+  .stats{display:flex;justify-content:space-around;background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:12px;margin-bottom:14px}
+  .stats div{text-align:center;font-size:13px;color:var(--sub)}
+  .stats b{display:block;font-size:20px;color:var(--text);margin-top:2px}
+  .review{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .review-item{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:8px 12px;font-size:15px}
+  .review-item.wrong{border-color:#fbc4c4;background:#fff5f5}
+  .review-mark{font-weight:800}
+  .review-char{font-size:22px;font-weight:800;width:30px}
+  .review-pinyin{color:var(--primary);font-weight:600}
+  .review-meaning{color:var(--sub);font-size:13px}
+  .review-extra{font-size:12px;color:var(--red);margin-left:auto}
+  /* overlay / modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
+  .overlay.show{display:flex}
+  .modal{background:#fff;border-radius:16px;padding:24px;width:88%;max-width:360px;text-align:center}
+  .modal h3{margin:0 0 6px;color:var(--primary)}
+  .modal p{color:var(--sub);font-size:14px;margin:0 0 14px}
+  .modal input{margin-bottom:14px}
+  /* floating home */
+  #cbHomeBtn{position:fixed;left:14px;bottom:16px;z-index:900;width:44px;height:44px;border-radius:50%;
+    background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:20px;text-decoration:none;box-shadow:0 4px 12px rgba(64,158,255,.4)}
+  /* leaderboard */
+  .lb{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px}
+  .lb-head{display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:8px}
+  .status{font-size:12px;color:var(--sub);font-weight:400}
+  .lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f2f4f7;font-size:14px}
+  .lb-row .medal{width:22px;text-align:center}
+  .lb-row .nm{flex:1;font-weight:600}
+  .lb-row .sc{color:var(--primary-d);font-weight:700}
+  .lb-empty{color:var(--sub);font-size:13px;padding:6px 0}
+  /* toast */
+  .toast{position:fixed;left:50%;top:30%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;
+    padding:12px 20px;border-radius:10px;font-size:14px;z-index:2000;opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1}
+  /* flash */
+  .flash{position:fixed;inset:0;z-index:1500;pointer-events:none;opacity:0}
+  .flash.green{background:#67c23a;animation:flgreen .25s}
+  .flash.red{background:#f56c6c;animation:flred .35s}
+  @keyframes flgreen{0%{opacity:.5}100%{opacity:0}}
+  @keyframes flred{0%{opacity:.5}100%{opacity:0}}
+  .shake-screen{animation:scrShake .35s}
+  @keyframes scrShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(4px,-2px)}}
+  /* 常驻顶栏：返回上一级 + 结束（全站小游戏统一） */
+  .gtb{position:sticky;top:0;z-index:40;align-self:stretch;width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(15,23,42,.08);box-shadow:0 2px 10px rgba(15,23,42,.06);box-sizing:border-box}
+  .gtb-btn{height:38px;padding:0 16px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;line-height:1;white-space:nowrap}
+  .gtb-back{background:#f1f0ff;color:#6d5dfc;border-color:#e3e0ff}
+  .gtb-back:hover{background:#e8e6ff}
+  .gtb-end{background:#fff0f0;color:#e5484d;border-color:#ffd9d9}
+  .gtb-end:hover{background:#ffe6e6}
+</style>
+<script src="../config.js"></script>
+</head>
+<body>
+<div class="gtb"><button class="gtb-btn gtb-back" onclick="gtbBack()">← 返回上一级</button><button class="gtb-btn gtb-end" onclick="gtbEnd()">⏹ 结束</button></div>
+<div id="app">
+  <!-- START -->
+  <section id="start" class="screen active">
+    <div style="display:flex;justify-content:flex-start">
+      <button class="back" onclick="goWorks()">← 返回作品集</button>
+    </div>
+    <div class="brand">✨ 汉字拼图</div>
+    <p class="intro">把汉字拆成小零件，拖一拖拼回去——边玩边记住汉字怎么写！</p>
+    <div class="diff-row">
+      <button class="diff-btn" onclick="startGame('easy')">入门<small>8 题 · 左右结构</small></button>
+      <button class="diff-btn" onclick="startGame('normal')">进阶<small>12 题 · 更多偏旁</small></button>
+      <button class="diff-btn" onclick="startGame('hard')">挑战<small>16 题 · 混合结构</small></button>
+    </div>
+    <div class="best" id="bestBox"></div>
+    <div class="lb">
+      <div class="lb-head"><span>☁️ 云端实时排行</span><span class="status" id="lbStatus">连接中…</span></div>
+      <div id="liveboard"><div class="lb-empty">加载中…</div></div>
+    </div>
+    <div class="info-card">
+      教学信息：面向非华语学习者，通过拖拽汉字部件拼合完整汉字，建立字形结构认知。<br>
+      部件拆解数据来源：<a href="https://ichara.cn" target="_blank" rel="noopener">ichara.cn 云里造字</a>（构件系统）。
+    </div>
+    <div class="tags"><span>字形认知</span><span>部件拆分</span><span>结构理解</span></div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="show('teacher')">📝 老师自定义题库</button>
+      <button class="btn green-border" onclick="show('library')">📚 我的词库</button>
+    </div>
+    <p class="sub" style="margin-top:10px">💡 想用自己的生词练习？点「我的词库」保存；「老师自定义题库」是老师准备的内容。</p>
+  </section>
+
+  <!-- TEACHER -->
+  <section id="teacher" class="screen">
+    <button class="back" onclick="show('start');renderLibraries()">← 返回</button>
+    <h2>📝 老师自定义题库</h2>
+    <p class="sub">输入要练习的汉字，系统自动拆解部件</p>
+    <textarea id="teacherInput" placeholder="请输入要拆解的汉字（最多 50 个）…" oninput="onTeacherInput()"></textarea>
+    <div class="preview" id="teacherPreview"></div>
+    <input id="libName" type="text" placeholder="词库名称（如：第三课生词），留空自动生成" />
+    <div class="actions">
+      <button class="btn green" onclick="saveLibrary()">💾 保存词库</button>
+      <button class="btn primary" id="genBtn" onclick="generateFromInput()">🚀 生成游戏</button>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section id="library" class="screen">
+    <button class="back" onclick="show('start')">← 返回</button>
+    <h2>📚 自定义词库</h2>
+    <p class="sub">选择已保存的词库开始练习</p>
+    <div class="lib-list" id="libList"></div>
+    <div class="lib-practice" id="libPractice" style="display:none">
+      <h3 style="margin:14px 0 6px">📋 选择练习汉字</h3>
+      <div class="actions" style="margin-bottom:8px">
+        <button class="btn btn-ghost" onclick="selectAllLib(true)">全选</button>
+        <button class="btn btn-ghost" onclick="selectAllLib(false)">全不选</button>
+      </div>
+      <div class="char-grid" id="libCharGrid"></div>
+      <label style="font-size:14px">练习题数
+        <input id="libCount" type="number" min="1" style="width:90px;display:inline-block;margin-left:8px" />
+      </label>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn btn-ghost" onclick="show('library');renderLibraries()">← 返回</button>
+        <button class="btn primary" onclick="startLibPractice()">🚀 开始练习</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="quitGame()">← 返回</button>
+      <div class="qinfo"><span id="qNum">1/8</span> · <span id="score">0</span> 分</div>
+      <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 提示 -20</button>
+    </div>
+    <div class="progress"><div id="progBar"></div></div>
+    <div class="combo" id="combo"></div>
+    <div class="hint-area">
+      <div class="hint-pinyin pinyin" id="hintPinyin"></div>
+      <div class="hint-meaning" id="hintMeaning"></div>
+      <button class="speak" onclick="speakTarget()">🔊 朗读</button>
+    </div>
+    <div class="assembly" id="assembly"></div>
+    <div class="pool" id="pool"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" style="display:none" onclick="nextQuestion()">下一题 →</button>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen">
+    <div class="result-emoji" id="rEmoji">🎉</div>
+    <h2 id="rTitle" style="text-align:center">太棒了！</h2>
+    <div class="badge" id="rBadge"></div>
+    <div class="ring" id="rRing">100%</div>
+    <div class="stats" id="rStats"></div>
+    <div class="review" id="rReview"></div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goBack()">返回作品集</button>
+      <button class="btn primary" onclick="replay()">再来一次</button>
+      <button class="btn green" onclick="exportReview()">📤 导出复习单</button>
+    </div>
+  </section>
+</div>
+
+<!-- nickname gate -->
+<div class="overlay" id="nameOverlay">
+  <div class="modal">
+    <h3>先告诉我你的名字 👋</h3>
+    <p>用于记录成绩到云端实时擂台</p>
+    <input id="nameInput" type="text" maxlength="12" placeholder="输入昵称" />
+    <button class="btn primary" id="nameConfirm" style="width:100%">开始游戏</button>
+  </div>
+</div>
+<a id="cbHomeBtn" href="javascript:void(0)" onclick="goBack()">←</a>
+
+<script>
+//==================== DATA (reused reference dictionaries) ====================//
+const CHAIZI={'万':{p:["一", "勹"],s:'lr'},'三':{p:["一", "二"],s:'lr'},'中':{p:["口", "丨"],s:'lr'},'主':{p:["丶", "王"],s:'lr'},'于':{p:["二", "亅"],s:'lr'},'云':{p:["二", "厶"],s:'lr'},'些':{p:["此", "二"],s:'lr'},'亲':{p:["立", "木"],s:'lr'},'亿':{p:["亻", "乙"],s:'lr'},'什':{p:["亻", "十"],s:'lr'},'从':{p:["亻", "亻"],s:'lr'},'他':{p:["亻", "也"],s:'lr'},'代':{p:["亻", "弋"],s:'lr'},'们':{p:["亻", "门"],s:'lr'},'件':{p:["亻", "牛"],s:'lr'},'任':{p:["亻", "壬"],s:'lr'},'休':{p:["亻", "木"],s:'lr'},'会':{p:["亻", "云"],s:'lr'},'但':{p:["亻", "旦"],s:'lr'},'位':{p:["亻", "立"],s:'lr'},'低':{p:["亻", "氐"],s:'lr'},'体':{p:["亻", "本"],s:'lr'},'作':{p:["亻", "乍"],s:'lr'},'你':{p:["亻", "尔"],s:'lr'},'使':{p:["亻", "吏"],s:'lr'},'假':{p:["亻", "叚"],s:'lr'},'做':{p:["亻", "故"],s:'lr'},'元':{p:["二", "儿"],s:'lr'},'光':{p:["小", "兀"],s:'lr'},'克':{p:["十", "兄"],s:'lr'},'八':{p:["丿", "乁"],s:'lr'},'六':{p:["亠", "八"],s:'lr'},'关':{p:["丷", "天"],s:'lr'},'内':{p:["冂", "亻"],s:'lr'},'写':{p:["冖", "与"],s:'lr'},'冬':{p:["夕", "冰"],s:'lr'},'冰':{p:["冫", "水"],s:'lr'},'冷':{p:["冰", "令"],s:'lr'},'出':{p:["山", "凵"],s:'lr'},'分':{p:["八", "刀"],s:'lr'},'到':{p:["至", "刀"],s:'lr'},'加':{p:["力", "口"],s:'lr'},'包':{p:["勹", "己"],s:'lr'},'区':{p:["匸", "乂"],s:'lr'},'千':{p:["丿", "十"],s:'lr'},'午':{p:["丿", "干"],s:'lr'},'却':{p:["去", "卩"],s:'lr'},'去':{p:["土", "厶"],s:'lr'},'县':{p:["且", "厶"],s:'lr'},'双':{p:["又", "又"],s:'lr'},'句':{p:["勹", "口"],s:'lr'},'只':{p:["口", "八"],s:'lr'},'叫':{p:["口", "丩"],s:'lr'},'号':{p:["口", "丂"],s:'lr'},'吃':{p:["口", "乞"],s:'lr'},'名':{p:["夕", "口"],s:'lr'},'吨':{p:["口", "屯"],s:'lr'},'听':{p:["口", "斤"],s:'lr'},'和':{p:["禾", "口"],s:'lr'},'哀':{p:["衤", "口"],s:'lr'},'哥':{p:["可", "可"],s:'lr'},'哪':{p:["口", "那"],s:'lr'},'唱':{p:["口", "昌"],s:'lr'},'喝':{p:["口", "曷"],s:'lr'},'四':{p:["囗", "儿"],s:'lr'},'回':{p:["囗", "口"],s:'lr'},'因':{p:["囗", "大"],s:'lr'},'图':{p:["囗", "冬"],s:'lr'},'土':{p:["十", "一"],s:'lr'},'地':{p:["土", "也"],s:'lr'},'坏':{p:["土", "不"],s:'lr'},'城':{p:["土", "成"],s:'lr'},'墙':{p:["土", "啬"],s:'lr'},'外':{p:["夕", "卜"],s:'lr'},'多':{p:["夕", "夕"],s:'lr'},'够':{p:["句", "多"],s:'lr'},'大':{p:["亻", "一"],s:'lr'},'天':{p:["一", "大"],s:'lr'},'夫':{p:["一", "大"],s:'lr'},'奶':{p:["女", "乃"],s:'lr'},'好':{p:["女", "子"],s:'lr'},'如':{p:["女", "口"],s:'lr'},'妈':{p:["女", "马"],s:'lr'},'妹':{p:["女", "未"],s:'lr'},'始':{p:["女", "台"],s:'lr'},'姐':{p:["女", "且"],s:'lr'},'子':{p:["了", "一"],s:'lr'},'字':{p:["宀", "子"],s:'lr'},'它':{p:["宀", "匕"],s:'lr'},'完':{p:["宀", "元"],s:'lr'},'定':{p:["宀", "疋"],s:'lr'},'实':{p:["宀", "头"],s:'lr'},'对':{p:["又", "寸"],s:'lr'},'少':{p:["小", "丿"],s:'lr'},'尺':{p:["尸", "乀"],s:'lr'},'山':{p:["凵", "丨"],s:'lr'},'工':{p:["二", "丨"],s:'lr'},'巾':{p:["冂", "丨"],s:'lr'},'市':{p:["亠", "巾"],s:'lr'},'常':{p:["尚", "巾"],s:'lr'},'帽':{p:["巾", "冒"],s:'lr'},'床':{p:["广", "木"],s:'lr'},'开':{p:["一", "廾"],s:'lr'},'当':{p:["小", "彐"],s:'lr'},'形':{p:["开", "彡"],s:'lr'},'很':{p:["彳", "艮"],s:'lr'},'必':{p:["忄", "丿"],s:'lr'},'忘':{p:["亡", "心"],s:'tb'},'快':{p:["忄", "夬"],s:'lr'},'念':{p:["今", "忄"],s:'lr'},'怎':{p:["乍", "忄"],s:'lr'},'怒':{p:["奴", "忄"],s:'lr'},'怕':{p:["忄", "白"],s:'lr'},'思':{p:["田", "忄"],s:'lr'},'恨':{p:["忄", "艮"],s:'lr'},'息':{p:["自", "心"],s:'tb'},'您':{p:["你", "心"],s:'tb'},'情':{p:["忄", "青"],s:'lr'},'想':{p:["相", "心"],s:'tb'},'愁':{p:["秋", "心"],s:'tb'},'意':{p:["音", "心"],s:'tb'},'慢':{p:["忄", "曼"],s:'lr'},'成':{p:["戊", "㇆"],s:'lr'},'我':{p:["扌", "戈"],s:'lr'},'户':{p:["丶", "尸"],s:'lr'},'房':{p:["戶", "方"],s:'lr'},'所':{p:["戶", "斤"],s:'lr'},'打':{p:["扌", "丁"],s:'lr'},'找':{p:["扌", "戈"],s:'lr'},'把':{p:["扌", "巴"],s:'lr'},'拉':{p:["扌", "立"],s:'lr'},'指':{p:["扌", "旨"],s:'lr'},'按':{p:["扌", "安"],s:'lr'},'接':{p:["扌", "妾"],s:'lr'},'推':{p:["扌", "隹"],s:'lr'},'提':{p:["扌", "是"],s:'lr'},'改':{p:["己", "攴"],s:'lr'},'数':{p:["娄", "攴"],s:'lr'},'文':{p:["亠", "乂"],s:'lr'},'斤':{p:["厂", "丅"],s:'lr'},'新':{p:["亲", "斤"],s:'lr'},'方':{p:["亠", "勹"],s:'lr'},'日':{p:["口", "一"],s:'lr'},'旧':{p:["丨", "日"],s:'lr'},'早':{p:["日", "十"],s:'lr'},'时':{p:["日", "寸"],s:'lr'},'明':{p:["日", "月"],s:'lr'},'星':{p:["生", "日"],s:'lr'},'昨':{p:["日", "乍"],s:'lr'},'是':{p:["日", "疋"],s:'lr'},'晚':{p:["日", "免"],s:'lr'},'朋':{p:["月", "月"],s:'lr'},'木':{p:["十", "亻"],s:'lr'},'本':{p:["木", "一"],s:'lr'},'机':{p:["木", "几"],s:'lr'},'村':{p:["木", "寸"],s:'lr'},'束':{p:["木", "口"],s:'lr'},'条':{p:["夕", "木"],s:'lr'},'来':{p:["一", "米"],s:'lr'},'板':{p:["木", "反"],s:'lr'},'枕':{p:["木", "冘"],s:'lr'},'林':{p:["木", "木"],s:'lr'},'果':{p:["日", "木"],s:'lr'},'柜':{p:["木", "巨"],s:'lr'},'校':{p:["木", "交"],s:'lr'},'样':{p:["木", "羊"],s:'lr'},'桥':{p:["木", "乔"],s:'lr'},'棕':{p:["木", "宗"],s:'lr'},'椅':{p:["木", "奇"],s:'lr'},'楼':{p:["木", "娄"],s:'lr'},'橙':{p:["木", "登"],s:'lr'},'欢':{p:["又", "欠"],s:'lr'},'歌':{p:["哥", "欠"],s:'lr'},'正':{p:["一", "止"],s:'lr'},'此':{p:["止", "匕"],s:'lr'},'步':{p:["止", "小"],s:'lr'},'汉':{p:["氵", "又"],s:'lr'},'江':{p:["氵", "工"],s:'lr'},'河':{p:["氵", "可"],s:'lr'},'法':{p:["氵", "去"],s:'lr'},'洗':{p:["氵", "先"],s:'lr'},'海':{p:["氵", "每"],s:'lr'},'湖':{p:["氵", "胡"],s:'lr'},'火':{p:["丷", "亻"],s:'lr'},'灯':{p:["火", "丁"],s:'lr'},'灰':{p:["厂", "火"],s:'lr'},'点':{p:["占", "火"],s:'lr'},'热':{p:["执", "火"],s:'lr'},'父':{p:["八", "乂"],s:'lr'},'狗':{p:["犭", "句"],s:'lr'},'猫':{p:["犭", "苗"],s:'lr'},'玩':{p:["玉", "元"],s:'lr'},'现':{p:["玉", "见"],s:'lr'},'理':{p:["玉", "里"],s:'lr'},'用':{p:["月", "丨"],s:'lr'},'田':{p:["囗", "十"],s:'lr'},'电':{p:["日", "乚"],s:'lr'},'病':{p:["疒", "丙"],s:'lr'},'白':{p:["丿", "日"],s:'lr'},'百':{p:["一", "白"],s:'lr'},'目':{p:["囗", "二"],s:'lr'},'相':{p:["木", "目"],s:'lr'},'省':{p:["少", "目"],s:'lr'},'看':{p:["扌", "目"],s:'lr'},'睡':{p:["目", "垂"],s:'lr'},'知':{p:["矢", "口"],s:'lr'},'短':{p:["矢", "豆"],s:'lr'},'秋':{p:["禾", "火"],s:'lr'},'窄':{p:["穴", "乍"],s:'lr'},'窗':{p:["穴", "囱"],s:'lr'},'站':{p:["立", "占"],s:'lr'},'章':{p:["立", "早"],s:'lr'},'笑':{p:["⺮", "夭"],s:'tb'},'笔':{p:["⺮", "毛"],s:'tb'},'答':{p:["⺮", "合"],s:'tb'},'箱':{p:["⺮", "相"],s:'tb'},'篇':{p:["⺮", "扁"],s:'tb'},'米':{p:["丷", "木"],s:'lr'},'粉':{p:["米", "分"],s:'lr'},'紫':{p:["此", "纟"],s:'lr'},'红':{p:["纟", "工"],s:'lr'},'级':{p:["纟", "及"],s:'lr'},'纸':{p:["纟", "氏"],s:'lr'},'组':{p:["纟", "且"],s:'lr'},'经':{p:["纟", "圣"],s:'lr'},'结':{p:["纟", "吉"],s:'lr'},'给':{p:["纟", "合"],s:'lr'},'绩':{p:["纟", "责"],s:'lr'},'绿':{p:["纟", "录"],s:'lr'},'肝':{p:["肉", "干"],s:'lr'},'自':{p:["丶", "目"],s:'lr'},'花':{p:["艹", "化"],s:'tb'},'草':{p:["艹", "早"],s:'tb'},'药':{p:["艹", "约"],s:'tb'},'菜':{p:["艹", "采"],s:'tb'},'蓝':{p:["艹", "监"],s:'tb'},'蔬':{p:["艹", "疏"],s:'tb'},'虎':{p:["虭", "儿"],s:'lr'},'虫':{p:["口", "厶"],s:'lr'},'虽':{p:["口", "虫"],s:'lr'},'蛇':{p:["虫", "它"],s:'lr'},'蛋':{p:["疋", "虫"],s:'lr'},'血':{p:["丶", "皿"],s:'lr'},'行':{p:["彳", "亍"],s:'lr'},'街':{p:["行", "圭"],s:'lr'},'表':{p:["丰", "㇆"],s:'lr'},'袜':{p:["衤", "末"],s:'lr'},'被':{p:["衤", "皮"],s:'lr'},'裙':{p:["衤", "君"],s:'lr'},'裤':{p:["衤", "库"],s:'lr'},'要':{p:["西", "女"],s:'lr'},'视':{p:["礻", "见"],s:'lr'},'认':{p:["讠", "亻"],s:'lr'},'让':{p:["讠", "上"],s:'lr'},'记':{p:["讠", "己"],s:'lr'},'词':{p:["讠", "司"],s:'lr'},'试':{p:["讠", "式"],s:'lr'},'诗':{p:["讠", "寺"],s:'lr'},'话':{p:["讠", "舌"],s:'lr'},'该':{p:["讠", "亥"],s:'lr'},'语':{p:["讠", "吾"],s:'lr'},'说':{p:["讠", "兑"],s:'lr'},'请':{p:["讠", "青"],s:'lr'},'读':{p:["讠", "卖"],s:'lr'},'课':{p:["讠", "果"],s:'lr'},'调':{p:["讠", "周"],s:'lr'},'走':{p:["十", "疋"],s:'lr'},'起':{p:["赱", "己"],s:'lr'},'跑':{p:["⻊", "包"],s:'lr'},'路':{p:["⻊", "各"],s:'lr'},'跳':{p:["⻊", "兆"],s:'lr'},'轻':{p:["车", "圣"],s:'lr'},'过':{p:["辵", "寸"],s:'lr'},'近':{p:["辵", "斤"],s:'lr'},'还':{p:["辵", "不"],s:'lr'},'这':{p:["辵", "文"],s:'lr'},'进':{p:["辵", "井"],s:'lr'},'远':{p:["辵", "袁"],s:'lr'},'通':{p:["辵", "甬"],s:'lr'},'道':{p:["辵", "首"],s:'lr'},'那':{p:["月", "邑"],s:'lr'},'邻':{p:["令", "邑"],s:'lr'},'都':{p:["者", "邑"],s:'lr'},'酒':{p:["氵", "酉"],s:'lr'},'醒':{p:["酉", "星"],s:'lr'},'里':{p:["甲", "二"],s:'lr'},'针':{p:["钅", "十"],s:'lr'},'钟':{p:["钅", "中"],s:'lr'},'钱':{p:["钅", "戋"],s:'lr'},'镇':{p:["钅", "真"],s:'lr'},'问':{p:["门", "口"],s:'lr'},'间':{p:["门", "日"],s:'lr'},'院':{p:["阜", "完"],s:'lr'},'雪':{p:["雨", "彐"],s:'lr'},'零':{p:["雨", "令"],s:'lr'},'需':{p:["雨", "而"],s:'lr'},'鞋':{p:["革", "圭"],s:'lr'},'音':{p:["立", "日"],s:'lr'},'须':{p:["彡", "页"],s:'lr'},'题':{p:["是", "页"],s:'lr'},'风':{p:["几", "乂"],s:'lr'},'饭':{p:["饣", "反"],s:'lr'},'鸡':{p:["又", "鸟"],s:'lr'},'鸭':{p:["甲", "鸟"],s:'lr'},'鹅':{p:["我", "鸟"],s:'lr'},'龙':{p:["尤", "丿"],s:'lr'}};
+
+
+const PINYIN={'好':'h\u01CEo','他':'t\u0101','你':'n\u01D0','明':'m\u00EDng','休':'xi\u016B','林':'l\u00EDn','早':'z\u01CEo','什':'sh\u00E9n','妈':'m\u0101','姐':'ji\u011B','汉':'h\u00E0n','河':'h\u00E9','打':'d\u01CE','把':'b\u01CE','对':'du\u00EC','和':'h\u00E9','知':'zh\u012B','加':'ji\u0101','如':'r\u00FA','朋':'p\u00E9ng','想':'xi\u01CEng','意':'y\u00EC','忘':'w\u00E0ng','息':'x\u012B','您':'n\u00EDn','花':'hu\u0101','草':'c\u01CEo','答':'d\u00E1','笔':'b\u01D0','笑':'xi\u00E0o','请':'q\u01D0ng','说':'shu\u014D','吃':'ch\u012B','快':'ku\u00E0i','海':'h\u01CEi','洗':'x\u01D0','学':'xu\u00E9','中':'zh\u014Dng','大':'d\u00E0','天':'ti\u0101','小':'xi\u01CE','上':'sh\u00E0ng','下':'xi\u00E0','人':'r\u00E9n','月':'yu\u00E8','日':'r\u00EC','时':'sh\u00ED','里':'l\u01D0','手':'sh\u01CEu','口':'k\u01CEu','目':'m\u00F9','耳':'\u011Br','头':'t\u00F3u','工':'g\u014Dng','公':'g\u014Dng','开':'k\u0101i','新':'x\u012Bn','老':'l\u01CEo','同':'t\u00F3ng','会':'hu\u00EC','能':'n\u00E9ng','可':'k\u011B','要':'y\u00E0o','使':'sh\u01D0','以':'y\u01D0','于':'y\u00FA','到':'d\u00E0o','从':'c\u00F3ng','去':'q\u00F9','作':'zu\u00F2','行':'x\u00EDng','方':'f\u0101ng','多':'du\u014D','进':'j\u00ECn','话':'hu\u00E0','回':'hu\u00ED','位':'w\u00E8i','度':'d\u00F9','关':'gu\u0101n','前':'qi\u00E1n','却':'qu\u00E8','与':'y\u01D4','又':'y\u00F2u','其':'q\u00ED','起':'q\u01D0','此':'c\u01D0','只':'zh\u01D0','现':'xi\u00E0n','理':'l\u01D0','点':'di\u01CEn','实':'sh\u00ED','定':'d\u00ECng','主':'zh\u01D4','完':'w\u00E1n','代':'d\u00E0i','机':'j\u012B','书':'sh\u016B','体':'t\u01D0','道':'d\u00E0o','长':'ch\u00E1ng','重':'zh\u00F2ng','做':'zu\u00F2','形':'x\u00EDng','样':'y\u00E0ng','数':'sh\u00F9','都':'d\u014D','名':'m\u00EDng','通':'t\u014Dng','改':'g\u01CEi','拉':'l\u0101','推':'tu\u012B','找':'zh\u01CEo','指':'zh\u01D0','接':'ji\u0113','提':'t\u00ED','题':'t\u00ED','写':'xi\u011B','读':'d\u00FA','让':'r\u00E0ng','给':'g\u011Bi','用':'y\u00F2ng','被':'b\u00E8i','比':'b\u01D0','些':'xi\u0113','那':'n\u00E0','这':'zh\u00E8','每':'m\u011Bi','但':'d\u00E0n','还':'h\u00E1i','当':'d\u0101ng','们':'men','我':'w\u01D2','它':'t\u0101','哪':'n\u01CE','怎':'z\u011Bn','因':'y\u012Bn','所':'su\u01D2','果':'gu\u01D2','虽':'su\u012B','过':'gu\u00F2','是':'sh\u00EC','认':'r\u00E8n','语':'y\u01D4','词':'c\u00ED','句':'j\u00F9','篇':'pi\u0101n','章':'zh\u0101ng','歌':'g\u0113','诗':'sh\u012B','图':'t\u00FA','音':'y\u012Bn','灯':'d\u0113ng','路':'l\u00F9','窗':'chu\u0101ng','户':'h\u00F9','椅':'y\u01D0','床':'chu\u00E1ng','楼':'l\u00F3u','城':'ch\u00E9ng','村':'c\u016Bn','桥':'qi\u00E1o','江':'ji\u0101ng','湖':'h\u00FA','山':'sh\u0101n','田':'ti\u00E1n','土':'t\u01D4','石':'sh\u00ED','木':'m\u00F9','火':'hu\u01D2','风':'f\u0113ng','雪':'xu\u011B','雨':'y\u01D4','云':'y\u00FAn','星':'x\u012Bng','光':'gu\u0101ng','冷':'l\u011Bng','热':'r\u00E8','高':'g\u0101o','低':'d\u012B','长':'ch\u00E1ng','短':'du\u01CEn','宽':'ku\u0101n','窄':'zh\u01CEi','快':'ku\u00E0i','慢':'m\u00E0n','多':'du\u014D','少':'sh\u01CEo','新':'x\u012Bn','旧':'ji\u00F9','好':'h\u01CEo','坏':'hu\u00E0i','真':'zh\u0113n','假':'ji\u01CE','左':'zu\u01D2','右':'y\u00F2u','前':'qi\u00E1n','后':'h\u00F2u','内':'n\u00E8i','外':'w\u00E0i','间':'ji\u0101n','近':'j\u00ECn','远':'yu\u01CEn','轻':'q\u012Bng','重':'zh\u00F2ng','爱':'\u00E0i','恨':'h\u00E8n','喜':'x\u01D0','怒':'n\u00F9','哀':'\u0101i','乐':'l\u00E8','愁':'ch\u00F3u','怕':'p\u00E0','想':'xi\u01CEng','念':'ni\u00E0n','记':'j\u00EC','听':'t\u012Bng','看':'k\u00E0n','走':'z\u01CEu','跑':'p\u01CEo','飞':'f\u0113i','坐':'zu\u00F2','站':'zh\u00E0n','睡':'shu\u00EC','醒':'x\u01D0ng','喝':'h\u0113','玩':'w\u00E1n','唱':'ch\u00E0ng','跳':'ti\u00E0o','叫':'ji\u00E0o','红':'h\u00F3ng','绿':'l\u01DC','蓝':'l\u00E1n','白':'b\u00E1i','黑':'h\u0113i','黄':'hu\u00E1ng','紫':'z\u01D0','粉':'f\u011Bn','橙':'ch\u00E9ng','灰':'hu\u012B','猫':'m\u0101o','狗':'g\u01CEu','鸟':'ni\u01CEo','鱼':'y\u00FA','虫':'ch\u00F3ng','蛇':'sh\u00E9','龙':'l\u00F3ng','虎':'h\u01D4','牛':'ni\u00FA','羊':'y\u00E1ng','马':'m\u01CE','鸡':'j\u012B','鸭':'y\u0101','鹅':'\u00E9','兔':'t\u00F9','春':'ch\u016Bn','夏':'xi\u00E0','秋':'qi\u016B','冬':'d\u014Dng','午':'w\u01D4','晚':'w\u01CEn','昨':'zu\u00F3','今':'j\u012Bn','二':'\u00E8r','三':'s\u0101n','四':'s\u00EC','五':'w\u01D4','六':'li\u00F9','七':'q\u012B','八':'b\u0101','九':'ji\u01D4','十':'sh\u00ED','百':'b\u01CEi','千':'qi\u0101n','万':'w\u00E0n','亿':'y\u00EC','零':'l\u00EDng','双':'shu\u0101ng','元':'yu\u00E1n','分':'f\u0113n','钱':'qi\u00E1n','米':'m\u01D0','斤':'j\u012Bn','克':'k\u00E8','尺':'ch\u01D0','父':'f\u00F9','儿':'\u00E9r','哥':'g\u0113','妹':'m\u00E8i','夫':'f\u016B','亲':'q\u012Bn','邻':'l\u00EDn','校':'xi\u00E0o','级':'j\u00ED','课':'k\u00E8','本':'b\u011Bn','纸':'zh\u01D0','包':'b\u0101o','板':'b\u01CEn','试':'sh\u00EC','成':'ch\u00E9ng','饭':'f\u00E0n','酒':'ji\u01D4','蛋':'d\u00E0n','奶':'n\u01CEi','菜':'c\u00E0i','条':'ti\u00E1o','子':'z\u01D0','裤':'k\u00F9','裙':'q\u00FAn','帽':'m\u00E0o','鞋':'xi\u00E9','袜':'w\u00E0','巾':'j\u012Bn','枕':'zh\u011Bn','房':'f\u00E1ng','院':'yu\u00E0n','墙':'qi\u00E1ng','柜':'gu\u00EC','街':'ji\u0113','电':'di\u00E0n','视':'sh\u00EC','箱':'xi\u0101ng','调':'di\u00E0o','钟':'zh\u014Dng','相':'xi\u0101ng','药':'y\u00E0o','针':'zh\u0113n','血':'xu\u00E8','省':'sh\u011Bng','市':'sh\u00EC','区':'q\u016B','县':'xi\u00E0n','镇':'zh\u00E8n','号':'h\u00E0o','欢':'hu\u0101n','需':'x\u016B','必':'b\u00EC','地':'d\u00EC','情':'q\u00EDng','问':'w\u00E8n','法':'f\u01CE','结':'ji\u00E9','思':'s\u012B','字':'z\u00EC','始':'sh\u01D0','束':'sh\u00F9','来':'l\u00E1i','出':'ch\u016B','常':'ch\u00E1ng','经':'j\u012Bng','正':'zh\u00E8ng'};
+
+
+const MEANING={'好':'好，美好','他':'他，别人','你':'你','明':'明亮，明白','休':'休息','林':'树林','早':'早上','什':'什么','妈':'妈妈','姐':'姐姐','汉':'汉语，汉字','河':'河流','打':'打，击','把':'把，握','对':'对，正确','和':'和，与','知':'知道','加':'增加，加','如':'如果，如','朋':'朋友','请':'请，请求','说':'说，讲','吃':'吃','快':'快，迅速','海':'大海','洗':'洗，清洗','花':'花朵','草':'草','答':'回答','笔':'笔，写字','笑':'笑，微笑','想':'想，思考','意':'意思，意图','忘':'忘记','息':'休息，气息','您':'您（敬称）','新':'新的','会':'会，能','要':'要，需要','使':'使，让','到':'到达','作':'做，工作','行':'行，走','进':'进入','话':'话语','回':'回去','位':'位置','现':'现在','理':'道理，理','点':'点','实':'实际，确实','定':'定，确定','完':'完成','体':'身体','道':'道路','做':'做，干','形':'形状','样':'样子','数':'数字','都':'都，全部','名':'名字','通':'通过','改':'改变','拉':'拉','推':'推','找':'找','指':'指，指向','接':'接，连接','提':'提','题':'题目','写':'写','读':'读','让':'让','给':'给','被':'被','比':'比较','万':'一万','三':'三','中':'中间','主':'主要','于':'于','云':'云','些':'一些','亲':'亲，亲近','亿':'一亿','从':'从','代':'代替','们':'们（复数）','但':'但是','低':'低','体':'身体','假':'假','元':'元','光':'光','克':'克服','八':'八','六':'六','关':'关','内':'内部','写':'写','冬':'冬天','冰':'冰','冷':'冷','出':'出','分':'分','到':'到','包':'包','区':'区域','千':'千','午':'中午','却':'却','去':'去','双':'双','句':'句子','只':'只','叫':'叫','号':'号码','名':'名字','听':'听','哥':'哥哥','哪':'哪','唱':'唱','喝':'喝','四':'四','回':'回','因':'因为','图':'图','土':'土','地':'地','坏':'坏','城':'城市','墙':'墙','外':'外面','多':'多','够':'够','大':'大','天':'天','夫':'丈夫','奶':'奶','妈':'妈妈','妹':'妹妹','始':'开始','姐':'姐姐','子':'子','字':'字','它':'它','完':'完','定':'定','实':'实','对':'对','少':'少','尺':'尺','山':'山','工':'工','巾':'毛巾','市':'城市','常':'经常','帽':'帽子','床':'床','开':'开','当':'当','形':'形','很':'很','必':'必须','忘':'忘','快':'快','念':'念','怎':'怎么','怒':'怒','怕':'怕','思':'思考','恨':'恨','情':'感情','慢':'慢','成':'成功','我':'我','户':'户','房':'房','所':'所','找':'找','把':'把','拉':'拉','指':'指','按':'按','接':'接','推':'推','提':'提','改':'改','数':'数','文':'文','斤':'斤','新':'新','方':'方','日':'日','旧':'旧','早':'早','时':'时间','明':'明','星':'星','昨':'昨天','是':'是','晚':'晚上','朋':'朋友','木':'木','本':'本','机':'机','村':'村','束':'束','条':'条','来':'来','板':'板','枕':'枕头','果':'水果','柜':'柜','校':'学校','样':'样','桥':'桥','椅':'椅子','楼':'楼','欢':'欢乐','歌':'歌','正':'正','此':'此','步':'步','汉':'汉','江':'江','河':'河','法':'法','洗':'洗','海':'海','湖':'湖','火':'火','灯':'灯','灰':'灰','点':'点','热':'热','父':'父亲','狗':'狗','猫':'猫','玩':'玩','现':'现','理':'理','用':'用','田':'田','电':'电','病':'病','白':'白','百':'百','目':'目','相':'相','省':'省','看':'看','睡':'睡','知':'知','短':'短','秋':'秋天','窄':'窄','窗':'窗','站':'站','章':'章','米':'米','粉':'粉','紫':'紫','红':'红','级':'级','纸':'纸','组':'组','经':'经','结':'结','给':'给','绩':'绩','绿':'绿','花':'花','草':'草','药':'药','菜':'菜','蓝':'蓝','虫':'虫','虽':'虽然','蛇':'蛇','蛋':'蛋','血':'血','行':'行','街':'街','表':'表','袜':'袜子','被':'被','裙':'裙子','裤':'裤子','要':'要','视':'视','认':'认','让':'让','记':'记','词':'词','试':'试','诗':'诗','话':'话','该':'该','语':'语言','说':'说','请':'请','读':'读','课':'课','调':'调','走':'走','起':'起','跑':'跑','路':'路','跳':'跳','轻':'轻','过':'过','近':'近','还':'还','这':'这','进':'进','远':'远','通':'通','道':'道','那':'那','邻':'邻','都':'都','酒':'酒','醒':'醒','里':'里','针':'针','钟':'钟','钱':'钱','镇':'镇','问':'问','间':'间','院':'院','雪':'雪','零':'零','需':'需要','鞋':'鞋','音':'音','须':'须','题':'题','风':'风','饭':'饭','鸡':'鸡','鸭':'鸭','鹅':'鹅','龙':'龙'};
+
+const PART_PAIR_MAP={};
+Object.entries(CHAIZI).forEach(([ch,d])=>{const key=d.p.slice().sort().join('|');if(!PART_PAIR_MAP[key])PART_PAIR_MAP[key]=[];PART_PAIR_MAP[key].push(ch);});
+
+
+//==================== helpers ====================//
+function $(id){return document.getElementById(id);}
+function pf(py){ try{ return (py||'').normalize('NFC'); }catch(e){ return py||''; } }
+function showToast(msg){ let t=$('toast'); if(!t){ t=document.createElement('div'); t.className='toast'; t.id='toast'; document.body.appendChild(t);} t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},1800); }
+function getNick(){ return localStorage.getItem('hpm_nick')||''; }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); if(id==='start') updateBest(); }
+
+// TTS: browser speech first, fallback to baidu/youdao audio
+function speak(ch){
+  try{
+    if(window.speechSynthesis){ window.speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(ch); u.lang='zh-CN'; u.rate=.95; window.speechSynthesis.speak(u); return; }
+  }catch(e){}
+  try{ var a=new Audio('https://fanyi.baidu.com/gettts?lan=zh&text='+encodeURIComponent(ch)+'&spd=4&source=web'); a.play().catch(function(){}); }catch(e){}
+}
+function speakTarget(){ if(G.current) speak(G.current.char); }
+
+//==================== state ====================//
+var G={ mode:'easy', difficulty:'easy', questions:[], idx:0, score:0, combo:0, maxCombo:0,
+  correct:0, wrong:0, attempts:0, hintUsed:false, current:null, _t:null };
+
+var DIFF={ easy:{name:'入门',n:8}, normal:{name:'进阶',n:12}, hard:{name:'挑战',n:16} };
+var DEFAULT_LIB={
+  easy:['好','他','你','明','休','林','早','什'],
+  normal:['妈','姐','汉','河','打','把','对','和','知','加','如','朋'],
+  hard:['想','意','忘','息','您','花','草','答','笔','笑','请','说','吃','快','海','洗']
+};
+var LIB_KEY='hzpt_libraries';
+
+//==================== question building ====================//
+function randPool(){
+  var set={};
+  Object.keys(CHAIZI).forEach(function(k){ CHAIZI[k].p.forEach(function(p){ set[p]=1; }); });
+  return Object.keys(set);
+}
+function makeDistractors(parts, sourceChars){
+  var pool=randPool().filter(function(p){ return parts.indexOf(p)<0; });
+  var res=[]; var ckey=parts.slice().sort().join('|');
+  // shuffle pool
+  pool.sort(function(){return Math.random()-0.5;});
+  for(var i=0;i<pool.length && res.length<2;i++){
+    var cand=pool[i];
+    var test=parts.concat([cand]).sort().join('|');
+    // unique-solution safety: candidate + any correct part must not form another char
+    var safe=true;
+    parts.forEach(function(p){
+      var k=[p,cand].sort().join('|');
+      if(PART_PAIR_MAP[k] && k!==ckey) safe=false;
+    });
+    if(safe) res.push(cand);
+  }
+  // fallback if not enough
+  var j=0;
+  while(res.length<2 && j<pool.length){ if(res.indexOf(pool[j])<0) res.push(pool[j]); j++; }
+  return res.slice(0,2);
+}
+function buildQuestions(chars){
+  var qs=[];
+  chars.forEach(function(ch){
+    var d=CHAIZI[ch];
+    if(!d) return;
+    var parts=d.p.slice();
+    var distractors=makeDistractors(parts, ch);
+    qs.push({ char:ch, parts:parts, st:d.s, py:PINYIN[ch]||'', mn:MEANING[ch]||'', distractors:distractors });
+  });
+  return qs;
+}
+
+//==================== nickname gate ====================//
+var _pending=null;
+function openNameGate(after){ _pending=after; var inp=$('nameInput'); if(inp) inp.value=getNick(); $('nameOverlay').classList.add('show'); setTimeout(function(){ if(inp) inp.focus(); },50); }
+(function(){
+  var btn=$('nameConfirm');
+  if(btn) btn.addEventListener('click',function(){
+    var inp=$('nameInput'); if(!inp) return; var v=inp.value.trim();
+    if(!v){ showToast('请先输入名字'); inp.focus(); return; }
+    localStorage.setItem('hpm_nick', v.slice(0,12));
+    $('nameOverlay').classList.remove('show');
+    if(_pending){ var f=_pending; _pending=null; f(); }
+  });
+  var ni=$('nameInput'); if(ni) ni.addEventListener('keydown',function(e){ if(e.key==='Enter'&&btn) btn.click(); });
+})();
+
+//==================== game flow ====================//
+function startGame(diff){
+  if(!getNick()){ openNameGate(function(){ startGame(diff); }); return; }
+  G.mode='diff'; G.difficulty=diff;
+  var chars=(DEFAULT_LIB[diff]||[]).slice();
+  G.questions=shuffle(buildQuestions(chars)).slice(0, DIFF[diff].n);
+  if(G.questions.length===0){ showToast('题库为空'); return; }
+  G.idx=0; G.score=0; G.combo=0; G.maxCombo=0; G.correct=0; G.wrong=0;
+  show('game'); renderQuestion();
+}
+function startLibPractice(){
+  if(!getNick()){ openNameGate(startLibPractice); return; }
+  var sel=collectLibSel();
+  if(sel.length===0){ showToast('请至少选择一个汉字'); return; }
+  var n=parseInt($('libCount').value,10)||sel.length; n=Math.min(n,sel.length);
+  var picked=shuffle(sel.slice()).slice(0,n);
+  G.mode='lib'; G.questions=buildQuestions(picked);
+  G.idx=0; G.score=0; G.combo=0; G.maxCombo=0; G.correct=0; G.wrong=0;
+  show('game'); renderQuestion();
+}
+function replay(){
+  if(G.mode==='lib'){ startLibPractice(); }
+  else { startGame(G.difficulty); }
+}
+function quitGame(){ clearTimer(); if(G._t) clearInterval(G._t); goBack(); }
+function clearTimer(){}
+
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+function renderQuestion(){
+  G.attempts=0; G.hintUsed=false; G.current=G.questions[G.idx];
+  var q=G.current;
+  $('qNum').textContent=(G.idx+1)+'/'+G.questions.length;
+  $('score').textContent=G.score;
+  $('progBar').style.width=((G.idx)/G.questions.length*100)+'%';
+  $('combo').textContent='';
+  $('feedback').textContent=''; $('feedback').className='feedback';
+  $('nextBtn').style.display='none';
+  $('hintBtn').style.display='inline-block'; $('hintBtn').disabled=false;
+  $('hintPinyin').textContent=pf(q.py);
+  $('hintMeaning').textContent=q.mn?('释义：'+q.mn):'';
+  // assembly slots
+  var asm=$('assembly'); asm.className='assembly'+(q.st==='tb'?' tb':'');
+  asm.innerHTML='';
+  var s1=document.createElement('div'); s1.className='slot'; s1.dataset.index='0';
+  var plus=document.createElement('div'); plus.className='plus'; plus.textContent='+';
+  var s2=document.createElement('div'); s2.className='slot'; s2.dataset.index='1';
+  s1.addEventListener('pointerdown', function(e){ slotPointerDown(e, s1); });
+  s2.addEventListener('pointerdown', function(e){ slotPointerDown(e, s2); });
+  if(q.st==='tb'){ asm.appendChild(s1); asm.appendChild(s2); }
+  else { asm.appendChild(s1); asm.appendChild(plus); asm.appendChild(s2); }
+  // pool: correct parts + distractors, shuffled
+  var pieces=q.parts.concat(q.distractors);
+  pieces=shuffle(pieces);
+  var pool=$('pool'); pool.innerHTML='';
+  pieces.forEach(function(p){
+    var el=document.createElement('div'); el.className='part'; el.textContent=p; el.dataset.part=p;
+    el.addEventListener('pointerdown', function(e){ startDrag(e, el, p, 'pool'); });
+    pool.appendChild(el);
+  });
+  G._filled=[null,null];
+}
+
+//==================== drag system ====================//
+var drag=null;
+function startDrag(e, el, part, from){
+  e.preventDefault();
+  var ghost=document.createElement('div'); ghost.className='drag-ghost'; ghost.textContent=part;
+  document.body.appendChild(ghost);
+  drag={el:el, part:part, from:from, ghost:ghost};
+  el.classList.add('dragging');
+  moveGhost(e);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+}
+function moveGhost(e){ drag.ghost.style.left=e.clientX+'px'; drag.ghost.style.top=e.clientY+'px'; }
+function slotAt(e){
+  var slots=document.querySelectorAll('.slot'); var hit=null;
+  slots.forEach(function(s){ var r=s.getBoundingClientRect();
+    if(e.clientX>=r.left-15&&e.clientX<=r.right+15&&e.clientY>=r.top-15&&e.clientY<=r.bottom+15) hit=s; });
+  return hit;
+}
+function onMove(e){
+  moveGhost(e);
+  document.querySelectorAll('.slot').forEach(function(s){ s.classList.remove('hot'); });
+  var t=slotAt(e); if(t&&!t.dataset.filled) t.classList.add('hot');
+}
+function onUp(e){
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+  var t=slotAt(e);
+  document.querySelectorAll('.slot').forEach(function(s){ s.classList.remove('hot'); });
+  if(drag.ghost) drag.ghost.remove();
+  if(drag.el) drag.el.classList.remove('dragging');
+  if(t && !t.dataset.filled){
+    fillSlot(t, drag.part, drag.el, drag.from);
+  } else if(drag.from==='slot'){
+    returnToPool(drag.part, drag.el);
+  }
+  drag=null;
+  checkFilled();
+}
+function fillSlot(slot, part, srcEl, from){
+  slot.dataset.filled='1'; slot.dataset.part=part; slot.textContent=part;
+  var idx=parseInt(slot.dataset.index,10);
+  if(from==='pool' && srcEl){ srcEl.classList.add('used'); }
+  if(from==='slot' && srcEl){
+    // returning a previously-filled slot's card to pool
+    srcEl.classList.remove('used');
+  }
+  G._filled[idx]=part;
+}
+function clearSlot(slot){
+  var idx=parseInt(slot.dataset.index,10);
+  var part=slot.dataset.part;
+  slot.dataset.filled=''; slot.dataset.part=''; slot.textContent='';
+  slot.classList.remove('right','wrong');
+  G._filled[idx]=null;
+  // restore a pool card with this part
+  var cards=document.querySelectorAll('.part');
+  var exists=false; cards.forEach(function(c){ if(c.textContent===part && !c.classList.contains('used')) exists=true; });
+  if(!exists){
+    var el=document.createElement('div'); el.className='part'; el.textContent=part; el.dataset.part=part;
+    el.addEventListener('pointerdown', function(e){ startDrag(e, el, part, 'pool'); });
+    $('pool').appendChild(el);
+  }
+}
+function returnToPool(part, srcEl){
+  if(srcEl) srcEl.classList.remove('used');
+}
+function slotPointerDown(e, slot){
+  if(!slot.dataset.filled) return;
+  e.preventDefault();
+  var part=slot.dataset.part;
+  clearSlot(slot);
+  var card=null;
+  document.querySelectorAll('.part').forEach(function(c){ if(!card && c.textContent===part && !c.classList.contains('used')) card=c; });
+  if(card) startDrag(e, card, part, 'pool');
+}
+function checkFilled(){
+  var slots=document.querySelectorAll('.slot');
+  if(slots.length>0 && [].every.call(slots, function(s){ return s.dataset.filled; })) validate();
+}
+function validate(){
+  var q=G.current;
+  var slots=[].slice.call(document.querySelectorAll('.slot'));
+  var allRight=true, wrongCount=0;
+  slots.forEach(function(s,i){
+    s.classList.remove('right','wrong');
+    if(s.dataset.part===q.parts[i]){ s.classList.add('right'); }
+    else { s.classList.add('wrong'); allRight=false; wrongCount++; }
+  });
+  if(allRight){ onCorrect(); return; }
+  G.attempts++;
+  if(G.attempts===1){
+    G.score-=10; updateScore();
+    showFeedback('warn','有 '+wrongCount+' 个部件位置不对，再试试！-10 分');
+    setTimeout(function(){
+      document.querySelectorAll('.slot.wrong').forEach(function(s){ clearSlot(s); });
+      G.attempts=0;
+    },1200);
+  } else {
+    G.score-=30; updateScore();
+    onReveal();
+  }
+}
+function onCorrect(){
+  G.correct++; G.combo++; if(G.combo>G.maxCombo) G.maxCombo=G.combo;
+  G.current._ok=true;
+  var bonus=Math.min((G.combo-1)*20,140);
+  G.score+=100+bonus; updateScore();
+  flash('green');
+  if(G.combo>=3){ confetti(); if(navigator.vibrate) navigator.vibrate(30); }
+  var q=G.current;
+  var msg='✅ 正确！+ '+(100+bonus)+' 分';
+  if(G.combo>=3) msg+='  '+comboText(G.combo);
+  showFeedback('ok', msg);
+  if(q.mn) showFeedback('ok', msg+'　📖 '+q.char+'：'+q.mn);
+  setTimeout(function(){ speak(q.char); },500);
+  $('hintBtn').style.display='none';
+  $('nextBtn').style.display='block';
+  if(G.idx>=G.questions.length-1) $('nextBtn').textContent='查看结果 →';
+}
+function onReveal(){
+  flash('red'); if(document.body) document.body.classList.add('shake-screen');
+  setTimeout(function(){ if(document.body) document.body.classList.remove('shake-screen'); },350);
+  var q=G.current;
+  // fill correct answer
+  var slots=[].slice.call(document.querySelectorAll('.slot'));
+  slots.forEach(function(s,i){ s.dataset.filled='1'; s.dataset.part=q.parts[i]; s.textContent=q.parts[i]; s.classList.add('right'); });
+  showFeedback('err','❌ 答案：'+q.char+' = '+q.parts.join(' + ')+(q.mn?('（'+q.mn+'）'):''));
+  G.current._ok=false; G.wrong++;
+  $('hintBtn').style.display='none';
+  $('nextBtn').style.display='block';
+  if(G.idx>=G.questions.length-1) $('nextBtn').textContent='查看结果 →';
+}
+function comboText(n){ if(n>=8) return '🔥🔥🔥 八连击！无敌！'; if(n>=5) return '🔥🔥 五连击！超神！'; if(n>=3) return '🔥 三连击！很棒！'; return ''; }
+function updateScore(){ $('score').textContent=G.score; }
+function showFeedback(cls, msg){ var f=$('feedback'); f.className='feedback '+cls; f.textContent=msg; }
+function flash(color){ var f=document.createElement('div'); f.className='flash '+color; document.body.appendChild(f); setTimeout(function(){ f.remove(); },400); }
+function useHint(){
+  if(G.hintUsed) return;
+  var q=G.current;
+  // fill first empty correct slot
+  var slots=[].slice.call(document.querySelectorAll('.slot'));
+  for(var i=0;i<slots.length;i++){
+    if(!slots[i].dataset.filled){
+      // find a pool card with the correct part
+      var cards=[].slice.call(document.querySelectorAll('.part'));
+      var card=null;
+      cards.forEach(function(c){ if(!card && c.textContent===q.parts[i] && !c.classList.contains('used')) card=c; });
+      if(card){ fillSlot(slots[i], q.parts[i], card, 'pool'); }
+      break;
+    }
+  }
+  G.hintUsed=true; G.score-=20; updateScore();
+  $('hintBtn').disabled=true;
+  showFeedback('warn','💡 已填入一个部件 -20 分');
+}
+function nextQuestion(){
+  G.idx++;
+  if(G.idx>=G.questions.length){ showResult(); return; }
+  $('progBar').style.width=((G.idx)/G.questions.length*100)+'%';
+  renderQuestion();
+}
+
+//==================== result ====================//
+function showResult(){
+  clearTimer();
+  var total=G.questions.length;
+  var rate=total? Math.round(G.correct/total*100):0;
+  var grade='C'; var emoji='💪'; var title='加油练习';
+  if(rate>=90){ grade='S'; emoji='🏆'; title='太棒了！'; }
+  else if(rate>=70){ grade='A'; emoji='🌟'; title='不错哦！'; }
+  else if(rate>=50){ grade='B'; emoji='😊'; title='继续进步'; }
+  $('rEmoji').textContent=emoji;
+  $('rTitle').textContent=title;
+  var badge=$('rBadge'); badge.className='badge '+grade; badge.textContent=grade+' 级 · '+(grade==='S'?'拼字大师':grade==='A'?'拼字达人':grade==='B'?'继续进步':'加油练习');
+  var ring=$('rRing'); ring.textContent=rate+'%'; ring.style.background='conic-gradient(var(--primary) '+rate+'%, #ebeef5 0)';
+  $('rStats').innerHTML='<div>答对<b>'+G.correct+'</b></div><div>答错<b>'+G.wrong+'</b></div><div>最长连对<b>'+G.maxCombo+'</b></div><div>总分<b>'+G.score+'</b></div>';
+  // review
+  var rev='';
+  G.questions.forEach(function(q,i){
+    var ok=q._ok;
+    var cls=ok?'':' wrong'; var mark=ok?'✅':'❌';
+    var extra='';
+    if(!ok) extra='<span class="review-extra">应：'+q.char+' = '+q.parts.join('+')+'</span>';
+    rev+='<div class="review-item'+cls+'"><span class="review-mark">'+mark+'</span><span class="review-char">'+q.char+'</span><span class="review-pinyin pinyin">'+pf(q.py)+'</span><span class="review-meaning">'+(q.mn||'')+'</span>'+extra+'</div>';
+  });
+  $('rReview').innerHTML=rev;
+  if(rate>=70) confetti();
+  // save best + cloud
+  saveBest(); saveScoreCloud();
+  show('result');
+}
+function exportReview(){
+  var total=G.questions.length, rate=total?Math.round(G.correct/total*100):0;
+  var d=new Date();
+  var rows=G.questions.map(function(q,i){ return '<tr><td>'+(i+1)+'</td><td style="font-size:22px">'+q.char+'</td><td>'+pf(q.py)+'</td><td>'+(q.mn||'')+'</td><td>'+q.parts.join(' + ')+'</td><td>'+(q._ok?'✅':'❌')+'</td></tr>'; }).join('');
+  var html='<html><head><meta charset="UTF-8"><title>汉字拼图复习单</title><style>body{font-family:sans-serif;padding:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:8px;text-align:center}.wrong{color:#f56c6c}</style></head><body><h2>汉字拼图复习单</h2><p>日期：'+d.toLocaleString()+'　难度：'+DIFF[G.difficulty].name+'</p><p>正确率：'+rate+'%　答对：'+G.correct+'　答错：'+G.wrong+'　总分：'+G.score+'</p><table><tr><th>序号</th><th>汉字</th><th>拼音</th><th>释义</th><th>正确拆分</th><th>作答</th></tr>'+rows+'</table><script>window.onload=function(){window.print();}<\/script></body></html>';
+  var w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+//==================== best score (local) ====================//
+function bestKey(d){ return 'hzpt_best_'+d; }
+function updateBest(){
+  var html='';
+  ['easy','normal','hard'].forEach(function(d){
+    var v=localStorage.getItem(bestKey(d))||0;
+    html+='<span>'+DIFF[d].name+'最高分：<b>'+v+'</b></span>';
+  });
+  $('bestBox').innerHTML=html;
+}
+function saveBest(){
+  var k=bestKey(G.difficulty); var prev=parseInt(localStorage.getItem(k)||'0',10);
+  if(G.score>prev) localStorage.setItem(k, G.score);
+}
+
+//==================== teacher custom ====================//
+function onTeacherInput(){
+  var v=($('teacherInput').value||'').replace(/\s/g,'').slice(0,50);
+  var prev=$('teacherPreview'); prev.innerHTML='';
+  var valid=0;
+  for(var i=0;i<v.length;i++){
+    var ch=v[i]; var d=CHAIZI[ch];
+    if(d){ valid++; var t=document.createElement('div'); t.className='pv'; t.innerHTML=ch+' → <b>'+d.p.join('+')+'</b> <span>'+ (d.s==='tb'?'上下':'左右') +'</span>'; prev.appendChild(t); }
+    else { var w=document.createElement('div'); w.className='pv warn'; w.textContent=ch+' ⚠ 暂无拆解'; prev.appendChild(w); }
+  }
+  $('genBtn').disabled = valid===0;
+}
+function saveLibrary(){
+  var v=($('teacherInput').value||'').replace(/\s/g,'').slice(0,50);
+  var chars=[]; for(var i=0;i<v.length;i++){ if(CHAIZI[v[i]]) chars.push(v[i]); }
+  if(chars.length===0){ showToast('没有可拆解的汉字'); return; }
+  var name=($('libName').value||'').trim();
+  if(!name) name='词库 '+new Date().toLocaleDateString();
+  var libs=JSON.parse(localStorage.getItem(LIB_KEY)||'[]');
+  libs.push({ id:Date.now(), name:name, chars:chars, date:new Date().toISOString(), count:chars.length });
+  localStorage.setItem(LIB_KEY, JSON.stringify(libs));
+  showToast('词库已保存：'+name);
+  $('teacherInput').value=''; $('libName').value=''; $('teacherPreview').innerHTML='';
+}
+function generateFromInput(){
+  var v=($('teacherInput').value||'').replace(/\s/g,'').slice(0,50);
+  var chars=[]; for(var i=0;i<v.length;i++){ if(CHAIZI[v[i]]) chars.push(v[i]); }
+  if(chars.length===0){ showToast('没有可拆解的汉字'); return; }
+  if(!getNick()){ openNameGate(generateFromInput); return; }
+  G.mode='custom'; G.questions=buildQuestions(chars);
+  G.idx=0; G.score=0; G.combo=0; G.maxCombo=0; G.correct=0; G.wrong=0;
+  show('game'); renderQuestion();
+}
+
+//==================== custom library ====================//
+function renderLibraries(){
+  var libs=JSON.parse(localStorage.getItem(LIB_KEY)||'[]');
+  var box=$('libList'); box.innerHTML='';
+  $('libPractice').style.display='none';
+  if(libs.length===0){ box.innerHTML='<div class="lb-empty">还没有保存的词库，去「老师自定义题库」创建并保存词库吧</div>'; return; }
+  libs.forEach(function(l){
+    var item=document.createElement('div'); item.className='lib-item';
+    item.innerHTML='<button class="del" onclick="deleteLib('+l.id+',event)">删除</button><div class="ln">'+l.name+'</div><div class="lm">'+new Date(l.date).toLocaleString()+'</div><div class="lc">'+l.chars.join(' ')+'　可练习 '+l.count+' 字</div>';
+    item.addEventListener('click', function(e){ if(e.target.classList.contains('del')) return; openLib(l); });
+    box.appendChild(item);
+  });
+}
+function deleteLib(id,e){
+  e.stopPropagation();
+  var libs=JSON.parse(localStorage.getItem(LIB_KEY)||'[]').filter(function(l){ return l.id!==id; });
+  localStorage.setItem(LIB_KEY, JSON.stringify(libs));
+  renderLibraries(); showToast('已删除词库');
+}
+function openLib(l){
+  window._libSel=l.chars.slice();
+  var grid=$('libCharGrid'); grid.innerHTML='';
+  l.chars.forEach(function(ch,i){
+    var py=PINYIN[ch]||'';
+    var lab=document.createElement('label'); lab.className='char-check checked';
+    lab.innerHTML='<input type="checkbox" checked onchange="onLibCheck(this)"><span class="review-char">'+ch+'</span><span class="review-pinyin pinyin">'+pf(py)+'</span>';
+    grid.appendChild(lab);
+  });
+  $('libCount').value=l.chars.length; $('libCount').max=l.chars.length;
+  $('libList').style.display='none'; $('libPractice').style.display='block';
+}
+function onLibCheck(cb){ /* selection tracked via DOM */ }
+function selectAllLib(v){
+  document.querySelectorAll('#libCharGrid input').forEach(function(c){ c.checked=v; });
+}
+function collectLibSel(){
+  var sel=[]; document.querySelectorAll('#libCharGrid .char-check').forEach(function(lab){
+    var cb=lab.querySelector('input'); if(cb.checked) sel.push(lab.querySelector('.review-char').textContent);
+  }); return sel;
+}
+
+//==================== confetti ====================//
+function confetti(){
+  try{
+    var colors=['#409EFF','#67c23a','#e6a23c','#f56c6c','#9254de'];
+    for(var i=0;i<28;i++){
+      var c=document.createElement('div');
+      c.style.cssText='position:fixed;z-index:1600;width:8px;height:12px;background:'+colors[i%colors.length]+';left:'+(Math.random()*100)+'vw;top:-20px;opacity:.9;pointer-events:none;border-radius:2px';
+      document.body.appendChild(c);
+      var dv=(Math.random()*40+40); var dx=(Math.random()*200-100);
+      c.animate([{transform:'translate(0,0) rotate(0)'},{transform:'translate('+dx+'px,'+dv+'vh) rotate('+(Math.random()*720)+'deg)'}],{duration:1400+Math.random()*600,easing:'ease-in'}).onfinish=function(){ c.remove(); };
+    }
+  }catch(e){}
+}
+
+//==================== navigation ====================//
+function goBack(){
+  clearTimer();
+  var back=location.origin+'/works.html';
+  try{ if(window.top&&window.top!==window) window.top.location.href=back; else window.location.href=back; }
+  catch(e){ window.location.href=back; }
+}
+function goWorks(){ goBack(); }
+
+//==================== cloud layer ====================//
+var ENV_ID=window.ENV_ID || '__ENV_ID__';
+var ACCESS_KEY=window.ACCESS_KEY || '__ACCESS_KEY__';
+window.GAME_TYPE='hanzi_pintu';
+var _tcb=null,_db=null,_cloudReady=false;
+function initCloud(){
+  var tries=0;
+  var iv=setInterval(function(){
+    tries++;
+    if(typeof window.cloudbase==='undefined'){ if(tries>40){ clearInterval(iv); _cloudFail('sdk'); } return; }
+    clearInterval(iv);
+    try{
+      var app=window.cloudbase.init({ env:ENV_ID, accessKey:ACCESS_KEY });
+      app.auth().signInAnonymously().then(function(){
+        _tcb=app; _db=app.database(); _cloudReady=true;
+        $('lbStatus').textContent='已连接';
+        refreshLeaderboard();
+        setInterval(refreshLeaderboard,8000);
+        _connectWatch();
+      }).catch(function(e){ _cloudFail(e); });
+    }catch(e){ _cloudFail(e); }
+  },150);
+}
+function _connectWatch(){
+  if(!_db) return;
+  try{
+    _db.collection('scores').where({ game_type:window.GAME_TYPE }).watch({
+      onChange:function(){ refreshLeaderboard(); }
+    });
+  }catch(e){}
+}
+function _cloudFail(e){ _cloudReady=false; $('lbStatus').textContent='离线（仅本地）'; }
+function saveScoreCloud(){
+  if(!_cloudReady||!_db) return;
+  try{
+    _db.collection('scores').add({
+      game_type:window.GAME_TYPE,
+      player:getNick()||'匿名学员',
+      mode:G.mode,
+      score:G.score,
+      correct:G.correct,
+      wrong:G.wrong,
+      total:G.questions.length,
+      difficulty:G.difficulty,
+      created_at:new Date().toISOString()
+    }).then(function(){ refreshLeaderboard(); }).catch(function(){});
+  }catch(e){}
+}
+function refreshLeaderboard(){
+  if(!_db) return;
+  _db.collection('scores').where({ game_type:window.GAME_TYPE })
+    .orderBy('score','desc').limit(20).get().then(function(res){
+      var rows=(res.data||[]).filter(function(r){ return r.mode!=='import'; });
+      renderLeaderboard(rows.slice(0,3));
+    }).catch(function(){});
+}
+function renderLeaderboard(rows){
+  var box=$('liveboard');
+  if(!rows||rows.length===0){ box.innerHTML='<div class="lb-empty">还没有成绩，快来抢第一！</div>'; return; }
+  var medals=['🥇','🥈','🥉'];
+  box.innerHTML=rows.map(function(r,i){
+    return '<div class="lb-row"><span class="medal">'+(medals[i]||'')+'</span><span class="nm">'+escapeHtml(r.player||'学员')+'</span><span class="sc">'+r.score+'</span></div>';
+  }).join('');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+//==================== init ====================//
+initCloud();
+updateBest();
+</script>
+<script>
+function gtbUrl(){var p=location.pathname;if(p.indexOf('/jialu-portfolio/')!==-1)return '../../works.html';if(p.indexOf('/games/')!==-1)return '../works.html';return 'works.html';}
+function gtbBack(){var u=gtbUrl();try{if(window.top&&window.top!==window)window.top.location.href=u;else location.href=u;}catch(e){location.href=u;}}
+function gtbEnd(){if(confirm('确定重新开始本游戏吗？')){var t=(window.top&&window.top!==window)?window.top:window;t.location.reload();}}
+</script>
+</body>
+</html>

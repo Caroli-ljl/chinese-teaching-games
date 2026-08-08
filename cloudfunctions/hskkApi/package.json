@@ -1,0 +1,9 @@
+{
+  "name": "hskkApi",
+  "version": "1.0.0",
+  "description": "HSKK 易错发音档案 · 实时读取飞书多维表格并匿名化展示",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "sentenceArchiveApi",
+  "version": "1.0.0",
+  "description": "学生语法错误档案 · 代理两个 Coze 工作流（图片生成 / 句子批改）+ 云端图片存档",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest",
+    "jimp": "0.22.12"
+  }
+}
